@@ -1,0 +1,14 @@
+{
+    "applications": {
+        "TuanGouBao": {
+            "applicationId": "eYJZf0smVo3qebzNpQsj90vOmJuSV8u0i2HdnDfw", 
+            "masterKey": "ySm60w9R1by0m5CkZ9GDmd6U4ByQfIhiRO7B2e1s"
+        }, 
+        "_default": {
+            "link": "TuanGouBao"
+        }
+    }, 
+    "global": {
+        "parseVersion": "1.3.2"
+    }
+}

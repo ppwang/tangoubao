@@ -1,0 +1,78 @@
+<!DOCTYPE HTML>
+<html>
+<HEAD>
+<meta charset="utf-8">
+<TITLE>菜单添加/修改</TITLE>
+</HEAD>
+<body>
+
+    <!--页面名称-->
+	<h2>菜单添加/修改</h2>
+    <h3>如果填写了子菜单则主菜单的关键字无效</h3>
+	<h4>子菜单的类型判断：1为view，0为click</h4>
+     <!--表单开始-->
+    <form action="?" method="post" name="menu_add" id="menu_add" >
+        <div id="menu">
+                <p>
+                    <span style="color:#fff;font-weight:bold;font-size:14px;">主菜单一名称：</span>
+					<input type="text" value="<?php echo $menu_ary["main_menu_1_name"];?>" name="main_menu_1_name">
+                </p>
+                <p>
+                    <span style="color:#fff;font-weight:bold;font-size:14px;">主菜单一关键字：</span>
+					<input type="text" value="<?php echo $menu_ary["main_menu_1_key"];?>" name="main_menu_1_key">
+                </p>
+                <p>
+                    <span style="color:#fff;font-weight:bold;font-size:14px;">主菜单一连接：</span>
+					<input type="text" value="<?php echo $menu_ary["main_menu_1_url"];?>" name="main_menu_1_url">
+                </p>
+                <p>
+                    <span style="color:#fff;font-weight:bold;font-size:14px;">子菜单一：</span>
+					<textarea name="sub_menu_1" cols=30 style="height:100px;"><?php echo $menu_ary["sub_menu_1"];?></textarea>
+                     <br><strong style="color:#fff;">格式：菜单名,关键字,类型判断，例如：每日一歌,v,0，多个子菜单换行即可，最多5个子菜单</strong>
+               </p>
+            
+                <p>
+                    <span style="color:#fff;font-weight:bold;font-size:14px;">主菜单二名称：</span>
+					<input type="text" value="<?php echo $menu_ary["main_menu_2_name"];?>" name="main_menu_2_name">
+                </p>
+                <p>
+                    <span style="color:#fff;font-weight:bold;font-size:14px;">主菜单二关键字：</span>
+					<input type="text" value="<?php echo $menu_ary["main_menu_2_key"];?>" name="main_menu_2_key">
+                </p>
+                 <p>
+                    <span style="color:#fff;font-weight:bold;font-size:14px;">主菜单二连接：</span>
+					<input type="text" value="<?php echo $menu_ary["main_menu_2_url"];?>" name="main_menu_2_url">
+                </p>
+               <p>
+                    <span style="color:#fff;font-weight:bold;font-size:14px;">子菜单二：</span>
+					<textarea name="sub_menu_2" cols=30  style="height:100px;">><?php echo $menu_ary["sub_menu_2"];?></textarea>
+                    <br><strong style="color:#fff;">格式：菜单名,关键字,类型判断，例如：每日一歌,v,0，多个子菜单换行即可，最多5个子菜单</strong>
+                </p>
+
+                <p>
+                    <span style="color:#fff;font-weight:bold;font-size:14px;">主菜单三名称：</span>
+					<input type="text" value="<?php echo $menu_ary["main_menu_3_name"];?>" name="main_menu_3_name">
+                </p>
+                <p>
+                    <span style="color:#fff;font-weight:bold;font-size:14px;">主菜单三关键字：</span>
+					<input type="text" value="<?php echo $menu_ary["main_menu_3_key"];?>" name="main_menu_3_key">
+                </p>
+                <p>
+                    <span style="color:#fff;font-weight:bold;font-size:14px;">主菜单三连接：</span>
+					<input type="text" value="<?php echo $menu_ary["main_menu_3_url"];?>" name="main_menu_3_url">
+                </p>
+                <p>
+                    <span style="color:#fff;font-weight:bold;font-size:14px;">子菜单三：</span>
+					<textarea name="sub_menu_3" cols=30  style="height:100px;">><?php echo $menu_ary["sub_menu_3"];?></textarea>
+                    <br><strong style="color:#fff;">格式：菜单名,关键字,类型判断，例如：每日一歌,v,0，多个子菜单换行即可，最多5个子菜单</strong>
+                </p>
+
+                <p>
+                    <input type="hidden" name="action"  value="update">
+                    <input type="submit" value="生成菜单" />
+                </p>
+           	
+            
+        </div>
+    </form>
+
