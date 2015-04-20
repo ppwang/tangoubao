@@ -27,8 +27,13 @@ app.use(function (req, res, next) {
 
 // wechat services:
 app.get('/wechat', wechatServices.requestValidate);
+
+// This is the entry point for web messages
 app.post('/wechat', wechatServices.reply);
+
 app.get('/newuser', userServices.newUser);
+
+// Custom menus
 app.get('/wechat/create_menus', wechatServices.createMenus);
 
 // Attach the Express app to Cloud Code.

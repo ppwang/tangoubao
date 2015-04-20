@@ -1,79 +1,11 @@
 var wcMsgFormats = require('cloud/wechat/wechat_message_formats');
-var sprintf = require("cloud/lib/sprintf").sprintf,
-    vsprintf = require("cloud/lib/sprintf").vsprintf;
+var sprintf = require('cloud/lib/sprintf').sprintf,
+    vsprintf = require('cloud/lib/sprintf').vsprintf;
+var constants = require('cloud/wechat/constants');
 var WechatUser = Parse.Object.extend('WechatUser');
-
-var createInvitationCard = function (userId) {
-    var message = '欢迎加入团购宝！ 请按以下链接绑定团购宝账户。'
-        + '<a href="http://tuangoubao.parseapp.com/newuser?wechatid='
-        + userId 
-        + '">绑定团购宝</a>';
-    console.log(message);
-    return message;
-}
-
-var AppId = 'wx9c7c39cc1974737f';
-var AppSecret = 'c94f424e801ef527a0a0f9b9f7e535f7';
 
 var WechatAccessToken = Parse.Object.extend('WechatAccessToken');
 
-var subscribeUser = function (userId, appId, createTime, res) {
-    var query = new Parse.Query(WechatUser);
-    query.first({
-        success: function(result) {
-            if (result != null) {
-                result.set('status', 'active');
-                result.save(null, {
-                    success: function(user) {
-                        console.log('Existing user rejoined');
-                    },
-                    error: function(user, error) {
-                        console.error(error.message);
-                    }
-                });
-            }
-            else {
-                var user = new WechatUser();
-                user.set('status', 'active');
-                user.set('wechatId', userId);
-                user.save();
-            }
-            //getAccessToken();
-            
-            var url = 'https://api.wechat.com/cgi-bin/user/info?access_token=' + '24X6ZwnsQRnfkxjp1JXdrsCU9CLf8zMxukAjtCwj1kptJKt0TDKr8vouUTYRwO4Kd2fi-j_WCLCpdsaSRlklez8yi0GviujbydfaD7chhUc' + '&openid=' + userId + '&lang=zh_CN';
-            console.log('url: ' + url);
-            // Try to get user info:
-            Parse.Cloud.httpRequest({
-              url: url,
-              success: function(httpResponse) {
-                console.log(httpResponse.text);
-                var message = createInvitationCard(userId);
-                res.contentType('application/xml');
-                var str = vsprintf(wcMsgFormats.basicReplyXmlFormat, [
-                        userId,
-                        appId,
-                        createTime+1,
-                        'text',
-                        message
-                    ]);
-                console.log(str);
-                res.send(str);
-              },
-              error: function(httpResponse) {
-                console.error('Request failed with response code ' + httpResponse.status);
-              }
-            });
-            
-            
-        },
-
-        error: function(error) {
-            console.log('error');
-            console.log(error.message);
-            res.error();
-        }
-    });
-};
 
 var unsubscribeUser = function (userId, appId, createTime, res) {
     console.log('remove user');
@@ -170,4 +102,12 @@ module.exports.eventMsgHandler = function (req, res) {
         default:
             break;
     }
+}
+
+var createInvitationCard = function (userId) {
+    var message = '欢迎加入团购宝！ 请按以下链接绑定团购宝账户。'
+        + '<a href="' + constants.ServiceBaseUrl + '/newuser?wechatid='
+        + userId 
+        + '">绑定团购宝</a>';
+    return message;
 }
