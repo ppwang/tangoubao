@@ -5,6 +5,7 @@ var sprintf = require('cloud/lib/sprintf').sprintf,
 
 module.exports.subscribe = function (userId, appId, createTime, res) {
     var query = new Parse.Query(constants.WechatUser);
+    query.equalTo("wechatId", "userId");
     query.first({
         success: function(result) {
             if (result != null) {
