@@ -1,6 +1,8 @@
-var unsubscribeUser = function (userId, appId, createTime, res) {
+var constants = require('cloud/wechat/constants');
+
+module.exports.unsubscribe = function (userId, appId, createTime, res) {
     console.log('remove user');
-    var query = new Parse.Query(WechatUser);
+    var query = new Parse.Query(constants.WechatUser);
     query.equalTo('wechatId', userId);
     query.first({
         success: function(result) {
@@ -18,7 +20,7 @@ var unsubscribeUser = function (userId, appId, createTime, res) {
             }
             else {
                 console.log('Unexpected in querying existing user' + error.message);
-                var user = new WechatUser();
+                var user = new constants.WechatUser();
                 user.set('wechatId', userId);
                 user.set('status', 'inactive');
                 user.save(null, {
@@ -30,7 +32,7 @@ var unsubscribeUser = function (userId, appId, createTime, res) {
                     }
                 });
             }
-            res.success();
+            res.end();
         },
 
         error: function(error) {  
@@ -38,3 +40,7 @@ var unsubscribeUser = function (userId, appId, createTime, res) {
         }
     });
 }
+
+var unsubscribeMsg = function (userId) {
+    return userId;
+};

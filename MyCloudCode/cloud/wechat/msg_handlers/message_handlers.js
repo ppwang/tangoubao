@@ -1,64 +1,11 @@
-var wcMsgFormats = require('cloud/wechat/wechat_message_formats');
+var wcMsgFormats = require('cloud/wechat/msg_handlers/wechat_message_formats');
 var sprintf = require('cloud/lib/sprintf').sprintf,
     vsprintf = require('cloud/lib/sprintf').vsprintf;
 var constants = require('cloud/wechat/constants');
-var WechatUser = Parse.Object.extend('WechatUser');
+var subscribeUser = require('cloud/wechat/msg_handlers/subscribe_user');
+var unsubscribeUser = require('cloud/wechat/msg_handlers/unsubscribe_user');
 
 var WechatAccessToken = Parse.Object.extend('WechatAccessToken');
-
-
-var unsubscribeUser = function (userId, appId, createTime, res) {
-    console.log('remove user');
-    var query = new Parse.Query(WechatUser);
-    query.equalTo('wechatId', userId);
-    query.first({
-        success: function(result) {
-            console.log('success');
-            if (result != null) {
-                result.set('status', 'inactive');
-                result.save(null, {
-                    success: function(user) {
-                        console.log('Existing user left');
-                    },
-                    error: function(user, error) {
-                        console.error(error.message);
-                    }
-                });
-            }
-            else {
-                console.log('Unexpected in querying existing user' + error.message);
-                var user = new WechatUser();
-                user.set('wechatId', userId);
-                user.set('status', 'inactive');
-                user.save(null, {
-                    success: function(user) {
-                        console.log('Create an inactive user');
-                    },
-                    error: function(user, error) {
-                        console.error(error.message);
-                    }
-                });
-            }
-            res.success();
-        },
-
-        error: function(error) {  
-            res.error();
-        }
-    });
-}
-
-var subscribeMsg = function (userId) {
-    console.log('subscribe');
-    console.log('fromuser: '+ userId);
-    
-    var msg = 'Welcome user: ' + userId;
-    return msg;
-};
-
-var unsubscribeMsg = function (userId) {
-    return userId;
-};
 
 module.exports.textMsgHandler = function (req, res) {
     var toUser = req.body.xml.tousername[0];
@@ -92,22 +39,12 @@ module.exports.eventMsgHandler = function (req, res) {
     switch (event.trim())
     {
         case 'subscribe':
-            subscribeUser(fromUser, toUser, createTime, res);
-            content = 'Welcome user: ' + fromUser;
+            subscribeUser.subscribe(fromUser, toUser, createTime, res);
             break;
         case 'unsubscribe':
-            unsubscribeUser(fromUser, toUser, createTime, res);
-            content = unsubscribeMsg(fromUser);
+            unsubscribeUser.unsubscribe(fromUser, toUser, createTime, res);
             break;
         default:
             break;
     }
-}
-
-var createInvitationCard = function (userId) {
-    var message = '欢迎加入团购宝！ 请按以下链接绑定团购宝账户。'
-        + '<a href="' + constants.ServiceBaseUrl + '/newuser?wechatid='
-        + userId 
-        + '">绑定团购宝</a>';
-    return message;
 }
