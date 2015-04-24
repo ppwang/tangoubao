@@ -1,9 +1,10 @@
 var constants = require('cloud/wechat/constants');
 
 module.exports.unsubscribe = function (userId, appId, createTime, res) {
-    console.log('remove user');
+    console.log('remove user ' + userId);
     var query = new Parse.Query(constants.WechatUser);
     query.equalTo('wechatId', userId);
+    query.equalTo('status', 'active');
     query.first({
         success: function(result) {
             console.log('success');
