@@ -1,0 +1,11 @@
+Please update this file when .gitignore is updated. You will need to manually create these files for parse deployment to work:
+
+- MyCloudCode/config/global.json
+Copy this file from the same folder created when parse creates the workspace
+
+- MyCloudCode/public/config.js
+Create a file with the below content:
+
+var module = angular.module('GlobalConfiguration', []);
+module.constant('applicationId', '<Parse application id>');
+module.constant('javaScriptKey', '<Parse javascript key>');
