@@ -4,7 +4,7 @@ var sprintf = require('cloud/lib/sprintf').sprintf,
 var subscribeUser = require('cloud/wechat/msg_handlers/subscribe_user');
 var unsubscribeUser = require('cloud/wechat/msg_handlers/unsubscribe_user');
 
-var WechatAccessToken = Parse.Object.extend('WechatAccessToken');
+var wechatAccessToken = Parse.Object.extend('WechatAccessToken');
 
 module.exports.textMsgHandler = function (req, res) {
     var toUser = req.body.xml.tousername[0];

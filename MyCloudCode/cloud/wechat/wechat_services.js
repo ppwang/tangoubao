@@ -1,3 +1,5 @@
+var wechatSetting = require('cloud/app.config.js').settings.wechat;
+
 var sha1 = require('cloud/lib/sha1');
 var wcMsgHandlers = require('cloud/wechat/msg_handlers/message_handlers');
 var utils = require('cloud/lib/utils');
@@ -6,9 +8,9 @@ var createMenus = require('cloud/wechat/create_menus');
 var authenticate = function (req) {
     var timestamp = req.query.timestamp;
     var nonce = req.query.nonce;
-    var signatureArray = new Array(constants.WeChatAppToken, timestamp, nonce);
+    var signatureArray = new Array(wechatSetting.wechatAppToken, timestamp, nonce);
     signatureArray = signatureArray.sort();
-    var signature = signatureArray.join('');   
+    var signature = signatureArray.join('');
 	signature = sha1.Sha1Hash(signature);
 	
 	if( signature == req.query.signature ){

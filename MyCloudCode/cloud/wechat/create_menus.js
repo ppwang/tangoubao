@@ -1,4 +1,4 @@
-var wechatSetting = require('cloud/app.config.js').wechat;
+var wechatSetting = require('cloud/app.config.js').settings.wechat;
 
 var WechatAccessToken = Parse.Object.extend('WechatAccessToken');
 
@@ -40,7 +40,7 @@ var fetchFreshToken = function () {
     var options = {
         host: url,
         port: 80,
-        path: '/cgi-bin/token?grant_type=client_credential&appid=' + wechatSetting.WeChatAppId + '&secret=' + Constants.WeChatAppSecret,
+        path: '/cgi-bin/token?grant_type=client_credential&appid=' + wechatSetting.wechatAppId + '&secret=' + Constants.wechatAppSecret,
         method: 'GET'
     };
     

@@ -1,11 +1,12 @@
-var wechatSetting = require('cloud/app.config.js').wechat;
+var serviceSetting = require('cloud/app.config.js').settings.webservice;
+var wechatUser = Parse.Object.extend('WechatUser');
 
 var wcMsgFormats = require('cloud/wechat/msg_handlers/wechat_message_formats');
 var sprintf = require('cloud/lib/sprintf').sprintf,
     vsprintf = require('cloud/lib/sprintf').vsprintf;
 
 module.exports.subscribe = function (userId, appId, createTime, res) {
-    var query = new Parse.Query(wechatSetting.WechatUser);
+    var query = new Parse.Query(wechatUser);
     query.equalTo('wechatId', userId);
     query.first({
         success: function(result) {
@@ -21,7 +22,7 @@ module.exports.subscribe = function (userId, appId, createTime, res) {
                 });
             }
             else {
-                var user = new wechatSetting.WechatUser();
+                var user = new wechatUser();
                 user.set('status', 'active');
                 user.set('wechatId', userId);
                 user.save();
@@ -59,7 +60,7 @@ var subscribeMsg = function (userId) {
 
 var createInvitationCard = function (userId) {
     var message = '欢迎加入团购宝！ 请按以下链接绑定团购宝账户。'
-        + '<a href="' + wechatSetting.ServiceBaseUrl + '/newuser?wechatid='
+        + '<a href="' + serviceSetting.baseUrl + '/newuser?wechatid='
         + userId 
         + '">绑定团购宝</a>';
     return message;
