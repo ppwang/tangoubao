@@ -1,8 +1,8 @@
-var constants = require('cloud/wechat/constants');
+var wechatSetting = require('cloud/app.config.js').wechat;
 
 module.exports.unsubscribe = function (userId, appId, createTime, res) {
     console.log('remove user ' + userId);
-    var query = new Parse.Query(constants.WechatUser);
+    var query = new Parse.Query(wechatSetting.WechatUser);
     query.equalTo('wechatId', userId);
     query.equalTo('status', 'active');
     query.first({
@@ -21,7 +21,7 @@ module.exports.unsubscribe = function (userId, appId, createTime, res) {
             }
             else {
                 console.log('Unexpected in querying existing user' + error.message);
-                var user = new constants.WechatUser();
+                var user = new wechatSetting.WechatUser();
                 user.set('wechatId', userId);
                 user.set('status', 'inactive');
                 user.save(null, {

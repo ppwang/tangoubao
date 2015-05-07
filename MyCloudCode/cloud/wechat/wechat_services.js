@@ -2,7 +2,6 @@ var sha1 = require('cloud/lib/sha1');
 var wcMsgHandlers = require('cloud/wechat/msg_handlers/message_handlers');
 var utils = require('cloud/lib/utils');
 var createMenus = require('cloud/wechat/create_menus');
-var constants = require('cloud/wechat/constants');
 
 var authenticate = function (req) {
     var timestamp = req.query.timestamp;

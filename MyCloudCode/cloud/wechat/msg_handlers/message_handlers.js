@@ -1,7 +1,6 @@
 var wcMsgFormats = require('cloud/wechat/msg_handlers/wechat_message_formats');
 var sprintf = require('cloud/lib/sprintf').sprintf,
     vsprintf = require('cloud/lib/sprintf').vsprintf;
-var constants = require('cloud/wechat/constants');
 var subscribeUser = require('cloud/wechat/msg_handlers/subscribe_user');
 var unsubscribeUser = require('cloud/wechat/msg_handlers/unsubscribe_user');
 

@@ -1,8 +1,9 @@
 // These two lines are required to initialize Express in Cloud Code.
 var express = require('express');
 var app = express();
-var parseApplicationId = 'eYJZf0smVo3qebzNpQsj90vOmJuSV8u0i2HdnDfw';
-var parseJavascriptKey = 'bCbz40aJB88n4GUNnvQIUBPOawNcmtu5eviWqpYP';
+var appSettings = require('cloud/app.config.js').settings;
+var parseApplicationId = appSettings.applicationId;
+var parseJavascriptKey = appSettings.javascriptKey;
 Parse.initialize(parseApplicationId, parseJavascriptKey);
 
 var wechatServices = require('cloud/wechat/wechat_services');
