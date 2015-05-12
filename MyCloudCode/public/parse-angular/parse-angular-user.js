@@ -9,11 +9,17 @@ module.factory('ParseUser', ['$q', function($q) {
             return Parse.User.current();
         },
         
-        signUp: function(username, password, email) {
+        signUp: function(username, password, email, attr) {
             var user = new Parse.User();
             user.set("username", username);
             user.set("password", password);
             user.set("email", email);
+            
+            if (attr) {
+                for (var index in attr) {
+                    user.set(index, attr[index]);
+                }
+            }
 
             var defer = $q.defer();
             user.signUp(
