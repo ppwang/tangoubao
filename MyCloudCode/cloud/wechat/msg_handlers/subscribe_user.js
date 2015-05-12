@@ -27,7 +27,6 @@ module.exports.subscribe = function (userId, appId, createTime, res) {
                 user.set('wechatId', userId);
                 user.save();
             }
-            //getAccessToken();
             
             var message = createInvitationCard(userId);
             res.contentType('application/xml');
@@ -60,7 +59,8 @@ var subscribeMsg = function (userId) {
 
 var createInvitationCard = function (userId) {
     var message = '欢迎加入团购宝！ 请按以下链接绑定团购宝账户。'
-        + '<a href="' + serviceSetting.baseUrl + '/newuser?wechatid='
+//        + '<a href="' + serviceSetting.baseUrl + '/newuser?wechatid='
+        + '<a href="' + serviceSetting.baseUrl + '/index.html?wechatId='
         + userId 
         + '">绑定团购宝</a>';
     return message;
