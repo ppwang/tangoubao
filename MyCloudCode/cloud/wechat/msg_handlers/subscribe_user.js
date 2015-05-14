@@ -17,11 +17,11 @@ module.exports = function (wechatId, publicAccountId, createTime, res) {
     .then( function(accessToken) {
         return wechatUserInfo.getUserInfo(accessToken.token, wechatId);
     })
-    .then( function(wechatUserData) {
-        return tgbWechatUser.activate(wechatId, wechatUserData);
+    .then( function(wechatUserRawData) {
+        return tgbWechatUser.activate(wechatId, wechatUserRawData);
     })
-    .then( function() {
-        sendWelcomeMessage(wechatId, publicAccountId, createTime, res);
+    .then( function(wechatUser) {
+        sendWelcomeMessage(wechatId, publicAccountId, createTime, wechatUser.nickname, res);
     })
     .fail( function(error) {
         console.error('subscribe user error: ' + error.message);
@@ -29,8 +29,8 @@ module.exports = function (wechatId, publicAccountId, createTime, res) {
     });
 };
 
-var sendWelcomeMessage = function(wechatId, publicAccountId, createTime, res) {
-    var message = createInvitationCard(wechatId);
+var sendWelcomeMessage = function(wechatId, publicAccountId, createTime, nickname, res) {
+    var message = createInvitationCard(wechatId, nickname);
     res.contentType('application/xml');
     var str = vsprintf(wcMsgFormats.basicReplyXmlFormat, [
             wechatId,
@@ -43,11 +43,12 @@ var sendWelcomeMessage = function(wechatId, publicAccountId, createTime, res) {
     res.send(str);
 };
 
-var createInvitationCard = function (userId) {
-    var message = '欢迎加入团购宝！ 请按以下链接绑定团购宝账户。'
+var createInvitationCard = function (wechatId, nickname) {
+    var message = nickname + '，'
+        + '欢迎加入团购宝！ 请按以下链接绑定团购宝账户。'
 //        + '<a href="' + serviceSetting.baseUrl + '/newuser?wechatid='
         + '<a href="' + serviceSetting.baseUrl + '/index.html?wechatId='
-        + userId 
+        + wechatId 
         + '">绑定团购宝</a>';
     return message;
 }

@@ -10,8 +10,16 @@ module.exports.getAccessToken = function() {
             accessToken = new WechatAccessToken();
             fetch = true;
         }
-        else if (accessToken.token == null || accessToken.expiry == null || accessToken.expiry < now) {
-            fetch = true;
+        else {
+            var token = accessToken.get('token');
+            var expiry = accessToken.get('expiry');
+            if (token == null || expiry == null || expiry < now) {
+                fetch = true;
+            }
+            else {
+                accessToken.token = token;
+                accessToken.expiry = expiry;
+            }
         }
         if (fetch) {
             return fetchFreshToken(accessToken, now);
@@ -35,6 +43,8 @@ var fetchFreshToken = function (accessToken, now) {
         accessToken.token = tokenResult.access_token;
         accessToken.expiry = now;
         accessToken.expiry.setSeconds(now.getSeconds() + tokenResult.expires_in);
+        accessToken.set('token', accessToken.token);
+        accessToken.set('expiry', accessToken.expiry);
         return accessToken.save();
     });
 }
