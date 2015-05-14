@@ -38,10 +38,10 @@ module.exports.eventMsgHandler = function (req, res) {
     switch (event.trim())
     {
         case 'subscribe':
-            subscribeUser.subscribe(fromUser, toUser, createTime, res);
+            subscribeUser(fromUser, toUser, createTime, res);
             break;
         case 'unsubscribe':
-            unsubscribeUser.unsubscribe(fromUser, toUser, createTime, res);
+            unsubscribeUser(fromUser, toUser, createTime, res);
             break;
         default:
             break;
