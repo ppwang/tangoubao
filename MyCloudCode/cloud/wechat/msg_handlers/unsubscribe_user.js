@@ -5,7 +5,7 @@ module.exports = function (wechatId, publicAccountId, createTime, res) {
     tgbWechatUser.deactivate(wechatId)
     .then()
     .fail( function(error) {
-        console.error('error: ' + error.message);
+        console.error('unsubscribe error: ' + error.message);
         res.error();
     });
 }

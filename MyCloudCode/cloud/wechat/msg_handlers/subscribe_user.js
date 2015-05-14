@@ -8,15 +8,23 @@ var sprintf = require('cloud/lib/sprintf').sprintf,
     vsprintf = require('cloud/lib/sprintf').vsprintf;
 
 var tgbWechatUser = require('cloud/tuangoubao/wechat_user');
+var wechatAccessToken = require('cloud/wechat/utils/wechat_access_token');
+var wechatUserInfo = require('cloud/wechat/utils/wechat_user_info');
 
 module.exports = function (wechatId, publicAccountId, createTime, res) {
     console.log('subscribe: ' + wechatId);
-    tgbWechatUser.activate(wechatId)
+    wechatAccessToken.getAccessToken()
+    .then( function(accessToken) {
+        return wechatUserInfo.getUserInfo(accessToken.token, wechatId);
+    })
+    .then( function(wechatUserData) {
+        return tgbWechatUser.activate(wechatId, wechatUserData);
+    })
     .then( function() {
         sendWelcomeMessage(wechatId, publicAccountId, createTime, res);
     })
     .fail( function(error) {
-        console.error('error: ' + error.message);
+        console.error('subscribe user error: ' + error.message);
         res.error();
     });
 };

@@ -1,4 +1,3 @@
-var http = require('http');
 var url = require('url');
 
 module.exports.getAppUrl = function (req, user) {
