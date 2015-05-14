@@ -63,32 +63,32 @@ var initWechatUser = function(wechatUser, wechatId, wechatUserRawData) {
     wechatUser.set('wechatId', wechatId);
     wechatUser.set('data', wechatUserRawData); // raw data field
     var wechatUserData = JSON.parse(wechatUserRawData);
-    if (wechatUserData.nickname) {
+    if (wechatUserData.nickname !== undefined) {
         wechatUser.set('nickname', wechatUserData.nickname);
         wechatUser.nickname = wechatUserData.nickname;
     }
-    if (wechatUserData.sex) {
+    if (wechatUserData.sex !== undefined) {
         wechatUser.set('sex', wechatUserData.sex); // 1 for male; 2 for female; 0 for unknown
     }
-    if (wechatUserData.city) {
+    if (wechatUserData.city !== undefined) {
         wechatUser.set('city', wechatUserData.city);
     }
-    if (wechatUserData.province) {
+    if (wechatUserData.province !== undefined) {
         wechatUser.set('province', wechatUserData.province);
     }
-    if (wechatUserData.country) {
+    if (wechatUserData.country !== undefined) {
         wechatUser.set('country', wechatUserData.country);
     }
-    if (wechatUserData.headimgurl) {
+    if (wechatUserData.headimgurl !== undefined) {
         wechatUser.set('headimgurl', wechatUserData.headimgurl);
     }
-    if (wechatUserData.subscribe_time) {
+    if (wechatUserData.subscribe_time !== undefined) {
         wechatUser.set('subscribe_time', wechatUserData.subscribe_time);
     }
-    if (wechatUserData.remark) {
+    if (wechatUserData.remark !== undefined) {
         wechatUser.set('remark', wechatUserData.remark);
     }
-    if (wechatUserData.groupid) {
-        wechatUser.set('groupid', wechatUserData.groupid);
+    if (wechatUserData.remark !== undefined) {
+       wechatUser.set('groupid', wechatUserData.groupid);
     }
 };
