@@ -3,8 +3,9 @@ var sprintf = require('cloud/lib/sprintf').sprintf,
     vsprintf = require('cloud/lib/sprintf').vsprintf;
 var subscribeUser = require('cloud/wechat/msg_handlers/subscribe_user');
 var unsubscribeUser = require('cloud/wechat/msg_handlers/unsubscribe_user');
-
-var wechatAccessToken = Parse.Object.extend('WechatAccessToken');
+var wechatAccessToken = require('cloud/wechat/utils/wechat_access_token');
+var wechatUserInfo = require('cloud/wechat/utils/wechat_user_info');
+var tgbWechatUser = require('cloud/tuangoubao/wechat_user');
 
 module.exports.textMsgHandler = function (req, res) {
     var toUser = req.body.xml.tousername[0];
@@ -23,7 +24,21 @@ module.exports.textMsgHandler = function (req, res) {
             content
         ]);
     console.log(str);
-    res.send(str);
+
+    wechatAccessToken.getAccessToken()
+    .then( function(accessToken) {
+        return wechatUserInfo.getUserInfo(accessToken.token, fromUser);
+    })
+    .then( function(wechatUserRawData) {
+        return tgbWechatUser.update(fromUser, wechatUserRawData);
+    })
+    .then( function() {
+        res.send(str);        
+    })
+    .fail( function(error) {
+        console.error('message handler error: ' + error.message);
+        res.error();
+    });
 }
 
 module.exports.eventMsgHandler = function (req, res) {

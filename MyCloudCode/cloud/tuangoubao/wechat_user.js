@@ -20,6 +20,25 @@ module.exports.activate = function(wechatId, wechatUserRawData) {
 	});
 };
 
+module.exports.update = function(wechatId, wechatUserRawData) {
+    var query = new Parse.Query(WechatUser);
+    query.equalTo('wechatId', wechatId);
+    return query.first().then( function(wechatUser) {
+        if (wechatUser == null) {
+            console.log('Update new wechat user.');
+            wechatUser = new WechatUser();
+            initWechatUser(wechatUser, wechatId, wechatUserRawData);
+        }
+        else {
+            console.log('Update existing wechat user.');
+            initWechatUser(wechatUser, wechatId, wechatUserRawData);
+        }
+
+        wechatUser.set('status', 'active');
+        return wechatUser.save();
+    });
+};
+
 module.exports.deactivate = function(wechatId) {
    	var query = new Parse.Query(WechatUser);
     query.equalTo('wechatId', wechatId);
