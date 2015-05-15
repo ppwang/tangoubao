@@ -6,24 +6,12 @@ var unsubscribeUser = require('cloud/wechat/msg_handlers/unsubscribe_user');
 var wechatAccessToken = require('cloud/wechat/utils/wechat_access_token');
 var wechatUserInfo = require('cloud/wechat/utils/wechat_user_info');
 var tgbWechatUser = require('cloud/tuangoubao/wechat_user');
+var messageUtils = require('cloud/wechat/msg_handlers/message_utils');
 
 module.exports.textMsgHandler = function (req, res) {
-    var toUser = req.body.xml.tousername[0];
-    var fromUser = req.body.xml.fromusername[0];
+    var toUser = req.body.xml.tousername[0]; // public account
+    var fromUser = req.body.xml.fromusername[0]; // subscriber
     var createTime = parseInt(req.body.xml.createtime[0]);
-    var reqMsg = req.body.xml.content;
-    
-    var content = 'You said: ' + reqMsg;        
-    // send response
-    res.contentType('application/xml');
-    var str = vsprintf(wcMsgFormats.basicReplyXmlFormat, [
-            fromUser,
-            toUser,
-            createTime+1,
-            'text',
-            content
-        ]);
-    console.log(str);
 
     wechatAccessToken.getAccessToken()
     .then( function(accessToken) {
@@ -32,8 +20,12 @@ module.exports.textMsgHandler = function (req, res) {
     .then( function(wechatUserRawData) {
         return tgbWechatUser.update(fromUser, wechatUserRawData);
     })
-    .then( function() {
-        res.send(str);        
+    .then( function(wechatUser) {
+        var message = messageUtils.generateReplyMessage(fromUser, toUser, createTime, 
+            wechatUser.nickname, req.body.xml.content);
+        // send response
+        res.contentType('application/xml');
+        res.send(message);
     })
     .fail( function(error) {
         console.error('message handler error: ' + error.message);

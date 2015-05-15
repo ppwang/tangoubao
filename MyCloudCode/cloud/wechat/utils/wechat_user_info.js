@@ -16,8 +16,5 @@ module.exports.getUserInfo = function (accessToken, wechatId) {
         console.log('response text (utf8): ' + text);
 
         return text;
-    })
-    .fail(function(error) {
-        console.log('user info request error' + error.message);
     });
 }

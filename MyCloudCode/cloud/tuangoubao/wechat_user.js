@@ -1,5 +1,6 @@
 // module for tuangoubao wechat user model
 var WechatUser = Parse.Object.extend('WechatUser');
+var utils = require('cloud/lib/utils');
 
 module.exports.activate = function(wechatId, wechatUserRawData) {
    	var query = new Parse.Query(WechatUser);
@@ -63,6 +64,17 @@ var initWechatUser = function(wechatUser, wechatId, wechatUserRawData) {
     wechatUser.set('wechatId', wechatId);
     wechatUser.set('data', wechatUserRawData); // raw data field
     var wechatUserData = JSON.parse(wechatUserRawData);
+    if (wechatUserData.subscribe === undefined || wechatUserData.subscribe == 0) {
+        // This an error situation: we found a user who is not following us. Could be someone try to hack
+        //   this wechat user entity?
+        throw new Error('Query from wechat a unsubscribed user.');
+    }
+    
+    // For new user, we will generate a one time claim token for binding with user instance.
+    var claimtoken = utils.getNewGUID();
+    wechatUser.set('claimtoken', claimtoken);
+    wechatUser.claimtoken = claimtoken;
+
     if (wechatUserData.nickname !== undefined) {
         wechatUser.set('nickname', wechatUserData.nickname);
         wechatUser.nickname = wechatUserData.nickname;

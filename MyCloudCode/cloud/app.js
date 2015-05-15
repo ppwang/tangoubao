@@ -32,7 +32,7 @@ app.get('/wechat', wechatServices.requestValidate);
 // This is the entry point for web messages
 app.post('/wechat', wechatServices.reply);
 
-app.get('/newuser', userServices.newUser);
+app.post('/user/', userServices);
 
 // Custom menus
 app.get('/wechat/create_menus', wechatServices.createMenus);
