@@ -9,11 +9,11 @@ module.exports.activate = function(wechatId, wechatUserRawData) {
         if (wechatUser == null) {
             console.log('New wechat user rejoined.');
             wechatUser = new WechatUser();
-            initWechatUser(wechatUser, wechatId, wechatUserRawData);
+            initWechatUser(wechatUser, wechatId, wechatUserRawData, true);
         }
         else {
         	console.log('Existing wechat user rejoined.');
-            initWechatUser(wechatUser, wechatId, wechatUserRawData);
+            initWechatUser(wechatUser, wechatId, wechatUserRawData, true);
         }
 
         wechatUser.set('status', 'active');
@@ -21,18 +21,18 @@ module.exports.activate = function(wechatId, wechatUserRawData) {
 	});
 };
 
-module.exports.update = function(wechatId, wechatUserRawData) {
+module.exports.update = function(wechatId, wechatUserRawData, refreshClaimToken) {
     var query = new Parse.Query(WechatUser);
     query.equalTo('wechatId', wechatId);
     return query.first().then( function(wechatUser) {
         if (wechatUser == null) {
             console.log('Update new wechat user.');
             wechatUser = new WechatUser();
-            initWechatUser(wechatUser, wechatId, wechatUserRawData);
+            initWechatUser(wechatUser, wechatId, wechatUserRawData, true);
         }
         else {
             console.log('Update existing wechat user.');
-            initWechatUser(wechatUser, wechatId, wechatUserRawData);
+            initWechatUser(wechatUser, wechatId, wechatUserRawData, refreshClaimToken);
         }
 
         wechatUser.set('status', 'active');
@@ -60,7 +60,7 @@ module.exports.deactivate = function(wechatId) {
 	});
 };
 
-var initWechatUser = function(wechatUser, wechatId, wechatUserRawData) {
+var initWechatUser = function(wechatUser, wechatId, wechatUserRawData, refreshClaimToken) {
     wechatUser.set('wechatId', wechatId);
     wechatUser.set('data', wechatUserRawData); // raw data field
     var wechatUserData = JSON.parse(wechatUserRawData);
@@ -69,11 +69,13 @@ var initWechatUser = function(wechatUser, wechatId, wechatUserRawData) {
         //   this wechat user entity?
         throw new Error('Query from wechat a unsubscribed user.');
     }
-    
+
     // For new user, we will generate a one time claim token for binding with user instance.
-    var claimtoken = utils.getNewGUID();
-    wechatUser.set('claimtoken', claimtoken);
-    wechatUser.claimtoken = claimtoken;
+    if (refreshClaimToken) {
+        var claimtoken = utils.getNewGUID();
+        wechatUser.set('claimtoken', claimtoken);
+        wechatUser.claimtoken = claimtoken;
+    }
 
     if (wechatUserData.nickname !== undefined) {
         wechatUser.set('nickname', wechatUserData.nickname);

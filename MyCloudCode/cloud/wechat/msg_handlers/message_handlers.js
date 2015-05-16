@@ -6,23 +6,30 @@ var unsubscribeUser = require('cloud/wechat/msg_handlers/unsubscribe_user');
 var wechatAccessToken = require('cloud/wechat/utils/wechat_access_token');
 var wechatUserInfo = require('cloud/wechat/utils/wechat_user_info');
 var tgbWechatUser = require('cloud/tuangoubao/wechat_user');
-var messageUtils = require('cloud/wechat/msg_handlers/message_utils');
+var messageUtils = require('cloud/wechat/utils/message_utils');
 
-module.exports.textMsgHandler = function (req, res) {
-    var toUser = req.body.xml.tousername[0]; // public account
-    var fromUser = req.body.xml.fromusername[0]; // subscriber
-    var createTime = parseInt(req.body.xml.createtime[0]);
+module.exports.textMsgHandler = function (wechatId, publicAccountId, createTime, req, res) {
+    var userMessage = req.body.xml.content.toString();
+    console.log('userMessage: ' + userMessage);
+    var recreateWelcomeMessage = userMessage.indexOf('Recreate binding') === 0;
 
     wechatAccessToken.getAccessToken()
     .then( function(accessToken) {
-        return wechatUserInfo.getUserInfo(accessToken.token, fromUser);
+        return wechatUserInfo.getUserInfo(accessToken.token, wechatId);
     })
     .then( function(wechatUserRawData) {
-        return tgbWechatUser.update(fromUser, wechatUserRawData);
+        return tgbWechatUser.update(wechatId, wechatUserRawData, recreateWelcomeMessage);
     })
     .then( function(wechatUser) {
-        var message = messageUtils.generateReplyMessage(fromUser, toUser, createTime, 
-            wechatUser.nickname, req.body.xml.content);
+        var message;
+        if (recreateWelcomeMessage) {
+            message = messageUtils.generateWelcomeMessage(wechatId, publicAccountId, createTime, 
+                wechatUser.nickname, wechatUser.claimtoken);
+        }
+        else {
+            message = messageUtils.generateReplyMessage(wechatId, publicAccountId, createTime, 
+                wechatUser.nickname, userMessage);
+        }
         // send response
         res.contentType('application/xml');
         res.send(message);
@@ -33,22 +40,15 @@ module.exports.textMsgHandler = function (req, res) {
     });
 }
 
-module.exports.eventMsgHandler = function (req, res) {
-    var toUser = req.body.xml.tousername[0]; // public account
-    var fromUser = req.body.xml.fromusername[0]; // subscriber
-    var createTime = parseInt(req.body.xml.createtime[0]);
+module.exports.eventMsgHandler = function (wechatId, publicAccountId, createTime, req, res) {
     var event = req.body.xml.event.toString();
-    console.log('event: ' + event);
-    console.log('from user:' + fromUser);
-
-    var content = req.body.xml.content;
     switch (event.trim())
     {
         case 'subscribe':
-            subscribeUser(fromUser, toUser, createTime, res);
+            subscribeUser(wechatId, publicAccountId, createTime, res);
             break;
         case 'unsubscribe':
-            unsubscribeUser(fromUser, toUser, createTime, res);
+            unsubscribeUser(wechatId, publicAccountId, createTime, res);
             break;
         default:
             break;

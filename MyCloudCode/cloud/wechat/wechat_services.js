@@ -33,17 +33,18 @@ module.exports.requestValidate = function (req, res) {
 // respond to host requests. route to different message handlers
 module.exports.reply = function(req, res) {    
     if (authenticate(req)) {
-        console.log('Wechat services reply. xml: ' + req.body.xml);
         var msgType = req.body.xml.msgtype[0];
-        console.log('Wechat services reply. msg type: ' + msgType);
+        var publicAccountId = req.body.xml.tousername[0]; // public account
+        var wechatId = req.body.xml.fromusername[0]; // subscriber
+        var createTime = parseInt(req.body.xml.createtime[0]);
         
         switch (msgType)
         {
             case 'text':
-                wcMsgHandlers.textMsgHandler(req, res);
+                wcMsgHandlers.textMsgHandler(wechatId, publicAccountId, createTime, req, res);
                 break;
             case 'event':
-                wcMsgHandlers.eventMsgHandler(req, res);
+                wcMsgHandlers.eventMsgHandler(wechatId, publicAccountId, createTime, req, res);
                 break;
             default:
                 break;

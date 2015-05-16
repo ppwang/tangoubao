@@ -4,7 +4,7 @@
 var tgbWechatUser = require('cloud/tuangoubao/wechat_user');
 var wechatAccessToken = require('cloud/wechat/utils/wechat_access_token');
 var wechatUserInfo = require('cloud/wechat/utils/wechat_user_info');
-var messageUtils = require('cloud/wechat/msg_handlers/message_utils');
+var messageUtils = require('cloud/wechat/utils/message_utils');
 
 module.exports = function (wechatId, publicAccountId, createTime, res) {
     console.log('subscribe: ' + wechatId);
