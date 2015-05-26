@@ -9,33 +9,40 @@
     <script src="./parse-angular/parse-angular.js"></script>
     <script src="./config.js"></script>
     <script src="scripts/login.js?v=1"></script>
+    <link rel="stylesheet" type="text/css" href="./styles/styles.css">
     <meta charset=utf-8 />
     <title>TGB</title>
     <base href="/" />
 </head>
-<body ng-app="AuthApp">
-    <div ng-hide="currentUser">
-        <form ng-show="scenario == 'Sign up'">
-            <h2>Sign up</h2>
-            Email: <input type="email" ng-model="user.email" ng-required="true"/><br />
-            Username: <input type="text" ng-model="user.username" ng-required="true"/><br />
-            Password: <input type="password" ng-model="user.password" ng-required="true"/><br />
-            <button ng-click="signUp(user)">Sign up</button>
-            or <a href="#" ng-click='scenario="Log in"'>Log in</a>
-        </form>
-        <form ng-show="scenario == 'Log in'">
-          <h2>Log in</h2>
-          Username: <input type="text" ng-model="user.username" ng-required="true"/><br />
-          Password: <input type="password" ng-model="user.password" ng-required="true"/><br />
-          <button ng-click="logIn(user)">Log in</button>
-          or <a href="#" ng-click='scenario="Sign up"'>Sign up</a>
-        </form>
+<body ng-app="tuanGouBao">
+    <div class="topNav">团购宝 -TGB</div>
+    <div class="mainViewArea">
+        <div class="leftNav"></div>
+        <div class="dataViewArea">
+            <div ng-hide="currentUser">
+                <form ng-show="scenario == 'Sign up'">
+                    <h2>Sign up</h2>
+                    Email: <input type="email" ng-model="user.email" ng-required="true"/><br />
+                    Username: <input type="text" ng-model="user.username" ng-required="true"/><br />
+                    Password: <input type="password" ng-model="user.password" ng-required="true"/><br />
+                    <button ng-click="signUp(user)">Sign up</button>
+                    or <a href="#" ng-click='scenario="Log in"'>Log in</a>
+                </form>
+                <form ng-show="scenario == 'Log in'">
+                  <h2>Log in</h2>
+                  Username: <input type="text" ng-model="user.username" ng-required="true"/><br />
+                  Password: <input type="password" ng-model="user.password" ng-required="true"/><br />
+                  <button ng-click="logIn(user)">Log in</button>
+                  or <a href="#" ng-click='scenario="Sign up"'>Sign up</a>
+                </form>
+            </div>
+            <div ng-show="currentUser">
+                <h1>Welcome {{currentUser.get('username')}}</h1>
+                <p> You have been successfully logged in</p>
+                <button ng-click="logOut()">Log out</button>
+            </div>
+            <div>{{statusMessage}}</div>
+        </div>
     </div>
-    <div ng-show="currentUser">
-        <h1>Welcome {{currentUser.get('username')}}</h1>
-        <p> You have been successfully logged in</p>
-        <button ng-click="logOut()">Log out</button>
-    </div>
-    <div>{{statusMessage}}</div>
 </body>
 </html>

@@ -1,4 +1,4 @@
-var module = angular.module('AuthApp', ['GlobalConfiguration', 'Parse']);
+var module = angular.module('tuanGouBao', ['GlobalConfiguration', 'Parse']);
 
 module.config(function($locationProvider) {
   $locationProvider.html5Mode(true).hashPrefix('!');
