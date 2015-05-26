@@ -1,0 +1,34 @@
+
+html, body {
+    margin:0;
+    padding:0;
+    height:100%;
+}
+
+.topNav {
+    font-size: 24;
+    font-style: normal;
+    font-weight: bold;
+    height: 100px;
+    text-align: center;
+    background-color: deepskyblue
+}
+
+.mainViewArea {
+    height: 600px;
+    width: 100%;
+}
+
+
+.leftNav {
+    width: 150px;
+    height: 100%;
+    float: left;
+    background-color: bisque;
+}
+
+
+.dataViewArea {
+    margin-left: 150px;
+    height: 100%;
+}
