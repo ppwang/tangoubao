@@ -3,6 +3,7 @@
 <head>
     <script src="http://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.2.0/lodash.min.js"></script>
     <script src="http://cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.15/angular.min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.15/angular-route.js"></script>
     <!--script src="http://www.parsecdn.com/js/parse-1.2.12.min.js"></script-->
     <script src="http://www.parsecdn.com/js/parse-1.4.2.js"></script>
     <script src="./parse-angular/parse-angular-user.js"></script>
@@ -15,33 +16,18 @@
     <base href="/" />
 </head>
 <body ng-app="tuanGouBao">
-    <div class="topNav">团购宝 -TGB</div>
-    <div class="mainViewArea">
+    <div class="topNav">
+        <h1>团购宝 -TGB</h1>
+        <nav>
+            <a href="/">Home</a> |
+            <a href="/about">About</a> |
+            <a href="/contact">Contact</a> |
+            <a href="/login" ng-show="currentUser != null">Logout</a>
+        </nav>
+    </div>
+    <div class="mainViewArea" ng-controller="mainController">
         <div class="leftNav"></div>
-        <div class="dataViewArea">
-            <div ng-hide="currentUser">
-                <form ng-show="scenario == 'Sign up'">
-                    <h2>Sign up</h2>
-                    Email: <input type="email" ng-model="user.email" ng-required="true"/><br />
-                    Username: <input type="text" ng-model="user.username" ng-required="true"/><br />
-                    Password: <input type="password" ng-model="user.password" ng-required="true"/><br />
-                    <button ng-click="signUp(user)">Sign up</button>
-                    or <a href="#" ng-click='scenario="Log in"'>Log in</a>
-                </form>
-                <form ng-show="scenario == 'Log in'">
-                  <h2>Log in</h2>
-                  Username: <input type="text" ng-model="user.username" ng-required="true"/><br />
-                  Password: <input type="password" ng-model="user.password" ng-required="true"/><br />
-                  <button ng-click="logIn(user)">Log in</button>
-                  or <a href="#" ng-click='scenario="Sign up"'>Sign up</a>
-                </form>
-            </div>
-            <div ng-show="currentUser">
-                <h1>Welcome {{currentUser.get('username')}}</h1>
-                <p> You have been successfully logged in</p>
-                <button ng-click="logOut()">Log out</button>
-            </div>
-            <div>{{statusMessage}}</div>
+        <div class="dataViewArea" ng-view>
         </div>
     </div>
 </body>
