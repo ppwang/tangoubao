@@ -1,6 +1,6 @@
-var module = angular.module('tuanGouBao', ['GlobalConfiguration', 'Parse', 'ngRoute']);
+var tgbApp = angular.module('tuanGouBao', ['GlobalConfiguration', 'Parse', 'ui.router']);
 
-module.config(function($locationProvider) {
+tgbApp.config(function($locationProvider) {
     //$locationProvider.html5Mode(true).hashPrefix('!');
     $locationProvider.html5Mode({
         enabled: true,
@@ -8,49 +8,129 @@ module.config(function($locationProvider) {
     });
 });
 
-module.config(function($routeProvider) {
-    $routeProvider
-        // route for the home page
-        .when('/', {
-            templateUrl: 'views/home.html',
-            controller: 'mainController'
+tgbApp.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, $urlRouterProvider) {
+    $urlRouterProvider.otherwise('/');
+ 
+    $stateProvider
+        .state('home', {
+            url:'/',
+            views: {
+                'content': {
+                    templateUrl: 'views/home.html',
+                    controller: 'mainController',
+                }
+            }
         })
-        // route for the about page
-        .when('/about', {
-            templateUrl: 'views/about.html',
-            controller: 'aboutController'
+        .state('home.dealDetail', {
+            url:'/deal/:id',
+            views: {
+                'dealDetail': {
+                    templateUrl: 'views/dealDetail.html',
+                    controller: 'dealDetailController',
+                }
+            }
         })
-        // route for the contact page
-        .when('/contact', {
-            templateUrl: 'views/contact.html',
-            controller: 'contactController'
+        .state('about', {
+            url:'/about',
+            views: {
+                'content': {
+                    templateUrl: 'views/about.html',
+                    controller: 'aboutController',
+                }
+            }
         })
-        .when('/login', {
-            templateUrl: 'views/login.html',
-            controller: 'loginController',
+        .state('contact', {
+            url:'/contact',
+            views: {
+                'content': {
+                    templateUrl: 'views/contact.html',
+                    controller: 'contactController',
+                }
+            }
         })
-        .otherwise({ 
-            redirectTo: '/',
-        });
-});
+        .state('login', {
+            url:'/login',
+            views: {
+                'content': {
+                    templateUrl: 'views/login.html',
+                    controller: 'loginController',
+                }
+            }
+        })
+}]);
 
-module.controller('mainController', function($scope, $location, $rootScope) {
+tgbApp.factory('dataFactory', ['$http', function($http) {
+
+    //var urlBase = '/api/customers';
+    var dataFactory = {};
+
+//    dataFactory.getCustomers = function () {
+//        return $http.get(urlBase);
+//    };
+//
+//    dataFactory.getCustomer = function (id) {
+//        return $http.get(urlBase + '/' + id);
+//    };
+//
+//    dataFactory.insertCustomer = function (cust) {
+//        return $http.post(urlBase, cust);
+//    };
+//
+//    dataFactory.updateCustomer = function (cust) {
+//        return $http.put(urlBase + '/' + cust.ID, cust)
+//    };
+//
+//    dataFactory.deleteCustomer = function (id) {
+//        return $http.delete(urlBase + '/' + id);
+//    };
+//
+//    dataFactory.getOrders = function (id) {
+//        return $http.get(urlBase + '/' + id + '/orders');
+//    };
+
+    // Mock data
+    dataFactory.getDeals = function() {
+        return [
+            {
+                id: 1,
+                name: 'deal 1',
+                detailedDescription: 'detailed description 1',
+            },
+            {
+                id: 2,
+                name: 'deal 2',
+                detailedDescription: 'detailed description 2',
+            },
+        ];
+    };
+    
+    return dataFactory;
+}]);
+
+tgbApp.controller('mainController', function($scope, $location, $rootScope, dataFactory) {
     if (!$rootScope.currentUser) {
         $location.path('/login');
     }
+    
+    $scope.deals = dataFactory.getDeals();
+    
     // create a message to display in our view
     $scope.message = 'Hello !';// + $rootScope.currentUser.getUsername() + '!';
 });
 
-module.controller('aboutController', function($scope) {
+tgbApp.controller('dealDetailController', function($scope, $stateParams){
+    $scope.deal = _.find($scope.deals, function(d) { return d.id == $stateParams.id; });
+});
+
+tgbApp.controller('aboutController', function($scope) {
     $scope.message = 'Look! I am an about page.';
 });
 
-module.controller('contactController', function($scope) {
+tgbApp.controller('contactController', function($scope) {
     $scope.message = 'Contact us! JK. This is just a demo.';
 });
 
-module.controller('loginController', function($scope, $location, $rootScope, ParseSDK) {
+tgbApp.controller('loginController', function($scope, $location, $rootScope, ParseSDK) {
     $scope.signUp = function(user) {
         clearStatusMessage();
         
@@ -94,7 +174,7 @@ module.controller('loginController', function($scope, $location, $rootScope, Par
     };
 });
 
-module.run(['$rootScope', 'applicationId', 'javaScriptKey', 'ParseSDK', '$location', function($rootScope, applicationId, javaScriptKey, ParseSDK, $location) {
+tgbApp.run(['$rootScope', 'applicationId', 'javaScriptKey', 'ParseSDK', '$location', function($rootScope, applicationId, javaScriptKey, ParseSDK, $location) {
     ParseSDK.initialize(applicationId, javaScriptKey);
     $rootScope.scenario = 'Sign up';
     $rootScope.currentUser = ParseSDK.User.current();
