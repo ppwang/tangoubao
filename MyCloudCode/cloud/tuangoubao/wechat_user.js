@@ -64,7 +64,7 @@ var initWechatUser = function(wechatUser, wechatId, wechatUserRawData, refreshCl
     wechatUser.set('wechatId', wechatId);
     wechatUser.set('data', wechatUserRawData); // raw data field
     var wechatUserData = JSON.parse(wechatUserRawData);
-    if (wechatUserData.subscribe === undefined || wechatUserData.subscribe == 0) {
+    if (typeof wechatUserData.subscribe === 'undefined' || wechatUserData.subscribe == 0) {
         // This an error situation: we found a user who is not following us. Could be someone try to hack
         //   this wechat user entity?
         throw new Error('Query from wechat a unsubscribed user.');
@@ -77,32 +77,32 @@ var initWechatUser = function(wechatUser, wechatId, wechatUserRawData, refreshCl
         wechatUser.claimtoken = claimtoken;
     }
 
-    if (wechatUserData.nickname !== undefined) {
+    if (typeof wechatUserData.nickname !== 'undefined') {
         wechatUser.set('nickname', wechatUserData.nickname);
         wechatUser.nickname = wechatUserData.nickname;
     }
-    if (wechatUserData.sex !== undefined) {
+    if (typeof wechatUserData.sex !== 'undefined') {
         wechatUser.set('sex', wechatUserData.sex); // 1 for male; 2 for female; 0 for unknown
     }
-    if (wechatUserData.city !== undefined) {
+    if (typeof wechatUserData.city !== 'undefined') {
         wechatUser.set('city', wechatUserData.city);
     }
-    if (wechatUserData.province !== undefined) {
+    if (typeof wechatUserData.province !== 'undefined') {
         wechatUser.set('province', wechatUserData.province);
     }
-    if (wechatUserData.country !== undefined) {
+    if (typeof wechatUserData.country !== 'undefined') {
         wechatUser.set('country', wechatUserData.country);
     }
-    if (wechatUserData.headimgurl !== undefined) {
+    if (typeof wechatUserData.headimgurl !== 'undefined') {
         wechatUser.set('headimgurl', wechatUserData.headimgurl);
     }
-    if (wechatUserData.subscribe_time !== undefined) {
+    if (typeof wechatUserData.subscribe_time !== 'undefined') {
         wechatUser.set('subscribe_time', wechatUserData.subscribe_time);
     }
-    if (wechatUserData.remark !== undefined) {
+    if (typeof wechatUserData.remark !== 'undefined') {
         wechatUser.set('remark', wechatUserData.remark);
     }
-    if (wechatUserData.remark !== undefined) {
+    if (typeof wechatUserData.remark !== 'undefined') {
        wechatUser.set('groupid', wechatUserData.groupid);
     }
 };

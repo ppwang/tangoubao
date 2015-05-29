@@ -32,7 +32,16 @@ app.get('/wechat', wechatServices.requestValidate);
 // This is the entry point for web messages
 app.post('/wechat', wechatServices.reply);
 
+// Entry point for user services
 app.post('/user/', userServices);
+
+// Entry points for deal/deals
+app.use('/deal/', express.bodyParser());
+
+var dealController = require('cloud/controller/deal_controller');
+app.get('/deal/:dealId?', dealController.getDeal);
+app.put('/deal/:dealId?', dealController.putDeal);
+app.delete('/deal/:dealId?', dealController.deleteDeal);
 
 // Custom menus
 app.get('/wechat/create_menus', wechatServices.createMenus);
