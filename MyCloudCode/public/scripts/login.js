@@ -1,12 +1,12 @@
-var tgbApp = angular.module('tuanGouBao', ['GlobalConfiguration', 'Parse', 'ui.router']);
+var tgbApp = angular.module('tuanGouBao', ['GlobalConfiguration', 'Parse', 'ui.router', 'xeditable']);
 
-tgbApp.config(function($locationProvider) {
-    //$locationProvider.html5Mode(true).hashPrefix('!');
-    $locationProvider.html5Mode({
-        enabled: true,
-        requireBase: false
-    });
-});
+//tgbApp.config(function($locationProvider) {
+//    //$locationProvider.html5Mode(true).hashPrefix('!');
+//    $locationProvider.html5Mode({
+//        enabled: true,
+//        requireBase: false
+//    });
+//});
 
 tgbApp.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, $urlRouterProvider) {
     $urlRouterProvider.otherwise('/');
@@ -59,37 +59,37 @@ tgbApp.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, 
         })
 }]);
 
-tgbApp.factory('dataFactory', ['$http', function($http) {
+tgbApp.factory('dealDataService', ['$http', function($http) {
 
     //var urlBase = '/api/customers';
-    var dataFactory = {};
+    var dealDataService = {};
 
-//    dataFactory.getCustomers = function () {
+//    dealDataService.getCustomers = function () {
 //        return $http.get(urlBase);
 //    };
 //
-//    dataFactory.getCustomer = function (id) {
+//    dealDataService.getCustomer = function (id) {
 //        return $http.get(urlBase + '/' + id);
 //    };
 //
-//    dataFactory.insertCustomer = function (cust) {
+//    dealDataService.insertCustomer = function (cust) {
 //        return $http.post(urlBase, cust);
 //    };
 //
-//    dataFactory.updateCustomer = function (cust) {
+//    dealDataService.updateCustomer = function (cust) {
 //        return $http.put(urlBase + '/' + cust.ID, cust)
 //    };
 //
-//    dataFactory.deleteCustomer = function (id) {
+//    dealDataService.deleteCustomer = function (id) {
 //        return $http.delete(urlBase + '/' + id);
 //    };
 //
-//    dataFactory.getOrders = function (id) {
+//    dealDataService.getOrders = function (id) {
 //        return $http.get(urlBase + '/' + id + '/orders');
 //    };
 
     // Mock data
-    dataFactory.getDeals = function() {
+    dealDataService.getDeals = function() {
         return [
             {
                 id: 1,
@@ -104,22 +104,52 @@ tgbApp.factory('dataFactory', ['$http', function($http) {
         ];
     };
     
-    return dataFactory;
+    dealDataService.saveDeal = function(deal) {
+        // TODO: temporary code
+            // $http.put();
+        deal.id = 100;
+    };
+    
+    return dealDataService;
 }]);
 
-tgbApp.controller('mainController', function($scope, $location, $rootScope, dataFactory) {
-    if (!$rootScope.currentUser) {
-        $location.path('/login');
-    }
-    
-    $scope.deals = dataFactory.getDeals();
-    
-    // create a message to display in our view
-    $scope.message = 'Hello !';// + $rootScope.currentUser.getUsername() + '!';
+tgbApp.directive('dealDetailEditableForm', function() {
+    function link(scope, element, attrs) {
+        if (!scope.deal.id) {
+            scope.editableForm.$show();
+        }
+    };
+
+    return {
+        restrict: 'E',
+        templateUrl: '/views/dealDetailEditableForm.html',
+        link: link,
+    };   
 });
 
-tgbApp.controller('dealDetailController', function($scope, $stateParams){
+tgbApp.controller('mainController', function($scope, $state, $rootScope, dealDataService) {
+    if (!$rootScope.currentUser) {
+        $state.go('login');
+    }
+    
+    $scope.deals = dealDataService.getDeals();
+});
+
+tgbApp.controller('dealDetailController', function($scope, $stateParams, dealDataService){
     $scope.deal = _.find($scope.deals, function(d) { return d.id == $stateParams.id; });
+    if (!$scope.deal) {
+        $scope.deal = { };
+    }
+    
+    $scope.saveDeal = function() {
+        dealDataService.saveDeal($scope.deal);
+        // TODO: need error handling here.
+        $scope.deals.unshift($scope.deal);
+    };
+    
+    $scope.onShow = function() {
+        $scope.editableForm.$show();        
+    };
 });
 
 tgbApp.controller('aboutController', function($scope) {
@@ -130,7 +160,7 @@ tgbApp.controller('contactController', function($scope) {
     $scope.message = 'Contact us! JK. This is just a demo.';
 });
 
-tgbApp.controller('loginController', function($scope, $location, $rootScope, ParseSDK) {
+tgbApp.controller('loginController', function($scope, $location, $state, $rootScope, ParseSDK) {
     $scope.signUp = function(user) {
         clearStatusMessage();
         
@@ -143,7 +173,7 @@ tgbApp.controller('loginController', function($scope, $location, $rootScope, Par
         ParseSDK.User.signUp(user.username, user.password, user.email, attr)
             .then(function(user) {
                 $rootScope.currentUser = user;
-                $location.path('/');
+                $state.go('home');
             },
             function(error) {
                 $scope.statusMessage = "Unable to sign up:  " + error.code + " " + error.message;
@@ -155,7 +185,7 @@ tgbApp.controller('loginController', function($scope, $location, $rootScope, Par
         ParseSDK.User.logIn(user.username, user.password)
             .then(function(user) {
                 $rootScope.currentUser = user;
-                $location.path('/');
+                $state.go('home');
             },
             function(error) {
                 $scope.statusMessage = "Unable to log in: " + error.code + " " + error.message;
@@ -174,7 +204,7 @@ tgbApp.controller('loginController', function($scope, $location, $rootScope, Par
     };
 });
 
-tgbApp.run(['$rootScope', 'applicationId', 'javaScriptKey', 'ParseSDK', '$location', function($rootScope, applicationId, javaScriptKey, ParseSDK, $location) {
+tgbApp.run(['$rootScope', 'applicationId', 'javaScriptKey', 'ParseSDK', function($rootScope, applicationId, javaScriptKey, ParseSDK) {
     ParseSDK.initialize(applicationId, javaScriptKey);
     $rootScope.scenario = 'Sign up';
     $rootScope.currentUser = ParseSDK.User.current();

@@ -32,3 +32,12 @@ html, body {
     margin-left: 150px;
     height: 100%;
 }
+
+.editablePropertyDescription {
+    vertical-align: top;
+}
+
+/*
+.editableTextArea {
+    resize: none;
+}*/
