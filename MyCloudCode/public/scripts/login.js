@@ -88,8 +88,8 @@ tgbApp.factory('dealDataService', ['$http', function($http) {
 //        return $http.get(urlBase + '/' + id + '/orders');
 //    };
 
-    // Mock data
     dealDataService.getDeals = function() {
+        // TODO: this is mock data
         return [
             {
                 id: 1,
@@ -106,8 +106,12 @@ tgbApp.factory('dealDataService', ['$http', function($http) {
     
     dealDataService.saveDeal = function(deal) {
         // TODO: temporary code
-            // $http.put();
+        // $http.put();
         deal.id = 100;
+    };
+    
+    dealDataService.deleteDeal = function(id) {
+        // TODO: temporary code    
     };
     
     return dealDataService;
@@ -135,7 +139,7 @@ tgbApp.controller('mainController', function($scope, $state, $rootScope, dealDat
     $scope.deals = dealDataService.getDeals();
 });
 
-tgbApp.controller('dealDetailController', function($scope, $stateParams, dealDataService){
+tgbApp.controller('dealDetailController', function($scope, $stateParams, $state, dealDataService){
     $scope.deal = _.find($scope.deals, function(d) { return d.id == $stateParams.id; });
     if (!$scope.deal) {
         $scope.deal = { };
@@ -147,8 +151,19 @@ tgbApp.controller('dealDetailController', function($scope, $stateParams, dealDat
         $scope.deals.unshift($scope.deal);
     };
     
-    $scope.onShow = function() {
-        $scope.editableForm.$show();        
+    $scope.deleteDeal = function() {
+        // TODO: need error handling here.
+        dealDataService.deleteDeal($scope.deal.id);
+        
+        _.remove($scope.deals, function(d) {
+            return d.id === $scope.deal.id;
+        }); 
+
+        if ($scope.deals.length === 0) {
+            $state.go('home.dealDetail', { 'id': -1 });
+        } else {
+            $state.go('home.dealDetail', { 'id': $scope.deals[0].id });
+        }
     };
 });
 

@@ -2,7 +2,7 @@
 <div class="leftNav">
     <ul style="list-style: none;">
         <li><a ui-sref=".dealDetail({id: -1})" >Create deal</a></li>
-        <li ng-repeat="deal in deals"><a ui-sref=".dealDetail({id: deal.id})" >{{deal.name}}</a></li>
+        <li ng-repeat="deal in deals track by $index"><a ui-sref=".dealDetail({id: deal.id})" >{{deal.name}}</a></li>
     </ul>
 </div>
 <div class="dataViewArea" ui-view="dealDetail"></div>
