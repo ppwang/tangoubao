@@ -176,16 +176,23 @@ tgbApp.controller('contactController', function($scope) {
 });
 
 tgbApp.controller('loginController', function($scope, $location, $state, $rootScope, ParseSDK) {
+
+    if ($scope.user == null)
+    {
+        $scope.user = {};
+    }
+    var wechatId = $location.search().wechatId;
+    var claimToken = $location.search().claimToken;
+    if (wechatId && claimToken) {
+        $scope.user.wechatId = wechatId;
+        $scope.user.claimToken = claimToken; 
+    }
+
     $scope.signUp = function(user) {
         clearStatusMessage();
-        
-        var wechatId = $location.search().wechatId;
-        var attr;
-        if (wechatId) {
-            attr = { "wechatId": wechatId }; 
-        }
-        
-        ParseSDK.User.signUp(user.username, user.password, user.email, attr)
+        user.wechatId = $scope.user.wechatId;
+        user.claimToken = $scope.user.claimToken;
+        ParseSDK.User.signUp(user)
             .then(function(user) {
                 $rootScope.currentUser = user;
                 $state.go('home');
@@ -197,7 +204,9 @@ tgbApp.controller('loginController', function($scope, $location, $state, $rootSc
   
     $scope.logIn = function(user) {
         clearStatusMessage();
-        ParseSDK.User.logIn(user.username, user.password)
+        user.wechatId = $scope.user.wechatId;
+        user.claimToken = $scope.user.claimToken;
+        ParseSDK.User.logIn(user)
             .then(function(user) {
                 $rootScope.currentUser = user;
                 $state.go('home');

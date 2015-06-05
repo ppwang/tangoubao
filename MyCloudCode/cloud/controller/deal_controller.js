@@ -81,9 +81,10 @@ var createDeal = function(req, res, user) {
 		deal.set('contactPhone', contactPhone);
 	}
 
-	var picture = req.files.image.path;
-	if (typeof picture !== 'undefined') {
-		var targetPicFile = new Parse.File('deal_image.png', picture);
+	var picture = req.body.image;
+	if (typeof picture !== 'undefined' && typeof picture.type !== 'undefined') {
+		var targetPicFile = new Parse.File('deal_image.png', picture.data);
+		// TODO: resize for icon
 		targetPicFile.save()
 		.then(function() {
 			deal.save();

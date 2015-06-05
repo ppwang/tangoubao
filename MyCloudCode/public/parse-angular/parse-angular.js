@@ -30,8 +30,8 @@ module.factory('ParseSDK', function(
 //    var ParseSDK = ParseCore;
 
     var ParseSDK = {
-        initialize: function(applicationId, javascriptKey, masterKey) {
-            Parse.initialize(applicationId, javascriptKey, masterKey);
+        initialize: function(applicationId, javascriptKey) {
+            Parse.initialize(applicationId, javascriptKey);
         },
         
         User: ParseUser,

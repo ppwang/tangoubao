@@ -7,7 +7,6 @@ var parseJavascriptKey = parseSettings.javascriptKey;
 Parse.initialize(parseApplicationId, parseJavascriptKey);
 
 var wechatServices = require('cloud/wechat/wechat_services');
-var userServices = require('cloud/wechat/user_services');
 
 var xmlParser = require('cloud/lib/xml/xmlbodyparser');
 app.use(xmlParser());
@@ -32,9 +31,6 @@ app.get('/wechat', wechatServices.requestValidate);
 // This is the entry point for web messages
 app.post('/wechat', wechatServices.reply);
 
-// Entry point for user services
-app.post('/user/', userServices);
-
 // Entry points for deal/deals
 app.use('/deal/', express.bodyParser());
 
@@ -42,6 +38,10 @@ var dealController = require('cloud/controller/deal_controller');
 app.get('/deal/:dealId?', dealController.getDeal);
 app.put('/deal/:dealId?', dealController.putDeal);
 app.delete('/deal/:dealId?', dealController.deleteDeal);
+
+var dealsController = require('cloud/controller/deals_controller');
+// get 2 lists: one for deals owned; the other for deals followed
+app.get('/deals/', dealsController.getDeals);
 
 // Custom menus
 app.get('/wechat/create_menus', wechatServices.createMenus);

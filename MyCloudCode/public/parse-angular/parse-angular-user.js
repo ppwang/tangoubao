@@ -9,16 +9,15 @@ module.factory('ParseUser', ['$q', function($q) {
             return Parse.User.current();
         },
         
-        signUp: function(username, password, email, attr) {
-            var user = new Parse.User();
-            user.set("username", username);
-            user.set("password", password);
-            user.set("email", email);
+        signUp: function(user) {
+            var parseUser = new Parse.User();
+            parseUser.set("username", user.username);
+            parseUser.set("password", user.password);
+            parseUser.set("email", user.email);
             
-            if (attr) {
-                for (var index in attr) {
-                    user.set(index, attr[index]);
-                }
+            if (user.wechatId && user.claimToken) {
+                parseUser.set("wechatId", user.wechatId);
+                parseUser.set("claimToken", user.claimToken);
             }
 
             var defer = $q.defer();
@@ -36,14 +35,19 @@ module.factory('ParseUser', ['$q', function($q) {
             return defer.promise;
         },
         
-        logIn: function(username, password) {
+        logIn: function(user) {            
             var defer = $q.defer();
             Parse.User.logIn(
-                username, 
-                password, 
+                user.username, 
+                user.password, 
                 {
-                    success: function(user) {
-                        defer.resolve(user);
+                    success: function(parseUser) {
+                        defer.resolve(parseUser);
+                        if (user.wechatId && user.claimToken) {
+                            parseUser.set('wechatId',user.wechatId);
+                            parseUser.set('claimToken', user.claimToken);
+                            return parseUser.save();
+                        }
                     },
                     error: function(user, error) {
                         defer.reject(error);

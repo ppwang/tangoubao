@@ -32,9 +32,10 @@ module.exports.generateReplyMessage = function(wechatId, publicAccountId, create
 var createInvitationCard = function (wechatId, nickname, claimtoken) {
     var message = nickname + '，'
         + '欢迎加入团购宝！ 请按以下链接绑定团购宝账户。'
-//        + '<a href="' + serviceSetting.baseUrl + '/newuser?wechatid='
-        + '<a href="' + serviceSetting.baseUrl + '/index.html?wechatId=' + wechatId 
-            + '&claimtoken=' + claimtoken
+        + '<a href="' + serviceSetting.baseUrl 
+            + '/#/login?wechatId=' + wechatId 
+            + '&nickname=' + nickname
+            + '&claimToken=' + claimtoken
         + '">绑定团购宝</a>';
     return message;
 }
