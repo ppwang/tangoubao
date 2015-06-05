@@ -35,7 +35,7 @@ var createInvitationCard = function (wechatId, nickname, claimtoken) {
         + '<a href="' + serviceSetting.baseUrl 
             + '/#/login?wechatId=' + wechatId 
             + '&nickname=' + nickname
-            + '&claimToken=' + claimtoken
+            + '&claimtoken=' + claimtoken
         + '">绑定团购宝</a>';
     return message;
 }

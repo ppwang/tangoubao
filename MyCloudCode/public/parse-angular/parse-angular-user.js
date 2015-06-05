@@ -15,9 +15,9 @@ module.factory('ParseUser', ['$q', function($q) {
             parseUser.set("password", user.password);
             parseUser.set("email", user.email);
             
-            if (user.wechatId && user.claimToken) {
+            if (user.wechatId && user.claimtoken) {
                 parseUser.set("wechatId", user.wechatId);
-                parseUser.set("claimToken", user.claimToken);
+                parseUser.set("claimtoken", user.claimtoken);
             }
 
             var defer = $q.defer();
@@ -43,9 +43,9 @@ module.factory('ParseUser', ['$q', function($q) {
                 {
                     success: function(parseUser) {
                         defer.resolve(parseUser);
-                        if (user.wechatId && user.claimToken) {
+                        if (user.wechatId && user.claimtoken) {
                             parseUser.set('wechatId',user.wechatId);
-                            parseUser.set('claimToken', user.claimToken);
+                            parseUser.set('claimtoken', user.claimtoken);
                             return parseUser.save();
                         }
                     },
