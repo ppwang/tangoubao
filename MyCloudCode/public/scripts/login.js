@@ -1,4 +1,4 @@
-var tgbApp = angular.module('tuanGouBao', ['GlobalConfiguration', 'Parse', 'ui.router', 'xeditable']);
+var tgbApp = angular.module('tuanGouBao', ['GlobalConfiguration', 'Parse', 'ui.router', 'xeditable', 'imageupload']);
 
 //tgbApp.config(function($locationProvider) {
 //    //$locationProvider.html5Mode(true).hashPrefix('!');
@@ -61,6 +61,21 @@ tgbApp.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, 
 
 tgbApp.factory('dealDataService', ['$http', function($http) {
 
+    // Mock data
+    var mockDealData = 
+        [
+            {
+                id: 1,
+                name: 'deal 1',
+                detailedDescription: 'detailed description 1',
+            },
+            {
+                id: 2,
+                name: 'deal 2',
+                detailedDescription: 'detailed description 2',
+            },
+        ];
+    
     //var urlBase = '/api/customers';
     var dealDataService = {};
 
@@ -90,28 +105,33 @@ tgbApp.factory('dealDataService', ['$http', function($http) {
 
     dealDataService.getDeals = function() {
         // TODO: this is mock data
-        return [
-            {
-                id: 1,
-                name: 'deal 1',
-                detailedDescription: 'detailed description 1',
-            },
-            {
-                id: 2,
-                name: 'deal 2',
-                detailedDescription: 'detailed description 2',
-            },
-        ];
+        return _.map(mockDealData, function(deal) {
+            return {
+                id: deal.id,
+                name: deal.name,
+            };
+        });
+    };
+    
+    dealDataService.getDeal = function(id) {
+        // TODO: temporary code
+        return _.find(mockDealData, function(deal) {
+            return deal.id === id;
+        });
     };
     
     dealDataService.saveDeal = function(deal) {
         // TODO: temporary code
         // $http.put();
-        deal.id = 100;
+        mockDealData.push(deal);
+        return mockDealData.length;
     };
     
     dealDataService.deleteDeal = function(id) {
-        // TODO: temporary code    
+        // TODO: temporary code
+        _.remove(mockDealData, function(deal) {
+            return deal.id === id;
+        });
     };
     
     return dealDataService;
@@ -122,6 +142,11 @@ tgbApp.directive('dealDetailEditableForm', function() {
         if (!scope.deal.id) {
             scope.editableForm.$show();
         }
+        
+        // Populate image
+//        if (scope.deal.imageBase64) {
+//            var dataURL = scope.deal.imageType + ';base64,' + scope.deal.imageBase64;
+//        }
     };
 
     return {
@@ -140,15 +165,41 @@ tgbApp.controller('mainController', function($scope, $state, $rootScope, dealDat
 });
 
 tgbApp.controller('dealDetailController', function($scope, $stateParams, $state, dealDataService){
-    $scope.deal = _.find($scope.deals, function(d) { return d.id == $stateParams.id; });
+    $scope.deal = dealDataService.getDeal(parseInt($stateParams.id));
     if (!$scope.deal) {
         $scope.deal = { };
     }
     
+    $scope.clearproductImageUpload = function() {
+        if ($scope.productImageUpload) {
+            $scope.productImageUpload.dataURL = undefined;
+            
+            if ($scope.productImageUpload.resized) {
+                $scope.productImageUpload.resized.dataURL = undefined;            
+            }
+        }
+        $scope.productImageUpload = undefined;
+    };
+    
     $scope.saveDeal = function() {
-        dealDataService.saveDeal($scope.deal);
+        // TODO: optimization - if image is not changed, we don't have to upload it.
+        if ($scope.productImageUpload && $scope.productImageUpload.resized) {
+            var resizedImage = $scope.productImageUpload.resized;
+            $scope.deal.imageType = resizedImage.type;
+            // TODO: find a better way to parse the base64 image data out of data url.
+            $scope.deal.imageBase64 = $scope.productImageUpload.resized.dataURL.split(',')[1];
+        }
+        
+        var newId = dealDataService.saveDeal($scope.deal);
         // TODO: need error handling here.
-        $scope.deals.unshift($scope.deal);
+        
+        // Add to deal to model if it is a new deal.
+        if (!$scope.deal.id) {
+            $scope.deal.id = newId;
+            $scope.deals.unshift($scope.deal);
+            // Navigate to the deal that was just created.
+            $state.go('home.dealDetail', { 'id': $scope.deal.id });
+        }
     };
     
     $scope.deleteDeal = function() {

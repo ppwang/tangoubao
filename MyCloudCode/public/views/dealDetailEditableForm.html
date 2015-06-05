@@ -7,6 +7,28 @@
         <span editable-textarea="deal.detailedDescription" e-rows="7" e-cols="40" class="editableTextArea">{{deal.detailedDescription}}</span>
         <span ng-show="editableForm.$visible" class="editablePropertyDescription">* description of the deal</span>
     </div>
+    <div>
+        <span
+            class="clickableText"
+            ng-show="editableForm.$visible"
+            input-image
+            append-data-uri
+            resize
+            resize-max-height="300"
+            resize-max-width="250"
+            resize-quality="1.0"
+            ng-model="productImageUpload">
+            Upload product image
+        </span>
+        <!-- TODO: clicking the clear button will trigger form validation -->
+        <span class="clickableText" ng-show="editableForm.$visible" ng-click="clearproductImageUpload()">Clear image</span>
+        <br>
+        <img ng-show="editableForm.$visible && productImageUpload" src="{{productImageUpload.resized.dataURL}}"/>
+        <!-- Because we cannot pre-populate the input file, we still show the image in the model if nothing is uploaded. -->
+        <img ng-show="(!editableForm.$visible || !productImageUpload) && deal.imageBase64" src="{{deal.imageBase64 ? 'data:' + deal.imageType + ';base64,' + deal.imageBase64 : ''}}">
+        <br>
+        <pre>{{image | json}}</pre>
+    </div>
     <div class="buttons">
         <!-- button to show form -->
         <span ng-show="!editableForm.$visible">

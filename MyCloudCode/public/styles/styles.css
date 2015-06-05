@@ -11,7 +11,7 @@ html, body {
     font-weight: bold;
     height: 100px;
     text-align: center;
-    background-color: deepskyblue
+    background-color: deepskyblue;
 }
 
 .mainViewArea {
@@ -41,3 +41,17 @@ html, body {
 .editableTextArea {
     resize: none;
 }*/
+
+.clickableText {
+    text-decoration: none;
+    background-color:bisque;
+    color: gray;
+    cursor: pointer;
+    padding: 5px;
+    margin: 5px;
+}
+
+.clickableText:hover {
+    background-color: deepskyblue;
+    color:beige;
+}
