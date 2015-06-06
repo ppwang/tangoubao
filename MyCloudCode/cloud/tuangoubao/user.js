@@ -27,21 +27,22 @@ Parse.Cloud.beforeSave(Parse.User, function(request, response) {
     return query.first()
     .then( function(wechatUser) {
     	console.log('Current user is: ' + JSON.stringify(currentUser)); 
+		var currentUserName = currentUser.get('username');
     	if (typeof wechatUser === 'undefined') {
-        	throw new Error('User ' + currentUser.username + ' is claiming non-existent wechatUser ' 
+        	throw new Error('User ' + currentUserName + ' is claiming non-existent wechatUser ' 
         		+ currentUser.wechatId);
     	}
     	console.log('wechatUser is: ' + JSON.stringify(wechatUser)); 
     	wechatUser.claimtoken = wechatUser.get('claimtoken');
-        if (wechatUser.claimtoken != currentUser.claimtoken) {
-        	throw new Error('User ' + currentUser.username + ' is using wrong claimtoken to claim wechatUser.' +
+        if (wechatUser.claimtoken == null || wechatUser.claimtoken != currentUser.claimtoken) {
+        	throw new Error('User ' + currentUserName + ' is using wrong claimtoken to claim wechatUser.' +
         		' wechat claimtoken: ' + wechatUser.claimtoken + ' user claimtoken:' + currentUser.claimtoken);
         }
         wechatUser.set('status', 'active');
         wechatUser.set('claimtoken', null);
         return wechatUser.save();
     })
-    .then( function(username) {
+    .then( function() {
     	if (!currentUser.existed()) {
 			console.log('User sign up');
 		}
@@ -49,8 +50,7 @@ Parse.Cloud.beforeSave(Parse.User, function(request, response) {
 			console.log('User modify');
 		}
     	return response.success();
-    })
-    .fail( function(error) {
+    }, function(error) {
     	console.error('Sign up with new claim token error: ' + error.message);
     	return response.error();
     });

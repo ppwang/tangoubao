@@ -234,7 +234,7 @@ tgbApp.controller('loginController', function($scope, $location, $state, $rootSc
     }
     var wechatId = $location.search().wechatId;
     var claimtoken = $location.search().claimtoken;
-    if (wechatId && claimtoken) {
+    if (typeof wechatId !== 'undefined' && typeof claimtoken !== 'undefined') {
         $scope.user.wechatId = wechatId;
         $scope.user.claimtoken = claimtoken; 
     }

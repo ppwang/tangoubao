@@ -15,13 +15,13 @@ module.factory('ParseUser', ['$q', function($q) {
             parseUser.set("password", user.password);
             parseUser.set("email", user.email);
             
-            if (user.wechatId && user.claimtoken) {
+            if (typeof user.wechatId !== 'undefined' && typeof user.claimtoken !== 'undefined') {
                 parseUser.set("wechatId", user.wechatId);
                 parseUser.set("claimtoken", user.claimtoken);
             }
 
             var defer = $q.defer();
-            user.signUp(
+            parseUser.signUp(
                 null, 
                 {
                     success: function(user) {

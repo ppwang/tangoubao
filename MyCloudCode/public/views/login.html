@@ -4,8 +4,6 @@
         Email: <input type="email" ng-model="user.email" ng-required="true"/><br />
         Username: <input type="text" ng-model="user.username" ng-required="true"/><br />
         Password: <input type="password" ng-model="user.password" ng-required="true"/><br />
-        <input type="hidden" ng-model="user.wechatId" value="testWechatId"/><br />
-        <input type="hidden" ng-model="user.claimtoken" value="testClaimtoken"/><br />
         <button ng-click="signUp(user)">Sign up</button>
         or <a href="#" ng-click='scenario="Log in"'>Log in</a>
     </form>
@@ -13,8 +11,6 @@
       <h2>Log in</h2>
       Username: <input type="text" ng-model="user.username" ng-required="true"/><br />
       Password: <input type="password" ng-model="user.password" ng-required="true"/><br />
-      <input type="hidden" ng-model="user.wechatId" value="testWechatId" /><br />
-      <input type="hidden" ng-model="user.claimtoken" value="testClaimtoken" /><br />
       <button ng-click="logIn(user)">Log in</button>
       or <a href="#" ng-click='scenario="Sign up"'>Sign up</a>
     </form>
