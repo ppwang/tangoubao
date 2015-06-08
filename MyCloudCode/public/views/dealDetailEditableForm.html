@@ -8,6 +8,14 @@
         <span ng-show="editableForm.$visible" class="editablePropertyDescription">* description of the deal</span>
     </div>
     <div>
+        <span>Begin Date: </span>
+        <!-- TODO: when enter edit mode the first time, datetime is not properly formatted. -->
+        <span editable-bsdate="deal.beginDate" e-datepicker-popup="MM-dd-yyyy">{{(deal.beginDate | date:"MM/dd/yyyy") || 'empty'}}</span>
+        <br>
+        <span>End Date:</span>
+        <span editable-bsdate="deal.endDate" e-datepicker-popup="MM-dd-yyyy">{{(deal.endDate | date:"MM/dd/yyyy") || 'empty'}}</span>        
+    </div>
+    <div>
         <span
             class="clickableText"
             ng-show="editableForm.$visible"

@@ -1,4 +1,4 @@
-var tgbApp = angular.module('tuanGouBao', ['GlobalConfiguration', 'Parse', 'ui.router', 'xeditable', 'imageupload']);
+var tgbApp = angular.module('tuanGouBao', ['GlobalConfiguration', 'Parse', 'ui.router', 'xeditable', 'imageupload', 'ui.bootstrap']);
 
 //tgbApp.config(function($locationProvider) {
 //    //$locationProvider.html5Mode(true).hashPrefix('!');
@@ -68,11 +68,29 @@ tgbApp.factory('dealDataService', ['$http', function($http) {
                 id: 1,
                 name: 'deal 1',
                 detailedDescription: 'detailed description 1',
+                beginDate: new Date(2015, 7, 1),
+                endDate: new Date(2015, 7, 15),
             },
             {
                 id: 2,
                 name: 'deal 2',
                 detailedDescription: 'detailed description 2',
+                beginDate: new Date(2015, 7, 8),
+                endDate: new Date(2015, 7, 16),
+            },
+            {
+                id: 3,
+                name: 'deal 3',
+                detailedDescription: 'detailed description 3',
+                beginDate: new Date(2015, 7, 30),
+                endDate: new Date(2015, 8, 7),
+            },
+            {
+                id: 4,
+                name: 'deal 4',
+                detailedDescription: 'detailed description 4',
+                beginDate: new Date(2015, 8, 2),
+                endDate: new Date(2015, 8, 9),
             },
         ];
     
