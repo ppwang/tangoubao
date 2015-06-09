@@ -1,21 +1,13 @@
 // These two lines are required to initialize Express in Cloud Code.
 var express = require('express');
 var app = express();
-var parseSettings = require('cloud/app.config.js').settings.parse;
-var parseApplicationId = parseSettings.applicationId;
-var parseJavascriptKey = parseSettings.javascriptKey;
-//Parse.initialize(parseApplicationId, parseJavascriptKey);
 
 var wechatServices = require('cloud/wechat/wechat_services');
-//var userServices = require('cloud/wechat/user_services');
 
 var xmlParser = require('cloud/lib/xml/xmlbodyparser');
 app.use(xmlParser());
 //app.use(express.bodyParser());    // Middleware for reading request body
 
-// Global app configuration section
-app.set('views', 'cloud/views');  // Specify the folder to find templates
-app.set('view engine', 'ejs');    // Set the template engine
 app.use(function (req, res, next) {
     req.rawBody = '';
     req.setEncoding('utf8');
@@ -31,9 +23,6 @@ app.get('/wechat', wechatServices.requestValidate);
 
 // This is the entry point for web messages
 app.post('/wechat', wechatServices.reply);
-
-// Entry point for user services
-//app.post('/user/', userServices);
 
 // Entry points for deal/deals
 app.use('/deal/', express.bodyParser());
