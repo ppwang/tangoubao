@@ -4,9 +4,10 @@ var app = express();
 var parseSettings = require('cloud/app.config.js').settings.parse;
 var parseApplicationId = parseSettings.applicationId;
 var parseJavascriptKey = parseSettings.javascriptKey;
-Parse.initialize(parseApplicationId, parseJavascriptKey);
+//Parse.initialize(parseApplicationId, parseJavascriptKey);
 
 var wechatServices = require('cloud/wechat/wechat_services');
+//var userServices = require('cloud/wechat/user_services');
 
 var xmlParser = require('cloud/lib/xml/xmlbodyparser');
 app.use(xmlParser());
@@ -30,6 +31,9 @@ app.get('/wechat', wechatServices.requestValidate);
 
 // This is the entry point for web messages
 app.post('/wechat', wechatServices.reply);
+
+// Entry point for user services
+//app.post('/user/', userServices);
 
 // Entry points for deal/deals
 app.use('/deal/', express.bodyParser());
