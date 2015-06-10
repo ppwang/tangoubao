@@ -252,10 +252,14 @@ tgbApp.controller('loginController', function($scope, $location, $state, $rootSc
     }
     var wechatId = $location.search().wechatId;
     var claimtoken = $location.search().claimtoken;
+    var nickname = $location.search().nickname;
+    var headimgurl = $location.search().headimgurl;
     if (typeof wechatId !== 'undefined' && typeof claimtoken !== 'undefined') {
         $scope.user.wechatId = wechatId;
         $scope.user.claimtoken = claimtoken; 
     }
+    $scope.user.nickname = nickname;
+    $scope.user.headimgurl = headimgurl;
 
     $scope.signUp = function(user) {
         clearStatusMessage();

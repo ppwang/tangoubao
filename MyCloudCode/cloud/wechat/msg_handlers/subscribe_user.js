@@ -17,7 +17,7 @@ module.exports = function (wechatId, publicAccountId, createTime, res) {
     })
     .then( function(wechatUser) {
         var message = messageUtils.generateWelcomeMessage(wechatId, publicAccountId, createTime, 
-            wechatUser.nickname, wechatUser.claimtoken);
+            wechatUser.nickname, wechatUser.headimgurl, wechatUser.claimtoken);
         // send response
         res.contentType('application/xml');
         res.send(message);

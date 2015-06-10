@@ -24,7 +24,7 @@ module.exports.textMsgHandler = function (wechatId, publicAccountId, createTime,
         var message;
         if (recreateWelcomeMessage) {
             message = messageUtils.generateWelcomeMessage(wechatId, publicAccountId, createTime, 
-                wechatUser.nickname, wechatUser.claimtoken);
+                wechatUser.nickname, wechatUser.headimgurl, wechatUser.claimtoken);
         }
         else {
             message = messageUtils.generateReplyMessage(wechatId, publicAccountId, createTime, 

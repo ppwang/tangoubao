@@ -95,6 +95,7 @@ var initWechatUser = function(wechatUser, wechatId, wechatUserRawData, refreshCl
     }
     if (typeof wechatUserData.headimgurl !== 'undefined') {
         wechatUser.set('headimgurl', wechatUserData.headimgurl);
+        wechatUser.headimgurl = wechatUserData.headimgurl;
     }
     if (typeof wechatUserData.subscribe_time !== 'undefined') {
         wechatUser.set('subscribe_time', wechatUserData.subscribe_time);

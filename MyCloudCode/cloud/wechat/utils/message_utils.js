@@ -3,8 +3,8 @@ var sprintf = require('cloud/lib/sprintf').sprintf,
     vsprintf = require('cloud/lib/sprintf').vsprintf;
 var serviceSetting = require('cloud/app.config.js').settings.webservice;
 
-module.exports.generateWelcomeMessage = function(wechatId, publicAccountId, createTime, nickname, claimtoken) {
-    var message = createInvitationCard(wechatId, nickname, claimtoken);
+module.exports.generateWelcomeMessage = function(wechatId, publicAccountId, createTime, nickname, headimgurl, claimtoken) {
+    var message = createInvitationCard(wechatId, nickname, headimgurl, claimtoken);
     var str = vsprintf(wcMsgFormats.basicReplyXmlFormat, [
             wechatId,
             publicAccountId,
@@ -29,13 +29,14 @@ module.exports.generateReplyMessage = function(wechatId, publicAccountId, create
     return str;
 };
 
-var createInvitationCard = function (wechatId, nickname, claimtoken) {
+var createInvitationCard = function (wechatId, nickname, headimgurl, claimtoken) {
     var message = nickname + '，'
         + '欢迎加入团购宝！ 请按以下链接绑定团购宝账户。'
         + '<a href="' + serviceSetting.baseUrl 
             + '/#/login?wechatId=' + wechatId 
             + '&nickname=' + nickname
             + '&claimtoken=' + claimtoken
+            + '&headimgurl=' + encodeURIComponent(headimgurl)
         + '">绑定团购宝</a>';
     return message;
 }
