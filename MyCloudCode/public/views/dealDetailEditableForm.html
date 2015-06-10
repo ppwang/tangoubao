@@ -37,11 +37,11 @@
         <br>
         <pre>{{image | json}}</pre>
     </div>
-    <div class="buttons">
+    <div class="buttons" ng-show="deal.type === 'own'">
         <!-- button to show form -->
         <span ng-show="!editableForm.$visible">
             <button type="button" class="btn btn-default" ng-click="editableForm.$show()">Edit</button>
-            <button ng-click="deleteDeal()">Delete</button>
+            <button type="button" class="btn" ng-click="deleteDeal()">Delete</button>
         </span>
         <!-- buttons to submit / cancel form -->
         <span ng-show="editableForm.$visible">

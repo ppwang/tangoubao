@@ -55,3 +55,9 @@ html, body {
     background-color: deepskyblue;
     color:beige;
 }
+
+.dealList {
+    list-style: none;
+    padding-left: 15px;
+    cursor: pointer;
+}

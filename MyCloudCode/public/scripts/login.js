@@ -59,6 +59,100 @@ tgbApp.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, 
         })
 }]);
 
+tgbApp.factory('dealGroupingService', [function() {
+    var dealGroupingService = {};
+    
+    dealGroupingService.getYearMonthString = function(date) {
+        return date 
+            ? date.getFullYear().toString() + '-' + (date.getMonth() + 1).toString() 
+            : 'Undated';
+    };
+    
+    dealGroupingService.groupDeals = function(deals) {
+        // Group the deals first by deal type, then by end date.
+        // TODO: optimize this code, so that we can defined multiple level of nested lists more cleanly.
+        var originalDealByType = _.groupBy(deals, 'type');
+        var dealGroups = {};
+        for (var dealType in originalDealByType) {
+            dealGroups[dealType] = {};
+            dealGroups[dealType].active = true;
+
+            var originalDealByYearMonth = _.groupBy(originalDealByType[dealType], function(deal) {
+                // TODO: this doesn't work.
+                //return this.getYearMonthString(deal.endDate);
+                var date = deal.endDate;
+                return date ? date.getFullYear().toString() + '-' + (date.getMonth() + 1).toString() : 'Undated';
+            });
+
+            dealGroups[dealType].dealByYearMonth = {};
+            var newDealByYearMonth = dealGroups[dealType].dealByYearMonth;
+            for (var yearMonth in originalDealByYearMonth) {
+                newDealByYearMonth[yearMonth] = {};
+                newDealByYearMonth[yearMonth].active = false;
+                newDealByYearMonth[yearMonth].deals = originalDealByYearMonth[yearMonth];
+            }
+        }
+        
+        return dealGroups;
+    };
+    
+    // Inserts a deal in the proper location in deal group.
+    dealGroupingService.insertDeal = function(deal, dealGroups) {
+        if (!dealGroups['own']) {
+            dealGroups['own'] = {};
+        }
+        var newDealGroup = dealGroups['own'];
+        newDealGroup.active = true;
+        
+        if (!newDealGroup.dealByYearMonth) {
+            newDealGroup.dealByYearMonth = {};
+        }
+        var newDealsByYearMonth = newDealGroup.dealByYearMonth;
+        
+        var yearMonthString = this.getYearMonthString(deal.endDate);
+        if (!newDealsByYearMonth[yearMonthString]) {
+            newDealsByYearMonth[yearMonthString] = {};
+        }
+        var deals = newDealsByYearMonth[yearMonthString];
+        deals.active = true;
+        
+        if (!deals.deals) {
+            deals.deals = [];
+        }
+        deals.deals.unshift(deal);
+    };
+    
+    dealGroupingService.deleteDeal = function(deal, dealGroups) {
+        // Assume the deal exists in the tree.
+        for (var dealType in dealGroups) {
+            var dealByYearMonth = dealGroups[dealType].dealByYearMonth;
+            if (!dealByYearMonth) {
+                continue;
+            }
+
+            var dealByYearMonthString = this.getYearMonthString(deal.endDate);
+            if (!dealByYearMonth[dealByYearMonthString]) {
+                continue;
+            }
+            
+            var deals = dealByYearMonth[dealByYearMonthString].deals;
+            if (!deals) {
+                continue;
+            }
+            
+            _.remove(deals, function(d) {
+                return d.id === deal.id;
+            });
+            
+            if (deals.length === 0) {
+                delete dealByYearMonth[dealByYearMonthString];
+            }
+        }
+    };
+    
+    return dealGroupingService;
+}]);
+
 tgbApp.factory('dealDataService', ['$http', function($http) {
 
     // Mock data
@@ -66,6 +160,7 @@ tgbApp.factory('dealDataService', ['$http', function($http) {
         [
             {
                 id: 1,
+                type: 'own',
                 name: 'deal 1',
                 detailedDescription: 'detailed description 1',
                 beginDate: new Date(2015, 7, 1),
@@ -73,6 +168,7 @@ tgbApp.factory('dealDataService', ['$http', function($http) {
             },
             {
                 id: 2,
+                type: 'own',
                 name: 'deal 2',
                 detailedDescription: 'detailed description 2',
                 beginDate: new Date(2015, 7, 8),
@@ -80,6 +176,7 @@ tgbApp.factory('dealDataService', ['$http', function($http) {
             },
             {
                 id: 3,
+                type: 'own',
                 name: 'deal 3',
                 detailedDescription: 'detailed description 3',
                 beginDate: new Date(2015, 7, 30),
@@ -87,10 +184,35 @@ tgbApp.factory('dealDataService', ['$http', function($http) {
             },
             {
                 id: 4,
+                type: 'own',
                 name: 'deal 4',
                 detailedDescription: 'detailed description 4',
                 beginDate: new Date(2015, 8, 2),
                 endDate: new Date(2015, 8, 9),
+            },
+            {
+                id: 5,
+                type: 'follow',
+                name: 'deal 5',
+                detailedDescription: 'detailed description 5',
+                beginDate: new Date(2015, 8, 1),
+                endDate: new Date(2015, 8, 14),
+            },
+            {
+                id: 6,
+                type: 'follow',
+                name: 'deal 6',
+                detailedDescription: 'detailed description 6',
+                beginDate: new Date(2015, 8, 2),
+                endDate: new Date(2015, 8, 10),
+            },
+            {
+                id: 7,
+                type: 'follow',
+                name: 'deal 7',
+                detailedDescription: 'detailed description 7',
+                beginDate: new Date(2015, 8, 30),
+                endDate: new Date(2015, 9, 2),
             },
         ];
     
@@ -127,6 +249,9 @@ tgbApp.factory('dealDataService', ['$http', function($http) {
             return {
                 id: deal.id,
                 name: deal.name,
+                type: deal.type,
+                beginDate: deal.beginDate,
+                endDate: deal.endDate,
             };
         });
     };
@@ -160,11 +285,6 @@ tgbApp.directive('dealDetailEditableForm', function() {
         if (!scope.deal.id) {
             scope.editableForm.$show();
         }
-        
-        // Populate image
-//        if (scope.deal.imageBase64) {
-//            var dataURL = scope.deal.imageType + ';base64,' + scope.deal.imageBase64;
-//        }
     };
 
     return {
@@ -174,15 +294,31 @@ tgbApp.directive('dealDetailEditableForm', function() {
     };   
 });
 
-tgbApp.controller('mainController', function($scope, $state, $rootScope, dealDataService) {
+tgbApp.controller('mainController', function($scope, $state, $rootScope, dealDataService, dealGroupingService) {
     if (!$rootScope.currentUser) {
         $state.go('login');
     }
     
-    $scope.deals = dealDataService.getDeals();
+    var deals = dealDataService.getDeals();
+    
+    $scope.dealGroups = dealGroupingService.groupDeals(deals);
+    
+    $scope.getSortedDealEndDates = function(dealGroup) {
+        return _.sortByOrder(_.keys(dealGroup), [_.identity], [false]);
+    };
+    
+    $scope.getSortedDeals = function(deals) {
+        // Sort by end date descending.
+        return _.sortByOrder(
+            deals, 
+            [function(deal) {
+                return deal.endDate; 
+            }],
+            [false]);
+    };
 });
 
-tgbApp.controller('dealDetailController', function($scope, $stateParams, $state, dealDataService){
+tgbApp.controller('dealDetailController', function($scope, $stateParams, $state, dealDataService, dealGroupingService){
     $scope.deal = dealDataService.getDeal(parseInt($stateParams.id));
     if (!$scope.deal) {
         $scope.deal = { };
@@ -213,8 +349,12 @@ tgbApp.controller('dealDetailController', function($scope, $stateParams, $state,
         
         // Add to deal to model if it is a new deal.
         if (!$scope.deal.id) {
+            $scope.deal.type = 'own';
             $scope.deal.id = newId;
-            $scope.deals.unshift($scope.deal);
+//            $scope.deals.unshift($scope.deal);
+            
+            dealGroupingService.insertDeal($scope.deal, $scope.dealGroups);
+            
             // Navigate to the deal that was just created.
             $state.go('home.dealDetail', { 'id': $scope.deal.id });
         }
@@ -223,16 +363,17 @@ tgbApp.controller('dealDetailController', function($scope, $stateParams, $state,
     $scope.deleteDeal = function() {
         // TODO: need error handling here.
         dealDataService.deleteDeal($scope.deal.id);
-        
-        _.remove($scope.deals, function(d) {
-            return d.id === $scope.deal.id;
-        }); 
+        dealGroupingService.deleteDeal($scope.deal, $scope.dealGroups);
+        $state.go('home.dealDetail', { 'id': -1 });
+//        _.remove($scope.deals, function(d) {
+//            return d.id === $scope.deal.id;
+//        }); 
 
-        if ($scope.deals.length === 0) {
-            $state.go('home.dealDetail', { 'id': -1 });
-        } else {
-            $state.go('home.dealDetail', { 'id': $scope.deals[0].id });
-        }
+//        if ($scope.deals.length === 0) {
+//            $state.go('home.dealDetail', { 'id': -1 });
+//        } else {
+//            $state.go('home.dealDetail', { 'id': $scope.deals[0].id });
+//        }
     };
 });
 
