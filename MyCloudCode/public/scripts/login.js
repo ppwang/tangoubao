@@ -283,6 +283,8 @@ tgbApp.factory('dealDataService', ['$http', function($http) {
 tgbApp.directive('dealDetailEditableForm', function() {
     function link(scope, element, attrs) {
         if (!scope.deal.id) {
+            // for new deal, default type is "own"
+            scope.deal.type = 'own';
             scope.editableForm.$show();
         }
     };
