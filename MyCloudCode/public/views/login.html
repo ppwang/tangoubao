@@ -1,26 +1,46 @@
 <div ng-hide="currentUser">
     <form ng-show="scenario == 'Sign up'">
         <div class="row"> 
-          <div class="col-sm-1"><img class="img-responsive" src="{{user.headimgurl}}"></img></div>
-          <div class="col-sm-11"><h2>Welcome {{user.nickname}}!</h2></div>
+          <div class="col-sm-12 welcome-msg">
+            <h2>
+              Welcome {{user.nickname}}!
+              <div class="head-img"><img class="img-responsive" src="{{user.headimgurl}}" alt=""></img></div>
+            </h2> 
+          </div>
         </div>
-        <div class="row">
-          <div class="col-sm-12"><h3>Please sign up with Tuan Gou Bao</h3></div>
-        </div>
-        <div class="row">Email: <input type="email" ng-model="user.email" ng-required="true"/></div>
-        <div class="row">Username: <input type="text" ng-model="user.username" ng-required="true"/></div>
-        <div class="row">Password: <input type="password" ng-model="user.password" ng-required="true"/></div>
-        <div class="row">
-          <button ng-click="signUp(user)">Sign up</button>
-          or <a href="#" ng-click='scenario="Log in"'>Log in</a>
+        <div class="sign-area">
+          <div class="row">
+            <div class="col-sm-12"><h3>Please sign up with Tuan Gou Bao</h3></div>
+            </div>
+            <div class="row sign-input">Email: <input type="email" ng-model="user.email" ng-required="true"/></div>
+            <div class="row sign-input">Username: <input type="text" ng-model="user.username" ng-required="true"/></div>
+            <div class="row sign-input">Password: <input type="password" ng-model="user.password" ng-required="true"/></div>
+            <div class="row sign-input">
+              <button ng-click="signUp(user)">Sign up</button>
+              or <a href="#" ng-click='scenario="Log in"'>Log in</a>
+            </div>
         </div>
     </form>
     <form ng-show="scenario == 'Log in'">
-      <h2>Log in</h2>
-      Username: <input type="text" ng-model="user.username" ng-required="true"/><br />
-      Password: <input type="password" ng-model="user.password" ng-required="true"/><br />
-      <button ng-click="logIn(user)">Log in</button>
-      or <a href="#" ng-click='scenario="Sign up"'>Sign up</a>
+      <div class="row"> 
+        <div class="col-sm-12 welcome-msg">
+          <h2>
+            Welcome {{user.nickname}}!
+            <div class="head-img"><img class="img-responsive" src="{{user.headimgurl}}" alt=""></img></div>
+          </h2>
+        </div>
+      </div>
+      <div class="sign-area">
+        <div class="row">
+          <h3>Log in</h3>      
+        </div>
+        <div class="row sign-input">Username: <input type="text" ng-model="user.username" ng-required="true"/></div>
+        <div class="row sign-input">Password: <input type="password" ng-model="user.password" ng-required="true"/></div>
+        <div class="row sign-input">
+          <button ng-click="logIn(user)">Log in</button>
+          or <a href="#" ng-click='scenario="Sign up"'>Sign up</a>
+        </div>
+      </div>
     </form>
 </div>
 <div ng-show="currentUser">

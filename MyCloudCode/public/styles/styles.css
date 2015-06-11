@@ -61,3 +61,28 @@ html, body {
     padding-left: 15px;
     cursor: pointer;
 }
+
+/* Log in / sign in */
+.sign-area {
+  text-align: center;
+  max-width: 500px;
+  margin: 0 auto 20px auto;
+  padding: 0 0 20px 0;
+  border-color: lightgray;
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 10px;
+}
+
+.head-img {
+    max-width: 50px;
+    display: inline-block;
+}
+
+.welcome-msg {
+    text-align: center;
+}
+
+.sign-input {
+    margin: 10px auto;
+}
