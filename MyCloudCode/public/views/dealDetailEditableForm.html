@@ -4,6 +4,10 @@
         <span ng-show="editableForm.$visible">* name of the deal</span>
     </div>
     <div>
+        <span editable-text="deal.subtitle" e-name="subtitle" e-required>{{deal.subtitle}}</span>
+        <span ng-show="editableForm.$visible">* subtitle of the deal</span>
+    </div>
+    <div>
         <span editable-textarea="deal.detailedDescription" e-rows="7" e-cols="40" class="editableTextArea">{{deal.detailedDescription}}</span>
         <span ng-show="editableForm.$visible" class="editablePropertyDescription">* description of the deal</span>
     </div>
@@ -35,7 +39,29 @@
         <!-- Because we cannot pre-populate the input file, we still show the image in the model if nothing is uploaded. -->
         <img ng-show="(!editableForm.$visible || !productImageUpload) && deal.imageBase64" src="{{deal.imageBase64 ? 'data:' + deal.imageType + ';base64,' + deal.imageBase64 : ''}}">
         <br>
-        <pre>{{image | json}}</pre>
+    </div>
+    <div>
+        <span>Email: </span>
+        <span editable-email="deal.email">{{ deal.email}}</span>
+    </div>
+    <div>
+        <span>Tel: </span>
+        <!-- TODO: allow phone numbers to be stored in pure numerical format. -->
+        <span editable-tel="deal.phoneNumber" e-pattern="\d{3}\-\d{4}" e-title="xxx-xxxx">{{deal.phoneNumber}}</span>
+    </div>
+    <div>
+        <span>Pickup options: </span>
+        <ul>
+            <li ng-repeat="option in deal.pickupOptions">
+                <span editable-text="option.description" e-name="subtitle" e-required>{{option.description}}</span>
+            </li>
+        </ul>
+    </div>
+    <div>
+        <span editable-textarea="deal.remarks" e-rows="7" e-cols="40" class="editableTextArea">{{deal.remarks}}</span>
+        <span ng-show="editableForm.$visible" class="editablePropertyDescription">* additional remarks (e.g. other contact information)</span>
+    </div>
+    <div>
     </div>
     <div class="buttons" ng-show="deal.type === 'own'">
         <!-- button to show form -->
