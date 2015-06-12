@@ -1,6 +1,7 @@
 var Deal = Parse.Object.extend('Deal');
 
 module.exports.putDeal = function(req, res) {
+	console.log('put deal request');
 	var currentUser = Parse.User.current();
 	if (typeof currentUser === 'undefined') {
 		// require user to log in
@@ -10,9 +11,11 @@ module.exports.putDeal = function(req, res) {
 	var dealId = req.params.dealId;
 	if (typeof dealId === 'undefined') {
 		// create a new deal
+		console.log('create deal');
 		createDeal(req, res, currentUser);
 	}
 	else {
+		console.log('modify deal');
 		modifyDeal(res, res, currentUser);
 	}
 };
@@ -44,11 +47,12 @@ module.exports.modifyDeal = function(req, res, user) {
 }
 
 var createDeal = function(req, res, user) {
+	console.log(req.body);
 	var deal = new Deal();
 
-	var title = req.body.title;
-	if (typeof title !== 'undefined') {
-		deal.set('title', title);
+	var name = req.body.name;
+	if (typeof name !== 'undefined') {
+		deal.set('name', name);
 	}
 
 	var subtitle = req.body.subtitle;
@@ -56,14 +60,14 @@ var createDeal = function(req, res, user) {
 		deal.set('subtitle', subtitle);
 	}
 
-	var details = req.body.details;
-	if (typeof details !== 'undefined') {
-		deal.set('details', details);
+	var detailedDescription = req.body.detailedDescription;
+	if (typeof detailedDescription !== 'undefined') {
+		deal.set('detailedDescription', detailedDescription);
 	}
 
-	var startDate = req.body.startDate;
+	var beginDate = req.body.beginDate;
 	if (typeof startDate !== 'undefined') {
-		deal.set('startDate', startDate);
+		deal.set('beginDate', beginDate);
 	}
 
 	var endDate = req.body.endDate;
@@ -81,20 +85,38 @@ var createDeal = function(req, res, user) {
 		deal.set('contactPhone', contactPhone);
 	}
 
-	var picture = req.body.image;
-	if (typeof picture !== 'undefined' && typeof picture.type !== 'undefined') {
-		var targetPicFile = new Parse.File('deal_image.png', picture.data);
+	var imageData = req.body.imageBase64;
+	var imageType = req.body.imageType;
+	if (typeof imageData !== 'undefined' && typeof imageType !== 'undefined') {
+		// TODO: support jpg besides png
+		if (imageType != 'image/png') {
+			console.log('Unsupported image type: ' + imageType);
+			res.status(500).end();
+			return;
+		}
+		var targetImageFile = new Parse.File('deal_image.png', picture.data, imageType);
 		// TODO: resize for icon
-		targetPicFile.save()
-		.then(function() {
-			deal.save();
+		targetImageFile.save()
+		.then(function(imgFile) {
+			deal.set('dealImage', imgFile);
+			return deal.save();
 		})
-		.then( function() {
+		.then( function(deal) {
+			console.log('save deal: ' + JSON.stringify(deal));
 			res.status(200).end();
 		}, function(error) {
 			console.error('picture save to parse error: ' + error);
 			res.status(500).end();
 		});
 	}
-
+	else {
+		console.log('save deal: ' + JSON.stringify(deal));
+		deal.save()
+		.then(function() {
+			res.status(200).end();
+		}, function(error) {
+			console.error('error: ' + error);
+			res.status(500).end();
+		});
+	}
 }

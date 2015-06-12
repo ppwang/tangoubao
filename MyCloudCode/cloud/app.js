@@ -25,16 +25,16 @@ app.get('/wechat', wechatServices.requestValidate);
 app.post('/wechat', wechatServices.reply);
 
 // Entry points for deal/deals
-app.use('/deal/', express.bodyParser());
+app.use('/api/deal/', express.bodyParser());
 
 var dealController = require('cloud/controller/deal_controller');
-app.get('/deal/:dealId?', dealController.getDeal);
-app.put('/deal/:dealId?', dealController.putDeal);
-app.delete('/deal/:dealId?', dealController.deleteDeal);
+app.get('/api/deal/:dealId?', dealController.getDeal);
+app.put('/api/deal/:dealId?', dealController.putDeal);
+app.delete('/api/deal/:dealId?', dealController.deleteDeal);
 
 var dealsController = require('cloud/controller/deals_controller');
 // get 2 lists: one for deals owned; the other for deals followed
-app.get('/deals/', dealsController.getDeals);
+app.get('/api/deals/', dealsController.getDeals);
 
 // Custom menus
 app.get('/wechat/create_menus', wechatServices.createMenus);
