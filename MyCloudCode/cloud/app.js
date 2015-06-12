@@ -5,10 +5,10 @@ var app = express();
 var wechatServices = require('cloud/wechat/wechat_services');
 
 var xmlParser = require('cloud/lib/xml/xmlbodyparser');
-app.use(xmlParser());
+app.use('/wechat', xmlParser());
 //app.use(express.bodyParser());    // Middleware for reading request body
 
-app.use(function (req, res, next) {
+app.use('/wechat', function (req, res, next) {
     req.rawBody = '';
     req.setEncoding('utf8');
     req.on('data', function (chunk) {
@@ -25,7 +25,7 @@ app.get('/wechat', wechatServices.requestValidate);
 app.post('/wechat', wechatServices.reply);
 
 // Entry points for deal/deals
-app.use('/api/deal/', express.bodyParser());
+app.use('/api/deal', express.bodyParser());
 
 var dealController = require('cloud/controller/deal_controller');
 app.get('/api/deal/:dealId?', dealController.getDeal);

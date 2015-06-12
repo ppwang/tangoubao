@@ -47,7 +47,9 @@ module.exports.modifyDeal = function(req, res, user) {
 }
 
 var createDeal = function(req, res, user) {
+	console.log(req.query);
 	console.log(req.body);
+	console.log(req.rawBody);
 	var deal = new Deal();
 
 	var name = req.body.name;

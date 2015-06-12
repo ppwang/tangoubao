@@ -216,7 +216,8 @@ tgbApp.factory('dealDataService', ['$http', function($http) {
             },
         ];
     
-    //var urlBase = '/api/customers';
+    var apiUrl = '/api'
+    var dealApiUrl = apiUrl + '/deal';
     var dealDataService = {};
 
 //    dealDataService.getCustomers = function () {
@@ -265,9 +266,15 @@ tgbApp.factory('dealDataService', ['$http', function($http) {
     
     dealDataService.saveDeal = function(deal) {
         // TODO: temporary code
-        // $http.put();
-        mockDealData.push(deal);
-        return mockDealData.length;
+
+        $http.put(dealApiUrl, JSON.stringify(deal))
+        .then(function() {
+            alert('success');
+        }, function(error) {
+            alert('fail');
+        });
+        //mockDealData.push(deal);
+        //return mockDealData.length;
     };
     
     dealDataService.deleteDeal = function(id) {
