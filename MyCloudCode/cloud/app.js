@@ -6,7 +6,8 @@ var wechatServices = require('cloud/wechat/wechat_services');
 
 var xmlParser = require('cloud/lib/xml/xmlbodyparser');
 app.use('/wechat', xmlParser());
-//app.use(express.bodyParser());    // Middleware for reading request body
+// Middleware for reading request body; please do not enable since it will break wechat which is using xml
+//app.use(express.bodyParser());    
 
 app.use('/wechat', function (req, res, next) {
     req.rawBody = '';
@@ -25,11 +26,11 @@ app.get('/wechat', wechatServices.requestValidate);
 app.post('/wechat', wechatServices.reply);
 
 // Entry points for deal/deals
-app.use('/api/deal', express.bodyParser());
 
 var dealController = require('cloud/controller/deal_controller');
 app.get('/api/deal/:dealId?', dealController.getDeal);
-app.put('/api/deal/:dealId?', dealController.putDeal);
+// Use bodyparser to parse form input first and then call putDeal
+app.put('/api/deal/:dealId?', express.bodyParser(), dealController.putDeal);
 app.delete('/api/deal/:dealId?', dealController.deleteDeal);
 
 var dealsController = require('cloud/controller/deals_controller');

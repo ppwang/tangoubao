@@ -323,15 +323,12 @@ tgbApp.factory('dealDataService', ['$http', function($http) {
     };
     
     dealDataService.saveDeal = function(deal) {
-        // TODO: temporary code
-
-        $http.put(dealApiUrl, JSON.stringify(deal))
+        $http.put(dealApiUrl, deal)
         .then(function() {
             alert('success');
         }, function(error) {
             alert('fail');
         });
-        //mockDealData.push(deal);
         //return mockDealData.length;
     };
     
