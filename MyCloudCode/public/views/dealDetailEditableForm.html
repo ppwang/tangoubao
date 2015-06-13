@@ -14,10 +14,13 @@
     <div>
         <span>Begin Date: </span>
         <!-- TODO: when enter edit mode the first time, datetime is not properly formatted. -->
-        <span editable-bsdate="deal.beginDate" e-datepicker-popup="MM-dd-yyyy">{{(deal.beginDate | date:"MM/dd/yyyy") || 'empty'}}</span>
+        <!--span editable-bsdate="deal.beginDate" e-datepicker-popup="MM-dd-yyyy">{{(deal.beginDate | date:"MM/dd/yyyy") || 'empty'}}</span-->
+        <!-- TODO: the edit buttons are misaligned. --></11>
+        <span editable-date="deal.beginDate">{{deal.beginDate | date:"MM/dd/yyyy"}}</span>
         <br>
         <span>End Date:</span>
-        <span editable-bsdate="deal.endDate" e-datepicker-popup="MM-dd-yyyy">{{(deal.endDate | date:"MM/dd/yyyy") || 'empty'}}</span>        
+        <!--span editable-bsdate="deal.endDate" e-datepicker-popup="MM-dd-yyyy">{{(deal.endDate | date:"MM/dd/yyyy") || 'empty'}}</span-->
+        <span editable-date="deal.endDate">{{deal.endDate | date:"MM/dd/yyyy"}}</span>
     </div>
     <div>
         <span
@@ -52,10 +55,18 @@
     <div>
         <span>Pickup options: </span>
         <ul>
-            <li ng-repeat="option in deal.pickupOptions">
+            <li ng-repeat="option in deal.pickUpOptionsShadow">
                 <span editable-text="option.description" e-name="subtitle" e-required>{{option.description}}</span>
+                <span ng-show="editableForm.$visible" ng-click="deletePickupOptionShadow(option)"><a>Delete</a></span>
             </li>
         </ul>
+        <a ng-show="editableForm.$visible" ng-click="newPickupOptionShadow()">Add new option</a>
+    </div>
+    <div>
+        <span>Unit name:</span>
+        <span editable-text="deal.unitName" e-name="name" e-required>{{deal.unitName}}</span>
+        <span>Unit price: $</span>
+        <span editable-text="deal.unitPrice" e-name="name" e-required>{{deal.unitPrice | number:2}}</span>
     </div>
     <div>
         <span editable-textarea="deal.remarks" e-rows="7" e-cols="40" class="editableTextArea">{{deal.remarks}}</span>
@@ -72,7 +83,7 @@
         <!-- buttons to submit / cancel form -->
         <span ng-show="editableForm.$visible">
             <button type="submit" class="btn btn-primary" ng-disabled="editableForm.$waiting">Save</button>
-            <button type="button" class="btn btn-default" ng-disabled="editableForm.$waiting" ng-click="editableForm.$cancel()">Cancel</button>
+            <button type="button" class="btn btn-default" ng-disabled="editableForm.$waiting" ng-click="cancelForm()">Cancel</button>
         </span>
     </div>
 </form>

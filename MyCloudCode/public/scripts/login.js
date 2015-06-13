@@ -1,4 +1,4 @@
-var tgbApp = angular.module('tuanGouBao', ['GlobalConfiguration', 'Parse', 'ui.router', 'xeditable', 'imageupload', 'ui.bootstrap']);
+var tgbApp = angular.module('tuanGouBao', ['GlobalConfiguration', 'Parse', 'ui.router', 'xeditable', 'imageupload']);
 
 //tgbApp.config(function($locationProvider) {
 //    //$locationProvider.html5Mode(true).hashPrefix('!');
@@ -178,6 +178,8 @@ tgbApp.factory('dealDataService', ['$http', function($http) {
                         description: 'pickup option 2',
                     },
                 ],
+                unitName: 'box',
+                unitPrice: '20.5',
                 remarks: 'remarks 1',
             },
             {
@@ -190,6 +192,8 @@ tgbApp.factory('dealDataService', ['$http', function($http) {
                 endDate: new Date(2015, 7, 16),
                 email: 'email2@tgb.com',
                 phoneNumber: '222-2222',
+                unitName: 'lb',
+                unitPrice: '5',
                 remarks: 'remarks 2',
             },
             {
@@ -202,6 +206,8 @@ tgbApp.factory('dealDataService', ['$http', function($http) {
                 endDate: new Date(2015, 8, 7),
                 email: 'email3@tgb.com',
                 phoneNumber: '333-3333',
+                unitName: '个',
+                unitPrice: '17',
                 remarks: 'remarks 3',
             },
             {
@@ -214,6 +220,8 @@ tgbApp.factory('dealDataService', ['$http', function($http) {
                 endDate: new Date(2015, 8, 9),
                 email: 'email4@tgb.com',
                 phoneNumber: '444-4444',
+                unitName: '箱',
+                unitPrice: '55',
                 remarks: 'remarks 4',
             },
             {
@@ -226,6 +234,14 @@ tgbApp.factory('dealDataService', ['$http', function($http) {
                 endDate: new Date(2015, 8, 14),
                 email: 'email5@tgb.com',
                 phoneNumber: '555-5555',
+                pickupOptions: [
+                    {
+                        id: 5,
+                        description: 'pickup option 5',
+                    },
+                ],                
+                unitName: '只',
+                unitPrice: '8',
                 remarks: 'remarks 5',
             },
             {
@@ -238,6 +254,8 @@ tgbApp.factory('dealDataService', ['$http', function($http) {
                 endDate: new Date(2015, 8, 10),
                 email: 'email6@tgb.com',
                 phoneNumber: '666-6666',
+                unitName: 'box',
+                unitPrice: '15',
                 remarks: 'remarks 6',
             },
             {
@@ -250,6 +268,8 @@ tgbApp.factory('dealDataService', ['$http', function($http) {
                 endDate: new Date(2015, 9, 2),
                 email: 'email7@tgb.com',
                 phoneNumber: '777-7777',
+                unitName: 'box',
+                unitPrice: '7.6',
                 remarks: 'remarks 7',
             },
         ];
@@ -359,8 +379,17 @@ tgbApp.controller('mainController', function($scope, $state, $rootScope, dealDat
 tgbApp.controller('dealDetailController', function($scope, $stateParams, $state, dealDataService, dealGroupingService){
     $scope.deal = dealDataService.getDeal(parseInt($stateParams.id));
     if (!$scope.deal) {
-        $scope.deal = { };
+        $scope.deal = {
+            type: 'own',
+        };
     }
+    
+    if (!$scope.deal.pickupOptions) {
+        $scope.deal.pickupOptions = {};
+    }
+    
+    // Create a shadow copy of pickupOptions, so that we can hook into editable form in a custom way.
+    $scope.deal.pickUpOptionsShadow = angular.copy($scope.deal.pickupOptions);
     
     $scope.clearproductImageUpload = function() {
         if ($scope.productImageUpload) {
@@ -396,6 +425,10 @@ tgbApp.controller('dealDetailController', function($scope, $stateParams, $state,
             // Navigate to the deal that was just created.
             $state.go('home.dealDetail', { 'id': $scope.deal.id });
         }
+        
+        // Synchronize any custom shadow objects.
+        // TODO: copying might be expensive. Consider updating instead. 
+        $scope.deal.pickupOptions = angular.copy($scope.deal.pickUpOptionsShadow);
     };
     
     $scope.deleteDeal = function() {
@@ -412,6 +445,28 @@ tgbApp.controller('dealDetailController', function($scope, $stateParams, $state,
 //        } else {
 //            $state.go('home.dealDetail', { 'id': $scope.deals[0].id });
 //        }
+    };
+
+    $scope.newPickupOptionShadow = function() {
+        // TODO: how do we update option id after saving? Probably save will return entire deal object.
+        var newOption = {
+            id: _.max($scope.deal.pickUpOptionsShadow, 'id') + 1,  
+        };
+        $scope.deal.pickUpOptionsShadow.push({});
+    }
+    
+    $scope.deletePickupOptionShadow = function(option) {
+        _.remove($scope.deal.pickUpOptionsShadow, function(o) {
+            return o.id === option.id; 
+        });
+    };
+    
+    $scope.cancelForm = function() {
+        // Restore shadow objects;
+        // TODO: copying might be expensive. Consider updating instead. 
+        $scope.deal.pickUpOptionsShadow = angular.copy($scope.deal.pickupOptions);
+        
+        $scope.editableForm.$cancel();
     };
 });
 
