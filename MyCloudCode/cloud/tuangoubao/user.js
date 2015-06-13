@@ -45,7 +45,8 @@ Parse.Cloud.beforeSave(Parse.User, function(request, response) {
     	else {
 	    	console.log('wechatUser is: ' + JSON.stringify(wechatUser)); 
 	        wechatUser.set('status', 'active');
-	        wechatUser.set('claimtoken', undefined);
+	        // It is weird: parse only change the field if you set it to be 'null'
+	        wechatUser.set('claimtoken', null);
 	        return wechatUser.save();
 	    }
     })
@@ -63,7 +64,8 @@ Parse.Cloud.beforeSave(Parse.User, function(request, response) {
 		var promises = [];
 		_.each(claimedUsers, function(claimedUser) {
 			console.log('saving claimedUser');
-			claimedUser.set('wechatId', undefined);
+	        // It is weird: parse only change the field if you set it to be 'null'
+			claimedUser.set('wechatId', null);
 			claimedUser.set('masterRequest', 'true');
 			console.log('claimedUser: ' + JSON.stringify(claimedUser));
 			promises.push(claimedUser.save());
