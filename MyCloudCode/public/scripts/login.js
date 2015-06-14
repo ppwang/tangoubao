@@ -451,9 +451,9 @@ tgbApp.controller('dealDetailController', function($scope, $stateParams, $state,
         $scope.deal = {
             type: 'own',
         };
+    } else {
+        $scope.deal = dealDataService.getDeal(parseInt($stateParams.id));
     }
-    
-    $scope.deal = dealDataService.getDeal(parseInt($stateParams.id));
 
     if (!$scope.deal.pickupOptions) {
         $scope.deal.pickupOptions = {};
