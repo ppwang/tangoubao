@@ -86,4 +86,7 @@
             <button type="button" class="btn btn-default" ng-disabled="editableForm.$waiting" ng-click="cancelForm()">Cancel</button>
         </span>
     </div>
+    <div ng-show="deal.type === 'follow'">
+        <button type="button" ng-click="purchaseDeal()">I want to buy!</button>
+    </div>
 </form>
