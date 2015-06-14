@@ -17,7 +17,7 @@ module.exports.putDeal = function(req, res) {
 	}
 	else {
 		console.log('modify deal');
-		modifyDeal(res, res, currentUser);
+		modifyDeal(dealId, res, res, currentUser);
 	}
 };
 
@@ -42,22 +42,29 @@ module.exports.getDeal = function(req, res) {
 	}
 };
 
-module.exports.modifyDeal = function(req, res, user) {
-	// TODO: add modif
-	res.send('dealId is: ' + dealId);
+module.exports.modifyDeal = function(dealId, req, res, user) {
+	var query = new Parse.Query(Deal);
+    query.equalTo('dealId', dealId);
+    return query.first()
+    .then( function(deal) {
+    	console.log('Current deal is: ' + JSON.stringify(deal)); 
+    	saveDeal(deal, req, res);
+    });
 }
 
 var createDeal = function(req, res, user) {
 	var deal = new Deal();
 
-	var dealId = req.body.dealId;
-	if (typeof dealId === 'undefined') {
-		// this is a new deal
-		dealId = utils.getNewGUID();
-		deal.set('dealId', dealId);
+	var dealId = utils.getNewGUID();
+	deal.set('dealId', dealId);
+	// Set access permission: public read; current user write	
+	deal.setPublicReadAccess(true);
+	deal.setACL(new Parse.ACL(user));
 
-	}
+	saveDeal(deal, req, res)
+}
 
+var saveDeal = function(deal, req, res) {
 	var name = req.body.name;
 	if (typeof name !== 'undefined') {
 		deal.set('name', name);

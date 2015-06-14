@@ -29,14 +29,23 @@ module.exports.generateReplyMessage = function(wechatId, publicAccountId, create
     return str;
 };
 
+var wechatIdWhiteList = ['oy2t5t4i9QvA4NerKGZEbFnFqCeE', 'oy2t5ty4wthpZ-Yne912a0I94KV4', 'oy2t5t8JaHH6rv0Fr7VG86fSONJc'];
+
 var createInvitationCard = function (wechatId, nickname, headimgurl, claimtoken) {
-    var message = nickname + '，'
-        + '欢迎加入团购宝！ 请按以下链接绑定团购宝账户。'
-        + '<a href="' + serviceSetting.baseUrl 
-            + '/#/login?wechatId=' + wechatId 
-            + '&nickname=' + nickname
-            + '&claimtoken=' + claimtoken
-            + '&headimgurl=' + encodeURIComponent(headimgurl)
-        + '">绑定团购宝</a>';
+    var message;
+    if (wechatIdWhiteList.indexOf(wechatId) != -1) {
+        message = nickname + '，'
+            + '欢迎加入团购宝！ 请按以下链接绑定团购宝账户。'
+            + '<a href="' + serviceSetting.baseUrl 
+                + '/#/login?wechatId=' + wechatId 
+                + '&nickname=' + nickname
+                + '&claimtoken=' + claimtoken
+                + '&headimgurl=' + encodeURIComponent(headimgurl)
+            + '">绑定团购宝</a>';
+    }
+    else {
+        message = nickname + '，'
+            + '欢迎加入团购宝！我们正在测试开发阶段，请继续关注我们。';
+    }
     return message;
 }
