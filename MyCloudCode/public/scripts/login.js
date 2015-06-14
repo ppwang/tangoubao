@@ -12,21 +12,30 @@ tgbApp.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, 
     $urlRouterProvider.otherwise('/');
  
     $stateProvider
-        .state('home', {
+        .state('deals', {
             url:'/',
             views: {
                 'content': {
-                    templateUrl: 'views/home.html',
-                    controller: 'mainController',
+                    templateUrl: 'views/deals.html',
+                    controller: 'dealsController',
                 }
             }
         })
-        .state('home.dealDetail', {
+        .state('deals.dealDetail', {
             url:'/deal/:id',
             views: {
                 'dealDetail': {
                     templateUrl: 'views/dealDetail.html',
                     controller: 'dealDetailController',
+                }
+            }
+        })
+        .state('orders', {
+            url:'/orders',
+            views: {
+                'content': {
+                    templateUrl: 'views/orders.html',
+                    controller: 'ordersController',
                 }
             }
         })
@@ -338,6 +347,8 @@ tgbApp.factory('orderDataService', ['$http', function($http) {
             {
                 id: 1,
                 dealId: 5,
+                state: 'created',
+                createdDate: new Date(2015, 8, 2),
                 numberOfUnits: 6,
                 pickupOptionId: 2,
                 wechatId: 'customer1',
@@ -347,6 +358,9 @@ tgbApp.factory('orderDataService', ['$http', function($http) {
             {
                 id: 2,
                 dealId: 5,
+                state: 'completed',
+                createdDate: new Date(2015, 8, 3),
+                completedDate: new Date(2015, 9, 1),
                 numberOfUnits: 3,
                 pickupOptionId: 1,                
                 wechatId: 'customer2',
@@ -356,6 +370,8 @@ tgbApp.factory('orderDataService', ['$http', function($http) {
             {
                 id: 3,
                 dealId: 6,
+                state: 'created',
+                createdDate: new Date(2015, 8, 5),
                 numberOfUnits: 4.5,
                 pickupOptionId: 2,                
                 wechatId: 'customer3',
@@ -365,12 +381,25 @@ tgbApp.factory('orderDataService', ['$http', function($http) {
         ];
         
     var orderDataService = {};
+    
+    orderDataService.getOrders = function()
+    {
+        return _.map(mockOrderData, function(order) {
+            return {
+                id: order.id,
+                dealId: order.dealId,
+                state: order.state,
+                createdDate: order.createdDate,
+                completedDate: order.completedDate,
+            };
+        });          
+    };
 
-    orderDataService.getOrders(dealId) {
+    orderDataService.getOrdersByDealId = function(dealId) {
         return _.filter(mockOrderData, function(o) {
             return o.dealId === dealId;
         });
-    }
+    };
     
     return orderDataService;
 }]);
@@ -391,7 +420,7 @@ tgbApp.directive('dealDetailEditableForm', function() {
     };   
 });
 
-tgbApp.controller('mainController', function($scope, $state, $rootScope, dealDataService, dealGroupingService) {
+tgbApp.controller('dealsController', function($scope, $state, $rootScope, dealDataService, dealGroupingService) {
     if (!$rootScope.currentUser) {
         $state.go('login');
     }
@@ -465,7 +494,7 @@ tgbApp.controller('dealDetailController', function($scope, $stateParams, $state,
             dealGroupingService.insertDeal($scope.deal, $scope.dealGroups);
             
             // Navigate to the deal that was just created.
-            $state.go('home.dealDetail', { 'id': $scope.deal.id });
+            $state.go('deals.dealDetail', { 'id': $scope.deal.id });
         }
         
         // Synchronize any custom shadow objects.
@@ -477,7 +506,7 @@ tgbApp.controller('dealDetailController', function($scope, $stateParams, $state,
         // TODO: need error handling here.
         dealDataService.deleteDeal($scope.deal.id);
         dealGroupingService.deleteDeal($scope.deal, $scope.dealGroups);
-        $state.go('home.dealDetail', { 'id': -1 });
+        $state.go('deals.dealDetail', { 'id': -1 });
     };
 
     $scope.newPickupOptionShadow = function() {
@@ -505,6 +534,16 @@ tgbApp.controller('dealDetailController', function($scope, $stateParams, $state,
     $scope.purchaseDeal = function() {
         
     };
+});
+
+tgbApp.controller('ordersController', function($scope, $state, $rootScope, orderDataService) {
+    if (!$rootScope.currentUser) {
+        // TODO: after signing in, return to orders page.
+        $state.go('login');
+    }
+    
+    $scope.orders = orderDataService.getOrders();
+    // TODO: should develope a deal/order cache, so that we don't have to load individual deal/order repeatedly.
 });
 
 tgbApp.controller('aboutController', function($scope) {
@@ -539,7 +578,7 @@ tgbApp.controller('loginController', function($scope, $location, $state, $rootSc
         ParseSDK.User.signUp(user)
             .then(function(user) {
                 $rootScope.currentUser = user;
-                $state.go('home');
+                $state.go('deals');
             },
             function(error) {
                 $scope.statusMessage = "Unable to sign up:  " + error.code + " " + error.message;
@@ -553,7 +592,7 @@ tgbApp.controller('loginController', function($scope, $location, $state, $rootSc
         ParseSDK.User.logIn(user)
             .then(function(user) {
                 $rootScope.currentUser = user;
-                $state.go('home');
+                $state.go('deals');
             },
             function(error) {
                 $scope.statusMessage = "Unable to log in: " + error.code + " " + error.message;
