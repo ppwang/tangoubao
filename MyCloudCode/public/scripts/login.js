@@ -322,12 +322,7 @@ tgbApp.factory('dealDataService', ['$http', function($http) {
     };
     
     dealDataService.saveDeal = function(deal) {
-        $http.put(dealApiUrl, deal)
-        .then(function() {
-            alert('success');
-        }, function(error) {
-            alert('fail');
-        });
+        return $http.put(dealApiUrl, deal);
         //return mockDealData.length;
     };
     
@@ -482,24 +477,28 @@ tgbApp.controller('dealDetailController', function($scope, $stateParams, $state,
             $scope.deal.imageBase64 = $scope.productImageUpload.resized.dataURL.split(',')[1];
         }
         
-        var newId = dealDataService.saveDeal($scope.deal);
-        // TODO: need error handling here.
-        
-        // Add to deal to model if it is a new deal.
-        if (!$scope.deal.id) {
-            $scope.deal.type = 'own';
-            $scope.deal.id = newId;
-//            $scope.deals.unshift($scope.deal);
+        dealDataService.saveDeal($scope.deal)
+        .then(function(response) {
+            // TODO: need error handling here.
             
-            dealGroupingService.insertDeal($scope.deal, $scope.dealGroups);
+            // Add to deal to model if it is a new deal.
+            if (!$scope.deal.id) {
+                $scope.deal.type = 'own';
+                $scope.deal.id = response;
+    //            $scope.deals.unshift($scope.deal);
+                
+                dealGroupingService.insertDeal($scope.deal, $scope.dealGroups);
+                
+                // Navigate to the deal that was just created.
+                $state.go('deals.dealDetail', { 'id': $scope.deal.id });
+            }
             
-            // Navigate to the deal that was just created.
-            $state.go('deals.dealDetail', { 'id': $scope.deal.id });
-        }
-        
-        // Synchronize any custom shadow objects.
-        // TODO: copying might be expensive. Consider updating instead. 
-        $scope.deal.pickupOptions = angular.copy($scope.deal.pickUpOptionsShadow);
+            // Synchronize any custom shadow objects.
+            // TODO: copying might be expensive. Consider updating instead. 
+            $scope.deal.pickupOptions = angular.copy($scope.deal.pickUpOptionsShadow);
+        }, function(error){
+            alert(error.message);
+        });
     };
     
     $scope.deleteDeal = function() {

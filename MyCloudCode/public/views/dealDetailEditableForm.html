@@ -15,7 +15,7 @@
         <span>Begin Date: </span>
         <!-- TODO: when enter edit mode the first time, datetime is not properly formatted. -->
         <!--span editable-bsdate="deal.beginDate" e-datepicker-popup="MM-dd-yyyy">{{(deal.beginDate | date:"MM/dd/yyyy") || 'empty'}}</span-->
-        <!-- TODO: the edit buttons are misaligned. --></11>
+        <!-- TODO: the edit buttons are misaligned. -->
         <span editable-date="deal.beginDate">{{deal.beginDate | date:"MM/dd/yyyy"}}</span>
         <br>
         <span>End Date:</span>
@@ -38,9 +38,9 @@
         <!-- TODO: clicking the clear button will trigger form validation -->
         <span class="clickableText" ng-show="editableForm.$visible" ng-click="clearproductImageUpload()">Clear image</span>
         <br>
-        <img ng-show="editableForm.$visible && productImageUpload" src="{{productImageUpload.resized.dataURL}}"/>
+        <img ng-show="editableForm.$visible && productImageUpload" ng-src="{{productImageUpload.resized.dataURL}}" />
         <!-- Because we cannot pre-populate the input file, we still show the image in the model if nothing is uploaded. -->
-        <img ng-show="(!editableForm.$visible || !productImageUpload) && deal.imageBase64" src="{{deal.imageBase64 ? 'data:' + deal.imageType + ';base64,' + deal.imageBase64 : ''}}">
+        <img ng-show="(!editableForm.$visible || !productImageUpload) && deal.imageBase64" ng-src="{{deal.imageBase64 ? 'data:' + deal.imageType + ';base64,' + deal.imageBase64 : ''}}" />
         <br>
     </div>
     <div>

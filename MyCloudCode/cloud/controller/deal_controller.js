@@ -57,9 +57,10 @@ var createDeal = function(req, res, user) {
 
 	var dealId = utils.getNewGUID();
 	deal.set('dealId', dealId);
-	// Set access permission: public read; current user write	
-	deal.setPublicReadAccess(true);
-	deal.setACL(new Parse.ACL(user));
+	// Set access permission: public read; current user write
+	var acl = new Parse.ACL(user);
+	acl.setPublicReadAccess(true);
+	deal.setACL(acl);
 
 	saveDeal(deal, req, res)
 }
@@ -140,7 +141,7 @@ var saveDeal = function(deal, req, res) {
 		})
 		.then( function(deal) {
 			console.log('save deal: ' + JSON.stringify(deal));
-			res.status(200).send(dealId);
+			res.status(200).send(deal.dealId);
 		}, function(error) {
 			console.error('picture save to parse error: ' + error);
 			res.status(500).end();
@@ -150,7 +151,7 @@ var saveDeal = function(deal, req, res) {
 		console.log('save deal: ' + JSON.stringify(deal));
 		deal.save()
 		.then(function() {
-			res.status(200).send(dealId);
+			res.status(200).send({dealId: dealId});
 		}, function(error) {
 			console.error('error: ' + error);
 			res.status(500).end();
