@@ -31,7 +31,8 @@ module.exports.requestValidate = function (req, res) {
 }
 
 // respond to host requests. route to different message handlers
-module.exports.reply = function(req, res) {    
+module.exports.reply = function(req, res) {
+    console.log('wechat service reply');
     if (authenticate(req)) {
         var msgType = req.body.xml.msgtype[0];
         var publicAccountId = req.body.xml.tousername[0]; // public account

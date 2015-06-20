@@ -7,13 +7,13 @@ Parse.Cloud.beforeSave(Parse.User, function(request, response) {
 	currentUser = request.object;
 	// workaround for master save path also going through before save
 	var masterRequest = currentUser.get('masterRequest');
-	if (typeof masterRequest !== 'undefined') {
+	if (masterRequest) {
 		currentUser.set('masterRequest', undefined);
 		return response.success();
 	}
 
-	if (typeof currentUser === 'undefined') {
-		console.log('Current user is undefined:' + JSON.stringify(currentUser));
+	if (!currentUser) {
+		console.log('Current user is null:' + JSON.stringify(currentUser));
 		return response.error();
 	}
 	currentUser.wechatId = currentUser.get('wechatId');
@@ -38,7 +38,7 @@ Parse.Cloud.beforeSave(Parse.User, function(request, response) {
     .then( function(wechatUser) {
     	console.log('Current user is: ' + JSON.stringify(currentUser)); 
 		var currentUserName = currentUser.get('username');
-    	if (typeof wechatUser === 'undefined') {
+    	if (!wechatUser) {
         	throw new Error('User ' + currentUserName + ' is claiming wrong wechatUser. Request wechatId: ' 
         		+ currentUser.wechatId + '; request claimtoken: ' + currentUser.claimtoken);
     	}

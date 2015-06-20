@@ -322,6 +322,7 @@ tgbApp.factory('dealDataService', ['$http', function($http) {
     };
     
     dealDataService.saveDeal = function(deal) {
+        mockDealData.push(deal);
         return $http.put(dealApiUrl, deal);
         //return mockDealData.length;
     };
@@ -440,14 +441,14 @@ tgbApp.controller('dealsController', function($scope, $state, $rootScope, dealDa
 });
 
 tgbApp.controller('dealDetailController', function($scope, $stateParams, $state, dealDataService, dealGroupingService) {
-    var dealId = parseInt($stateParams.id);
+    var dealId = $stateParams.id;
     
-    if (dealId === -1) {
+    if (dealId == '-1') {
         $scope.deal = {
             type: 'own',
         };
     } else {
-        $scope.deal = dealDataService.getDeal(parseInt($stateParams.id));
+        $scope.deal = dealDataService.getDeal(dealId);
     }
 
     if (!$scope.deal.pickupOptions) {
@@ -484,9 +485,8 @@ tgbApp.controller('dealDetailController', function($scope, $stateParams, $state,
             // Add to deal to model if it is a new deal.
             if (!$scope.deal.id) {
                 $scope.deal.type = 'own';
-                $scope.deal.id = response;
+                $scope.deal.id = response.data;
     //            $scope.deals.unshift($scope.deal);
-                
                 dealGroupingService.insertDeal($scope.deal, $scope.dealGroups);
                 
                 // Navigate to the deal that was just created.
@@ -563,9 +563,9 @@ tgbApp.controller('loginController', function($scope, $location, $state, $rootSc
     var claimtoken = $location.search().claimtoken;
     var nickname = $location.search().nickname;
     var headimgurl = $location.search().headimgurl;
-    if (typeof wechatId !== 'undefined' && typeof claimtoken !== 'undefined') {
+    if (wechatId && claimtoken) {
         $scope.user.wechatId = wechatId;
-        $scope.user.claimtoken = claimtoken; 
+        $scope.user.claimtoken = claimtoken;
     }
     $scope.user.nickname = nickname;
     $scope.user.headimgurl = headimgurl;

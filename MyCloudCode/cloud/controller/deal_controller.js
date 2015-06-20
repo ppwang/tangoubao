@@ -2,23 +2,37 @@ var Deal = Parse.Object.extend('Deal');
 var utils = require('cloud/lib/utils');
 
 module.exports.putDeal = function(req, res) {
-	console.log('put deal request');
 	var currentUser = Parse.User.current();
-	if (typeof currentUser === 'undefined') {
+	console.log('currentUser: ' + JSON.stringify(currentUser));
+	if (!currentUser) {
 		// require user to log in
-		res.status(401).send();
+		return res.status(401).send();
 	}
 
-	var dealId = req.params.dealId;
-	if (typeof dealId === 'undefined') {
+	var objectId = req.body.id;
+	if (!objectId) {
 		// create a new deal
 		console.log('create deal');
-		createDeal(req, res, currentUser);
+		return createDeal(req, currentUser)
+			.then(function(deal) {
+				console.log('send deal: ' + JSON.stringify(deal));
+				var newDealId = deal.id;
+				return res.status(201).end(newDealId);
+			}, function(error) {
+				console.log('error: ' + JSON.stringify(error));
+				return res.status(500).end();
+			});
 	}
-	else {
-		console.log('modify deal');
-		modifyDeal(dealId, res, res, currentUser);
-	}
+
+	console.log('modify deal');
+	return modifyDeal(objectId, req, currentUser)
+		.then(function(deal) {
+			console.log('send deal: ' + JSON.stringify(deal));
+			return res.status(201).end(deal.id);
+		}, function(error) {
+			console.log('error: ' + JSON.stringify(error));
+			return res.status(500).end();
+		});
 };
 
 module.exports.deleteDeal = function(req, res) {
@@ -27,98 +41,99 @@ module.exports.deleteDeal = function(req, res) {
 
 module.exports.getDeal = function(req, res) {
 	var currentUser = Parse.User.current();
-	if (typeof currentUser === 'undefined') {
+	if (!currentUser) {
 		// require user to log in
-		res.status(401).send();
+		return res.status(401).send();
 	}
 
-	var dealId = req.params.dealId;
-	if (typeof dealId === 'undefined') {
+	var objectId = req.params.dealId;
+	if (!objectId) {
 		// create a new deal
-		res.send('no dealId');
+		return res.send('no dealId');
 	}
 	else {
-		res.send('dealId is: ' + dealId);
+		return res.send('dealId is: ' + objectId);
 	}
 };
 
-module.exports.modifyDeal = function(dealId, req, res, user) {
-	var query = new Parse.Query(Deal);
-    query.equalTo('dealId', dealId);
-    return query.first()
-    .then( function(deal) {
-    	console.log('Current deal is: ' + JSON.stringify(deal)); 
-    	saveDeal(deal, req, res);
-    });
+var modifyDeal = function(objectId, req, user) {
+	var existingDeal = new Deal();
+	existingDeal.id = objectId;
+    return existingDeal.fetch()
+	    .then( function(deal) {
+	    	console.log('Current deal is: ' + JSON.stringify(deal)); 
+	    	if (deal) {
+	    		return saveDeal(deal, req);
+	    	}
+	    	throw new Error('Deal not found with dealId: ' + objectId);
+	    });
 }
 
-var createDeal = function(req, res, user) {
+var createDeal = function(req, user) {
 	var deal = new Deal();
-
-	var dealId = utils.getNewGUID();
-	deal.set('dealId', dealId);
 	// Set access permission: public read; current user write
-	var acl = new Parse.ACL(user);
+	var acl = new Parse.ACL();
 	acl.setPublicReadAccess(true);
+	acl.setWriteAccess(user.id, true);
 	deal.setACL(acl);
 
-	saveDeal(deal, req, res)
+	return saveDeal(deal, req)
 }
 
-var saveDeal = function(deal, req, res) {
+var saveDeal = function(deal, req) {
 	var name = req.body.name;
-	if (typeof name !== 'undefined') {
+	if (name) {
 		deal.set('name', name);
 	}
 
 	var subtitle = req.body.subtitle;
-	if (typeof subtitle !== 'undefined') {
+	if (subtitle) {
 		deal.set('subtitle', subtitle);
 	}
 
 	var detailedDescription = req.body.detailedDescription;
-	if (typeof detailedDescription !== 'undefined') {
+	if (detailedDescription) {
 		deal.set('detailedDescription', detailedDescription);
 	}
 
 	var beginDate = req.body.beginDate;
-	if (typeof beginDate !== 'undefined') {
+	if (beginDate) {
 		deal.set('beginDate', beginDate);
 	}
 
 	var endDate = req.body.endDate;
-	if (typeof endDate !== 'undefined') {
+	if (endDate) {
 		deal.set('endDate', endDate);
 	}
 
 	var email = req.body.email;
-	if (typeof email !== 'undefined') {
+	if (email) {
 		deal.set('email', email);
 	}
 
 	var phoneNumber = req.body.phoneNumber;
-	if (typeof phoneNumber !== 'undefined') {
+	if (phoneNumber) {
 		deal.set('phoneNumber', phoneNumber);
 	}
 
 	var unitName = req.body.unitName;
-	if (typeof unitName !== 'undefined') {
+	if (unitName) {
 		deal.set('unitName', unitName);
 	}
 
 	var unitPrice = req.body.unitPrice;
-	if (typeof unitPrice !== 'undefined') {
+	if (unitPrice) {
 		deal.set('unitPrice', unitPrice);
 	}
 
 	var remarks = req.body.remarks;
-	if (typeof remarks !== 'undefined') {
+	if (remarks) {
 		deal.set('remarks', remarks);
 	}
 
 	var imageData = req.body.imageBase64;
 	var imageType = req.body.imageType;
-	if (typeof imageData !== 'undefined' && typeof imageType !== 'undefined') {
+	if (imageData && imageType) {
 		var imgFileName;
 		if (imageType == 'image/png') {
 			imgFileName = 'deal_image.png';
@@ -128,33 +143,18 @@ var saveDeal = function(deal, req, res) {
 		}
 		else {
 			console.log('Unsupported image type: ' + imageType);
-			res.status(500).end();
-			return;
+			throw new Error('Unsupported image type: ' + imageType);
 		}
-		console.log(imageData);
 		var targetImageFile = new Parse.File(imgFileName, {base64: imageData}, imageType);
 		// TODO: resize for icon
-		targetImageFile.save()
-		.then(function(imgFile) {
-			deal.set('dealImage', imgFile);
-			return deal.save();
-		})
-		.then( function(deal) {
-			console.log('save deal: ' + JSON.stringify(deal));
-			res.status(200).send(deal.dealId);
-		}, function(error) {
-			console.error('picture save to parse error: ' + error);
-			res.status(500).end();
-		});
+		return targetImageFile.save()
+			.then(function(imgFile) {
+				deal.set('dealImage', imgFile);
+				console.log('deal is: ' + JSON.stringify(deal));
+				return deal.save();
+			});
 	}
-	else {
-		console.log('save deal: ' + JSON.stringify(deal));
-		deal.save()
-		.then(function() {
-			res.status(200).send({dealId: dealId});
-		}, function(error) {
-			console.error('error: ' + error);
-			res.status(500).end();
-		});
-	}
+
+	console.log('save deal without image: ' + JSON.stringify(deal));
+	return deal.save();
 }
