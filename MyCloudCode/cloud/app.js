@@ -45,7 +45,7 @@ app.put('/api/deal', express.bodyParser(), dealController.putDeal);
 app.delete('/api/deal/:dealId?', dealController.deleteDeal);
 
 var dealsController = require('cloud/controller/deals_controller');
-// get 2 lists: one for deals owned; the other for deals followed
+// get a list: one for deals owned; the other for deals followed
 app.get('/api/deals/', dealsController.getDeals);
 
 // Custom menus

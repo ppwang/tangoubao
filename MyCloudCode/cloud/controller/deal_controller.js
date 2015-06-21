@@ -76,6 +76,7 @@ var createDeal = function(req, user) {
 	acl.setPublicReadAccess(true);
 	acl.setWriteAccess(user.id, true);
 	deal.setACL(acl);
+	deal.set('createdBy', user);
 
 	return saveDeal(deal, req)
 }
