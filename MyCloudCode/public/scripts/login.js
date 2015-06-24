@@ -335,7 +335,8 @@ tgbApp.factory('dealDataService', ['$http', function($http) {
     
     dealDataService.saveDeal = function(deal) {
         mockDealData.push(deal);
-        return $http.put(dealApiUrl, deal);
+        var newDeal = $http.put(dealApiUrl, deal);
+        return newDeal;
         //return mockDealData.length;
     };
     
@@ -463,7 +464,7 @@ tgbApp.controller('dealDetailController', function($scope, $stateParams, $state,
         $scope.deal = dealDataService.getDeal(dealId);
     }
 
-    if (!$scope.deal.pickupOptions) {
+    if (typeof $scope.deal.pickupOptions === 'undefined' || !$scope.deal.pickupOptions) {
         $scope.deal.pickupOptions = {};
     }
     
@@ -496,8 +497,9 @@ tgbApp.controller('dealDetailController', function($scope, $stateParams, $state,
             
             // Add to deal to model if it is a new deal.
             if (!$scope.deal.id) {
-                $scope.deal.type = 'own';
-                $scope.deal.id = response.data;
+                $scope.deal.type = response.data.type;
+                $scope.deal.id = response.data.id;
+                $scope.deal.dealImgeUrl = response.data.dealImgeUrl;
     //            $scope.deals.unshift($scope.deal);
                 dealGroupingService.insertDeal($scope.deal, $scope.dealGroups);
                 
