@@ -41,7 +41,15 @@ var createInvitationCard = function (wechatId, nickname, headimgurl, claimtoken)
                 + '&nickname=' + nickname
                 + '&claimtoken=' + claimtoken
                 + '&headimgurl=' + encodeURIComponent(headimgurl)
-            + '">绑定团购宝</a>';
+            + '">绑定团购宝</a>'
+            + '\n' 
+            + '如果已有账户，请按以下链接进入你的账户。'
+            + '<a href="' + serviceSetting.baseUrl 
+                + '?wechatId=' + wechatId 
+                + '&nickname=' + nickname
+                + '&claimtoken=' + claimtoken
+                + '&headimgurl=' + encodeURIComponent(headimgurl)
+            + '">进入团购宝</a>';
     }
     else {
         message = nickname + '，'
