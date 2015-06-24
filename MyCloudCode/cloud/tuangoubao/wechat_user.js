@@ -6,7 +6,7 @@ module.exports.activate = function(wechatId, wechatUserRawData) {
    	var query = new Parse.Query(WechatUser);
     query.equalTo('wechatId', wechatId);
     return query.first().then( function(wechatUser) {
-        if (wechatUser == null) {
+        if (!wechatUser) {
             console.log('New wechat user rejoined.');
             wechatUser = new WechatUser();
             initWechatUser(wechatUser, wechatId, wechatUserRawData, true);
@@ -25,7 +25,7 @@ module.exports.update = function(wechatId, wechatUserRawData, refreshClaimToken)
     var query = new Parse.Query(WechatUser);
     query.equalTo('wechatId', wechatId);
     return query.first().then( function(wechatUser) {
-        if (wechatUser == null) {
+        if (!wechatUser) {
             console.log('Update new wechat user.');
             wechatUser = new WechatUser();
             initWechatUser(wechatUser, wechatId, wechatUserRawData, true);
@@ -46,7 +46,7 @@ module.exports.deactivate = function(wechatId) {
 	query.equalTo('status', 'active');
 
 	return query.first().then( function(wechatUser) {
-        if (wechatUser == null) {
+        if (!wechatUser) {
             console.log('Unexpected in querying existing wechat user: ' + wechatId);
             wechatUser = new WechatUser();
             wechatUser.set('wechatId', wechatId);
@@ -64,7 +64,7 @@ var initWechatUser = function(wechatUser, wechatId, wechatUserRawData, refreshCl
     wechatUser.set('wechatId', wechatId);
     wechatUser.set('data', wechatUserRawData); // raw data field
     var wechatUserData = JSON.parse(wechatUserRawData);
-    if (typeof wechatUserData.subscribe === 'undefined' || wechatUserData.subscribe == 0) {
+    if (!wechatUserData.subscribe || wechatUserData.subscribe == 0) {
         // This an error situation: we found a user who is not following us. Could be someone try to hack
         //   this wechat user entity?
         throw new Error('Query from wechat a unsubscribed user.');

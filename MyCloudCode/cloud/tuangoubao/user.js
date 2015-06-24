@@ -20,11 +20,11 @@ Parse.Cloud.beforeSave(Parse.User, function(request, response) {
 	currentUser.claimtoken = currentUser.get('claimtoken');
 
 	console.log('Current user is new: ' + currentUser.isNew() + ' data: ' + JSON.stringify(currentUser));
-	if ( (typeof currentUser.wechatId === 'undefined') && (typeof currentUser.claimtoken === 'undefined') ) {
+	if ( !currentUser.wechatId && !currentUser.claimtoken ) {
 		console.log('Save normal login/signup user: ' + JSON.stringify(currentUser));
 		return response.success()
 	}
-	if ( (typeof currentUser.wechatId === 'undefined') || (typeof currentUser.claimtoken === 'undefined') ) {
+	if ( !currentUser.wechatId || !currentUser.claimtoken ) {
 		console.log('Wrong url with missing wechatId/claimtoken: ' + JSON.stringify(currentUser));
 		return response.error()
 	}

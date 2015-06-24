@@ -307,7 +307,10 @@ tgbApp.factory('dealDataService', ['$http', function($http) {
         .success(function(data, status, headers, config) {
             // this callback will be called asynchronously
             // when the response is available
-            return data;
+
+            // TBD: it is weird to use the get deals call to populate user info.
+            $rootScope.currentUser = data.user;
+            return data.deals;
         })
         .error(function(data, status, headers, config) {
             // called asynchronously if an error occurs
@@ -464,7 +467,7 @@ tgbApp.controller('dealDetailController', function($scope, $stateParams, $state,
         $scope.deal = dealDataService.getDeal(dealId);
     }
 
-    if (typeof $scope.deal.pickupOptions === 'undefined' || !$scope.deal.pickupOptions) {
+    if (!$scope.deal.pickupOptions) {
         $scope.deal.pickupOptions = {};
     }
     
@@ -569,7 +572,7 @@ tgbApp.controller('contactController', function($scope) {
 
 tgbApp.controller('loginController', function($scope, $location, $state, $rootScope, ParseSDK) {
 
-    if ($scope.user == null)
+    if (!$scope.user)
     {
         $scope.user = {};
     }

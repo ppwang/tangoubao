@@ -23,7 +23,14 @@ module.exports.getDeals = function(req, res) {
 			console.log('Convert parseDeal to: ' + JSON.stringify(deal));
 			deals.push(deal);
 		});
-		return res.status(200).send(JSON.stringify(deals));
+		var responseData = {};
+		responseData.user = {};
+		responseData.user.id = currentUser.id;
+		responseData.user.username = currentUser.get('username');
+		responseData.user.email = currentUser.get('email');
+		responseData.user.phone = currentUser.get('phone');
+		responseData.deals = deals;
+		return res.status(200).send(JSON.stringify(responseData));
     }, function(error) {
     	console.log('error is: ' + JSON.stringify(error));
     	return res.status(500).end();

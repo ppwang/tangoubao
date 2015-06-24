@@ -6,14 +6,14 @@ module.exports.getAccessToken = function() {
     return query.first().then( function(accessToken) {
         var now = new Date();
         var fetch = false;
-        if (accessToken == null) {
+        if (!accessToken) {
             accessToken = new WechatAccessToken();
             fetch = true;
         }
         else {
             var token = accessToken.get('token');
             var expiry = accessToken.get('expiry');
-            if (token == null || expiry == null || expiry < now) {
+            if (!token || !expiry || expiry < now) {
                 fetch = true;
             }
             else {
