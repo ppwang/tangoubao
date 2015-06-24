@@ -299,19 +299,31 @@ tgbApp.factory('dealDataService', ['$http', function($http) {
     
     var apiUrl = '/api'
     var dealApiUrl = apiUrl + '/deal';
+    var dealsApiUrl = apiUrl + '/deals';
     var dealDataService = {};
 
     dealDataService.getDeals = function() {
-        // TODO: this is mock data
-        return _.map(mockDealData, function(deal) {
-            return {
-                id: deal.id,
-                name: deal.name,
-                type: deal.type,
-                beginDate: deal.beginDate,
-                endDate: deal.endDate,
-            };
+        $http.get(dealsApiUrl)
+        .success(function(data, status, headers, config) {
+            // this callback will be called asynchronously
+            // when the response is available
+            return data;
+        })
+        .error(function(data, status, headers, config) {
+            // called asynchronously if an error occurs
+            // or server returns response with an error status.
+            console.log('error code:' + status);
         });
+        // TODO: this is mock data
+        // return _.map(mockDealData, function(deal) {
+        //     return {
+        //         id: deal.id,
+        //         name: deal.name,
+        //         type: deal.type,
+        //         beginDate: deal.beginDate,
+        //         endDate: deal.endDate,
+        //     };
+        // });
     };
     
     dealDataService.getDeal = function(id) {

@@ -44,9 +44,12 @@ app.get('/api/deal/:dealId?', dealController.getDeal);
 app.put('/api/deal', express.bodyParser(), dealController.putDeal);
 app.delete('/api/deal/:dealId?', dealController.deleteDeal);
 
+// follow a deal
+app.put('/api/deal/follow/:dealId?', dealController.followDeal);
+
 var dealsController = require('cloud/controller/deals_controller');
 // get a list: one for deals owned; the other for deals followed
-app.get('/api/deals/', dealsController.getDeals);
+app.get('/api/deals', dealsController.getDeals);
 
 // Custom menus
 app.get('/wechat/create_menus', wechatServices.createMenus);
