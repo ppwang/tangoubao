@@ -16,7 +16,9 @@ module.exports.signUp = function(req, res) {
     }
     return parseUser.signUp()
     	.then(function() {
-    		return res.redirect('/');
+    		// TODO return http status code to indicate user has not verified email
+    		Parse.User.logOut();
+    		return res.status(401).end('User email not verified');
     	}, function(error) {
 			console.log('error: ' + JSON.stringify(error));
 			return res.status(500).end();
@@ -32,6 +34,13 @@ module.exports.logIn = function(req, res) {
 
 	Parse.User.logIn(req.body.username, req.body.password)
 	.then(function(parseUser) {
+		var emailVerified = parseUser.get('emailVerified');
+		console.log('emailVerified:  ' + emailVerified);
+		if (!emailVerified) {
+    		// TODO return http status code to indicate user has not verified email
+    		Parse.User.logOut();
+    		throw new Error('Email not verified');			
+		}
 		if (wechatId && claimtoken) {
         	parseUser.set("wechatId", wechatId);
         	parseUser.set("claimtoken", claimtoken);
