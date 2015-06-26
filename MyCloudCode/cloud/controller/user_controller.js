@@ -55,10 +55,12 @@ module.exports.logIn = function(req, res) {
         	parseUser.set("claimtoken", claimtoken);
         	return parseUser.save();
     	}
+    	return parseUser;
 	})
 	.then(function(currentUser) {
 		// Login succeeded, redirect to homepage.
 		// parseExpressCookieSession will automatically set cookie.
+		console.log('currentUser: ' + JSON.stringify(currentUser));
 		return res.status(200).send(convertToUserResponseData(currentUser));
 	},
 	function(error) {
@@ -67,7 +69,7 @@ module.exports.logIn = function(req, res) {
 			Parse.User.logOut();
 			return res.status(401).end();
 		}
-		return res.error();
+		return res.status(401).end();
 	});	
 };
 
@@ -83,5 +85,6 @@ var convertToUserResponseData = function(parseUser) {
     responseData.user.username = parseUser.get('username');
     responseData.user.email = parseUser.get('email');
     responseData.user.phone = parseUser.get('phone');
+    responseData.user.headimgurl = parseUser.get('headimgurl');
     return JSON.stringify(responseData);
 }

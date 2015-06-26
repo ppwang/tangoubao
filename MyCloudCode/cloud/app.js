@@ -3,6 +3,18 @@ var express = require('express');
 var parseExpressCookieSession = require('parse-express-cookie-session');
 var app = express();
 
+// Entry points for deal/deals
+app.use(function(req, res, next) {
+	res.header("Access-Control-Allow-Origin", "*");
+	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+	if ('OPTIONS' == req.method) {
+		res.send(200);
+	}
+	else {
+		next();
+	}
+});
+
 var wechatServices = require('cloud/wechat/wechat_services');
 
 var xmlParser = require('cloud/lib/xml/xmlbodyparser');

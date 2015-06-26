@@ -47,6 +47,11 @@ Parse.Cloud.beforeSave(Parse.User, function(request, response) {
 	        wechatUser.set('status', 'active');
 	        // It is weird: parse only change the field if you set it to be 'null'
 	        wechatUser.set('claimtoken', null);
+	        // Add wechatUser image to user image
+	        var headimgurl = wechatUser.get('headimgurl');
+	        if (headimgurl) {
+		        currentUser.set('headimgurl', headimgurl);
+		    }
 	        return wechatUser.save();
 	    }
     })
