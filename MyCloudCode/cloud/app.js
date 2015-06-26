@@ -46,6 +46,8 @@ app.delete('/api/deal/:dealId?', dealController.deleteDeal);
 
 // follow a deal
 app.put('/api/deal/follow/:dealId?', dealController.followDeal);
+// buy a deal
+app.put();
 
 var dealsController = require('cloud/controller/deals_controller');
 // get a list: one for deals owned; the other for deals followed

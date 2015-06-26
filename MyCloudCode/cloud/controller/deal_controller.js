@@ -142,6 +142,13 @@ var saveDeal = function(parseDeal, req) {
 		parseDeal.set('remarks', remarks);
 	}
 
+	// Pickup options are generated from frontend client and will have id's already setup
+	// every time, we will just rewrite. 
+	var pickupOptions = req.body.pickupOptions;
+	if (pickupOptions) {
+		parseDeal.set('pickupOptions', JSON.stringify(pickupOptions));
+	}
+
 	var imageData = req.body.imageBase64;
 	var imageType = req.body.imageType;
 	if (imageData && imageType) {
