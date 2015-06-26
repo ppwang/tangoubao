@@ -24,11 +24,6 @@ module.exports.getDeals = function(req, res) {
 			deals.push(deal);
 		});
 		var responseData = {};
-		responseData.user = {};
-		responseData.user.id = currentUser.id;
-		responseData.user.username = currentUser.get('username');
-		responseData.user.email = currentUser.get('email');
-		responseData.user.phone = currentUser.get('phone');
 		responseData.deals = deals;
 		return res.status(200).send(JSON.stringify(responseData));
     }, function(error) {

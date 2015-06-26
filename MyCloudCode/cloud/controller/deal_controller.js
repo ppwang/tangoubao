@@ -39,10 +39,6 @@ module.exports.putDeal = function(req, res) {
 		});
 };
 
-module.exports.deleteDeal = function(req, res) {
-
-};
-
 module.exports.getDeal = function(req, res) {
 	var currentUser = Parse.User.current();
 	if (!currentUser) {
@@ -83,7 +79,16 @@ var createDeal = function(req, user) {
 
 	parseDeal.set('createdBy', user);
 
-	return saveDeal(parseDeal, req)
+	return user.fetch()
+		.then(function(instantiatedUser) { 
+			var creatorName = instantiatedUser.get('nickname');
+			if (creatorName) {
+				parseDeal.set('creatorName', creatorName);
+			}
+		})
+		.then(function() { 
+			return saveDeal(parseDeal, req);
+		});
 }
 
 var saveDeal = function(parseDeal, req) {

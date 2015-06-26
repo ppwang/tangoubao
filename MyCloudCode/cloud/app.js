@@ -55,7 +55,6 @@ var dealController = require('cloud/controller/deal_controller');
 app.get('/api/deal/:dealId?', dealController.getDeal);
 // Use bodyparser to parse form input first and then call putDeal
 app.put('/api/deal', express.bodyParser(), dealController.putDeal);
-app.delete('/api/deal/:dealId?', dealController.deleteDeal);
 
 var dealsController = require('cloud/controller/deals_controller');
 // get a list: one for deals owned; the other for deals followed
@@ -68,9 +67,10 @@ app.delete('/api/followDeal/:dealId?', followController.unfollowDeal);
 app.put('/api/followUser/:userId?', followController.followUser);
 app.delete('/api/followUser/:userId?', followController.unfollowUser);
 
-// Entry points for buy
+// Entry points for orders
 var orderController = require('cloud/controller/order_controller');
 app.put('/api/orderDeal/:dealId?', orderController.orderDeal);
+app.delete('/api/orderDeal/:orderId?', orderController.deleteOrder);
 
 // Regions
 var regionsController = require('cloud/controller/regions_controller');
