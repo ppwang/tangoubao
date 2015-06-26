@@ -307,9 +307,6 @@ tgbApp.factory('dealDataService', ['$http', function($http) {
         .success(function(data, status, headers, config) {
             // this callback will be called asynchronously
             // when the response is available
-
-            // TBD: it is weird to use the get deals call to populate user info.
-            $rootScope.currentUser = data.user;
             return data.deals;
         })
         .error(function(data, status, headers, config) {
