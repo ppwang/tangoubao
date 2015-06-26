@@ -16,9 +16,9 @@ module.exports.signUp = function(req, res) {
     }
     return parseUser.signUp()
     	.then(function() {
-    		// TODO return http status code to indicate user has not verified email
     		Parse.User.logOut();
-    		return res.status(401).end('User email not verified');
+    		// Send 401.2 to indicate user has not verified email
+    		return res.status(401.2).end();
     	}, function(error) {
 			console.log('error: ' + JSON.stringify(error));
 			return res.status(500).end();
@@ -46,9 +46,9 @@ module.exports.logIn = function(req, res) {
 		var emailVerified = parseUser.get('emailVerified');
 		console.log('emailVerified:  ' + emailVerified);
 		if (!emailVerified) {
-    		// TODO return http status code to indicate user has not verified email
+    		// Send 401.2 to indicate user has not verified email
     		Parse.User.logOut();
-    		throw new Error('Email not verified');			
+    		return 'Email not verified';			
 		}
 		if (wechatId && claimtoken) {
         	parseUser.set("wechatId", wechatId);
@@ -61,6 +61,9 @@ module.exports.logIn = function(req, res) {
 		// Login succeeded, redirect to homepage.
 		// parseExpressCookieSession will automatically set cookie.
 		console.log('currentUser: ' + JSON.stringify(currentUser));
+		if (currentUser == 'Email not verified') {
+			return res.status(401.2).end();
+		}
 		return res.status(200).send(convertToUserResponseData(currentUser));
 	},
 	function(error) {
