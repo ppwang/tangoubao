@@ -57,13 +57,24 @@ app.get('/api/deal/:dealId?', dealController.getDeal);
 app.put('/api/deal', express.bodyParser(), dealController.putDeal);
 app.delete('/api/deal/:dealId?', dealController.deleteDeal);
 
-// follow a deal
-app.put('/api/deal/follow/:dealId?', dealController.followDeal);
-// TODO: buy a deal
-
 var dealsController = require('cloud/controller/deals_controller');
 // get a list: one for deals owned; the other for deals followed
 app.get('/api/deals', dealsController.getDeals);
+
+// Entry points for follow
+var followController = require('cloud/controller/follow_controller');
+app.put('/api/followDeal/:dealId?', followController.followDeal);
+app.delete('/api/followDeal/:dealId?', followController.unfollowDeal);
+app.put('/api/followUser/:userId?', followController.followUser);
+app.delete('/api/followUser/:userId?', followController.unfollowUser);
+
+// Entry points for buy
+var orderController = require('cloud/controller/order_controller');
+app.put('/api/orderDeal/:dealId?', orderController.orderDeal);
+
+// Regions
+var regionsController = require('cloud/controller/regions_controller');
+app.get('/api/regions', regionsController.getRegions);
 
 // Custom menus
 app.get('/wechat/create_menus', wechatServices.createMenus);

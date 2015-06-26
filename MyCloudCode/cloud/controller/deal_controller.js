@@ -39,11 +39,6 @@ module.exports.putDeal = function(req, res) {
 		});
 };
 
-module.exports.followDeal = function(req, res) {
-	var objectId = req.params.dealId;
-	// TODO: add to follow relation table
-};
-
 module.exports.deleteDeal = function(req, res) {
 
 };
