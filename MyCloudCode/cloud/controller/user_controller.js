@@ -36,7 +36,10 @@ module.exports.logIn = function(req, res) {
 		// check if the user is already logged in
 		var currentUser = Parse.User.current();
 		if (currentUser) {
-            return res.status(200).send(convertToUserResponseData(currentUser));
+			return convertToUserResponseData(currentUser)
+				.then(function(responseData) {
+            		return res.status(200).send(responseData);
+				});
 		}
 		return res.status(401).end();
 	}
@@ -64,7 +67,13 @@ module.exports.logIn = function(req, res) {
 		if (currentUser == 'Email not verified') {
 			return res.status(401.2).end();
 		}
-		return res.status(200).send(convertToUserResponseData(currentUser));
+		if (currentUser) {
+			return convertToUserResponseData(currentUser)
+				.then(function(responseData) {
+            		return res.status(200).send(responseData);
+				});
+		}
+		return res.status(401).end();
 	},
 	function(error) {
 		console.log('error: ' + JSON.stringify(error));
@@ -82,12 +91,16 @@ module.exports.logOut = function(req, res) {
 };
 
 var convertToUserResponseData = function(parseUser) {
-    var responseData = {};
-    responseData.user = {};
-    responseData.user.id = parseUser.id;
-    responseData.user.username = parseUser.get('username');
-    responseData.user.email = parseUser.get('email');
-    responseData.user.phone = parseUser.get('phone');
-    responseData.user.headimgurl = parseUser.get('headimgurl');
-    return JSON.stringify(responseData);
+	return parseUser.fetch()
+		.then(function(instantiatedUser) {
+			var responseData = {};
+		    responseData.user = {};
+		    responseData.user.id = instantiatedUser.id;
+		    responseData.user.username = instantiatedUser.get('username');
+		    responseData.user.email = instantiatedUser.get('email');
+		    responseData.user.phone = instantiatedUser.get('phone');
+		    responseData.user.headimgurl = instantiatedUser.get('headimgurl');
+		    console.log('convertToUserResponseData: ' + JSON.stringify(responseData));
+		    return JSON.stringify(responseData);
+		});
 }

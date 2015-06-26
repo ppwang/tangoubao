@@ -624,8 +624,13 @@ tgbApp.controller('loginController', function($scope, $location, $state, $rootSc
     };
 });
 
-tgbApp.run(['$rootScope', 'applicationId', 'javaScriptKey', 'ParseSDK', function($rootScope, applicationId, javaScriptKey, ParseSDK) {
+tgbApp.run(['$rootScope', 'applicationId', 'javaScriptKey', 'ParseSDK', '$http', function($rootScope, applicationId, javaScriptKey, ParseSDK, $http) {
     ParseSDK.initialize(applicationId, javaScriptKey);
     $rootScope.scenario = 'Sign up';
-    $rootScope.currentUser = ParseSDK.User.current();
+    $http.post('/login')
+        .then(function(response) {
+            if (response.status == 200) {
+                $rootScope.currentUser = response.data.user;
+            }
+        });
 }]);

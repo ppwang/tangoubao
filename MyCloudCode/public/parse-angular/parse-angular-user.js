@@ -11,7 +11,7 @@ module.factory('ParseUser', ['$q', '$http', function($q, $http) {
         
         signUp: function(user) {
             var defer = $q.defer();
-            return $http.post('/signUp', user).
+            return $http.post('/signup', user).
                 then(function() {
                     defer.resolve(user);
                     return defer.promise;
@@ -24,9 +24,8 @@ module.factory('ParseUser', ['$q', '$http', function($q, $http) {
         logIn: function(user) {   
             var defer = $q.defer();
             return $http.post('/login', user).
-                then(function() {
-                    defer.resolve(user);
-                    return defer.promise;
+                then(function(response) {
+                    return response.data.user;
                 }, function(error) {
                     defer.reject(user);
                     return defer.promise;
@@ -34,7 +33,7 @@ module.factory('ParseUser', ['$q', '$http', function($q, $http) {
         },
         
         logOut: function() {
-            return $http.get('/signOut');
+            return $http.get('/logout');
         },
     };
 }]);
