@@ -72,6 +72,10 @@ var orderController = require('cloud/controller/order_controller');
 app.put('/api/orderDeal/:dealId?', orderController.orderDeal);
 app.delete('/api/orderDeal/:orderId?', orderController.deleteOrder);
 
+// Entry points for notification
+var notificationController = require('cloud/controller/notification_controller');
+app.get('/api/notifyUser/:userId?', notificationController.notifyUser);
+
 // Regions
 var regionsController = require('cloud/controller/regions_controller');
 app.get('/api/regions', regionsController.getRegions);

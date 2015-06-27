@@ -24,6 +24,7 @@ module.exports.getAccessToken = function() {
         if (fetch) {
             return fetchFreshToken(accessToken, now);
         }
+        console.log('return token: ' + accessToken);
         return accessToken;
     });
 }
