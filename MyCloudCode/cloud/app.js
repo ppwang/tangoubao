@@ -69,7 +69,8 @@ app.delete('/api/followUser/:userId?', followController.unfollowUser);
 
 // Entry points for orders
 var orderController = require('cloud/controller/order_controller');
-app.put('/api/orderDeal/:dealId?', orderController.orderDeal);
+// Use bodyparser to parse form input first
+app.put('/api/orderDeal', express.bodyParser(), orderController.orderDeal);
 app.delete('/api/orderDeal/:orderId?', orderController.deleteOrder);
 
 // Entry points for notification

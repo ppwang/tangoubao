@@ -74,15 +74,15 @@ var sendNotification = function (accessToken, wechatId) {
                    "color":"#173177"
                },
                "keyword1":{
-                   "value":"巧克力",
+                   "value":"100磅", // order amount
                    "color":"#173177"
                },
                "keyword2":{
-                   "value":"巧克力",
+                   "value":"$100.99", // order price
                    "color":"#173177"
                },
                "remark":{
-                   "value":"巧克力",
+                   "value":"欢迎使用北美团购宝！",
                    "color":"#173177"
                }
         	}
