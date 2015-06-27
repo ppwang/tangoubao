@@ -38,7 +38,10 @@ module.exports.notifyUser = function (req, res) {
 				if (!emailVerified) {
 					return;
 				}
-				return emailController.sendEmail(email);
+				var nickname = parseUser.get('nickname');
+				var username = parseUser.get('username');
+				var sendeeName = nickname? nickname : username;
+				return emailController.sendEmail(email, sendeeName);
 			}
 			return wechatAccessToken.getAccessToken()
 			    .then( function(accessToken) {
