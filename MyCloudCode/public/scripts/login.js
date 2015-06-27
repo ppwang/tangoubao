@@ -162,7 +162,7 @@ tgbApp.factory('dealGroupingService', [function() {
     return dealGroupingService;
 }]);
 
-tgbApp.factory('dealDataService', ['$http', function($http) {
+tgbApp.factory('dealDataService', ['$http', '$window', function($http, $window) {
 
     // Mock data
     var mockDealData = 
@@ -297,7 +297,16 @@ tgbApp.factory('dealDataService', ['$http', function($http) {
             },
         ];
     
-    var apiUrl = '/api'
+    // TODO: refactor the logic below into a service.
+    // Point the service url to TGB in local debugging scenario.
+    var serviceBaseUrl = '';
+    if ($window.location.hostname === '127.0.0.1') {
+        serviceBaseUrl = 'https://tuangoubao.parseapp.com';
+        $http.defaults.useXDomain = true;
+        $http.defaults.withCredentials = true;
+    }
+
+    var apiUrl = serviceBaseUrl + '/api'
     var dealApiUrl = apiUrl + '/deal';
     var dealsApiUrl = apiUrl + '/deals';
     var dealDataService = {};
