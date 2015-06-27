@@ -1,5 +1,6 @@
+var mandrillSetting = require('cloud/app.config.js').settings.mandrill;
 var mandrill = require('mandrill');
-mandrill.initialize('GnOE5NED9Ad5002hrjyZ0Q');
+mandrill.initialize(mandrillSetting.apiKey);
 
 module.exports.sendEmail = function(emailAddress, sendeeName) {
 	return mandrill.sendEmail({
