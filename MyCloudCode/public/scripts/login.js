@@ -1,4 +1,4 @@
-var tgbApp = angular.module('tuanGouBao', ['GlobalConfiguration', 'Parse', 'ui.router', 'xeditable', 'imageupload']);
+var tgbApp = angular.module('tuanGouBao', ['GlobalConfiguration', 'ui.router', 'xeditable', 'imageupload']);
 
 //tgbApp.config(function($locationProvider) {
 //    //$locationProvider.html5Mode(true).hashPrefix('!');
@@ -7,6 +7,11 @@ var tgbApp = angular.module('tuanGouBao', ['GlobalConfiguration', 'Parse', 'ui.r
 //        requireBase: false
 //    });
 //});
+
+tgbApp.config(['$httpProvider', function($httpProvider) {
+    $httpProvider.defaults.useXDomain = true;
+    $httpProvider.defaults.withCredentials = true;
+}]);
 
 tgbApp.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, $urlRouterProvider) {
     $urlRouterProvider.otherwise('/');
@@ -66,6 +71,49 @@ tgbApp.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, 
                 }
             }
         })
+}]);
+
+tgbApp.factory('serviceBaseUrl', ['$window', function($window) {
+    if ($window.location.hostname === '127.0.0.1') {
+        serviceBaseUrl = 'https://tuangoubao.parseapp.com';
+    } else {
+        serviceBaseUrl = '';
+    }
+    
+    return serviceBaseUrl;
+}]);
+
+tgbApp.factory('userService', ['$http', 'serviceBaseUrl', '$rootScope', '$state', function($http, serviceBaseUrl, $rootScope, $state) {
+    return {
+        signUp: function(user) {
+            if (user) {
+                return $http.post(serviceBaseUrl + '/signUp', user);
+            } else {
+                return $http.post(serviceBaseUrl + '/signUp');
+            }
+        },
+        
+        logIn: function(user) {   
+            return $http.post(serviceBaseUrl + '/login', user);
+        },
+        
+        logOut: function() {
+            return $http.get(serviceBaseUrl + '/logOut');
+        },
+        
+        ensureUserLoggedIn: function() {
+            if (!$rootScope.currentUser) {
+                this.logIn().then(function(response) {
+                    if (response.status === 200) {
+                        $rootScope.currentUser = response.data.user;
+                    } else {
+                        $rootScope.currentUser = null;
+                        $state.go('login');            
+                    }
+                });                
+            }
+        },
+    };
 }]);
 
 tgbApp.factory('dealGroupingService', [function() {
@@ -162,7 +210,7 @@ tgbApp.factory('dealGroupingService', [function() {
     return dealGroupingService;
 }]);
 
-tgbApp.factory('dealDataService', ['$http', '$window', function($http, $window) {
+tgbApp.factory('dealDataService', ['$http', 'serviceBaseUrl', function($http, serviceBaseUrl) {
 
     // Mock data
     var mockDealData = 
@@ -297,15 +345,6 @@ tgbApp.factory('dealDataService', ['$http', '$window', function($http, $window) 
             },
         ];
     
-    // TODO: refactor the logic below into a service.
-    // Point the service url to TGB in local debugging scenario.
-    var serviceBaseUrl = '';
-    if ($window.location.hostname === '127.0.0.1') {
-        serviceBaseUrl = 'https://tuangoubao.parseapp.com';
-        $http.defaults.useXDomain = true;
-        $http.defaults.withCredentials = true;
-    }
-
     var apiUrl = serviceBaseUrl + '/api'
     var dealApiUrl = apiUrl + '/deal';
     var dealsApiUrl = apiUrl + '/deals';
@@ -438,10 +477,8 @@ tgbApp.directive('dealDetailEditableForm', function() {
     };   
 });
 
-tgbApp.controller('dealsController', function($scope, $state, $rootScope, dealDataService, dealGroupingService) {
-    if (!$rootScope.currentUser) {
-        $state.go('login');
-    }
+tgbApp.controller('dealsController', function($scope, $state, $rootScope, userService, dealDataService, dealGroupingService) {
+    userService.ensureUserLoggedIn();
     
     var deals = dealDataService.getDeals();
     
@@ -576,7 +613,7 @@ tgbApp.controller('contactController', function($scope) {
     $scope.message = 'Contact us! JK. This is just a demo.';
 });
 
-tgbApp.controller('loginController', function($scope, $location, $state, $rootScope, ParseSDK) {
+tgbApp.controller('loginController', function($scope, $location, $state, $rootScope, userService) {
 
     if (!$scope.user)
     {
@@ -597,7 +634,7 @@ tgbApp.controller('loginController', function($scope, $location, $state, $rootSc
         clearStatusMessage();
         user.wechatId = $scope.user.wechatId;
         user.claimtoken = $scope.user.claimtoken;
-        ParseSDK.User.signUp(user)
+        userService.signUp(user)
             .then(function(user) {
                 $rootScope.currentUser = user;
                 $state.go('deals');
@@ -611,7 +648,7 @@ tgbApp.controller('loginController', function($scope, $location, $state, $rootSc
         clearStatusMessage();
         user.wechatId = $scope.user.wechatId;
         user.claimtoken = $scope.user.claimtoken;
-        ParseSDK.User.logIn(user)
+        userService.logIn(user)
             .then(function(user) {
                 $rootScope.currentUser = user;
                 $state.go('deals');
@@ -623,7 +660,7 @@ tgbApp.controller('loginController', function($scope, $location, $state, $rootSc
   
     $scope.logOut = function() {
         clearStatusMessage();
-        ParseSDK.User.logOut();
+        userService.logOut();
         $rootScope.currentUser = null;
     };
     
@@ -633,13 +670,8 @@ tgbApp.controller('loginController', function($scope, $location, $state, $rootSc
     };
 });
 
-tgbApp.run(['$rootScope', 'applicationId', 'javaScriptKey', 'ParseSDK', '$http', function($rootScope, applicationId, javaScriptKey, ParseSDK, $http) {
-    ParseSDK.initialize(applicationId, javaScriptKey);
+tgbApp.run(['$rootScope', 'applicationId', 'javaScriptKey', 'userService', '$http', function($rootScope, applicationId, javaScriptKey, userService, $http) {
+    //ParseSDK.initialize(applicationId, javaScriptKey);
     $rootScope.scenario = 'Sign up';
-    $http.post('/login')
-        .then(function(response) {
-            if (response.status == 200) {
-                $rootScope.currentUser = response.data.user;
-            }
-        });
+    userService.ensureUserLoggedIn();
 }]);
