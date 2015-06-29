@@ -1,6 +1,6 @@
 var ParseDeal = Parse.Object.extend('Deal');
 
-module.exports.convertToDealModel = function(parseDeal) {
+module.exports.convertToDealModel = function(parseDeal, type) {
 	var deal = {};
 	deal.id = parseDeal.id;
 	deal.name = parseDeal.get('name');
@@ -16,6 +16,6 @@ module.exports.convertToDealModel = function(parseDeal) {
 	deal.unitPrice = parseDeal.get('unitPrice');
 	deal.createdAt = parseDeal.get('createdAt');
 	deal.creatorName = parseDeal.get('creatorName');
-	deal.type = 'own';
+	deal.type = type;
 	return deal;
 };
