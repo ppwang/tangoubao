@@ -573,7 +573,7 @@ tgbApp.controller('dealDetailController', function($scope, $stateParams, $state,
         var newOption = {
             id: _.max($scope.deal.pickUpOptionsShadow, 'id') + 1,  
         };
-        $scope.deal.pickUpOptionsShadow.push({});
+        $scope.deal.pickUpOptionsShadow.push(newOption);
     }
     
     $scope.deletePickupOptionShadow = function(option) {
