@@ -86,15 +86,15 @@ tgbApp.factory('serviceBaseUrl', ['$window', function($window) {
 tgbApp.factory('userService', ['$http', 'serviceBaseUrl', '$rootScope', '$state', function($http, serviceBaseUrl, $rootScope, $state) {
     return {
         signUp: function(user) {
-            if (user) {
-                return $http.post(serviceBaseUrl + '/signUp', user);
-            } else {
-                return $http.post(serviceBaseUrl + '/signUp');
-            }
+            return $http.post(serviceBaseUrl + '/signUp', user);
         },
         
-        logIn: function(user) {   
-            return $http.post(serviceBaseUrl + '/login', user);
+        logIn: function(user) {
+            if (user) {
+                return $http.post(serviceBaseUrl + '/login', user);
+            } else {
+                return $http.post(serviceBaseUrl + '/login');
+            }
         },
         
         logOut: function() {
@@ -103,14 +103,14 @@ tgbApp.factory('userService', ['$http', 'serviceBaseUrl', '$rootScope', '$state'
         
         ensureUserLoggedIn: function() {
             if (!$rootScope.currentUser) {
-                this.logIn().then(function(response) {
-                    if (response.status === 200) {
-                        $rootScope.currentUser = response.data.user;
-                    } else {
+                this.logIn()
+                    .success(function(data, status, headers, config) {
+                          $rootScope.currentUser = data.user;
+                    })
+                    .error(function(data, status, headers, config) {
                         $rootScope.currentUser = null;
                         $state.go('login');            
-                    }
-                });                
+                    });
             }
         },
     };
