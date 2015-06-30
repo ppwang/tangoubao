@@ -120,9 +120,11 @@ tgbApp.factory('dealGroupingService', [function() {
     var dealGroupingService = {};
     
     dealGroupingService.getYearMonthString = function(date) {
-        return date 
-            ? date.getFullYear().toString() + '-' + (date.getMonth() + 1).toString() 
-            : 'Undated';
+        // TOOD: this is a hack due to begin/end dates are string types in parse db.
+//        return date 
+//            ? date.getFullYear().toString() + '-' + (date.getMonth() + 1).toString() 
+//            : 'Undated';
+        return date ? date.substring(0, 7) : 'Undated';
     };
     
     dealGroupingService.groupDeals = function(deals) {
@@ -138,7 +140,9 @@ tgbApp.factory('dealGroupingService', [function() {
                 // TODO: this doesn't work.
                 //return this.getYearMonthString(deal.endDate);
                 var date = deal.endDate;
-                return date ? date.getFullYear().toString() + '-' + (date.getMonth() + 1).toString() : 'Undated';
+                // TOOD: this is a hack due to begin/end dates are string types in parse db.
+//                return date ? date.getFullYear().toString() + '-' + (date.getMonth() + 1).toString() : 'Undated';
+                return date ? date.substring(0, 7) : 'Undated';
             });
 
             dealGroups[dealType].dealByYearMonth = {};
@@ -210,7 +214,7 @@ tgbApp.factory('dealGroupingService', [function() {
     return dealGroupingService;
 }]);
 
-tgbApp.factory('dealDataService', ['$http', 'serviceBaseUrl', function($http, serviceBaseUrl) {
+tgbApp.factory('dealDataService', ['$http', 'serviceBaseUrl', '$q', function($http, serviceBaseUrl, $q) {
 
     // Mock data
     var mockDealData = 
@@ -351,17 +355,21 @@ tgbApp.factory('dealDataService', ['$http', 'serviceBaseUrl', function($http, se
     var dealDataService = {};
 
     dealDataService.getDeals = function() {
+        var dealsDeferred = $q.defer();
         $http.get(dealsApiUrl)
         .success(function(data, status, headers, config) {
             // this callback will be called asynchronously
             // when the response is available
-            return data.deals;
+            dealsDeferred.resolve(data.deals);
         })
         .error(function(data, status, headers, config) {
             // called asynchronously if an error occurs
             // or server returns response with an error status.
             console.log('error code:' + status);
+            dealsDeferred.reject(status);
         });
+        
+        return dealsDeferred.promise;
         // TODO: this is mock data
         // return _.map(mockDealData, function(deal) {
         //     return {
@@ -374,9 +382,10 @@ tgbApp.factory('dealDataService', ['$http', 'serviceBaseUrl', function($http, se
         // });
     };
     
-    dealDataService.getDeal = function(id) {
+    dealDataService.getDeal = function(deals, id) {
         // TODO: temporary code
-        return _.find(mockDealData, function(deal) {
+//        return _.find(mockDealData, function(deal) {
+        return _.find(deals, function(deal) {
             return deal.id === id;
         });
     };
@@ -480,10 +489,11 @@ tgbApp.directive('dealDetailEditableForm', function() {
 tgbApp.controller('dealsController', function($scope, $state, $rootScope, userService, dealDataService, dealGroupingService) {
     userService.ensureUserLoggedIn();
     
-    var deals = dealDataService.getDeals();
-    
-    $scope.dealGroups = dealGroupingService.groupDeals(deals);
-    
+    dealDataService.getDeals().then(function(deals) {
+        $scope.deals = deals;
+        $scope.dealGroups = dealGroupingService.groupDeals(deals);    
+    });
+        
     $scope.getSortedDealEndDates = function(dealGroup) {
         return _.sortByOrder(_.keys(dealGroup), [_.identity], [false]);
     };
@@ -507,7 +517,7 @@ tgbApp.controller('dealDetailController', function($scope, $stateParams, $state,
             type: 'own',
         };
     } else {
-        $scope.deal = dealDataService.getDeal(dealId);
+        $scope.deal = dealDataService.getDeal($scope.deals, dealId);
     }
 
     if (!$scope.deal.pickupOptions) {
