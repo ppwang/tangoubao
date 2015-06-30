@@ -545,7 +545,7 @@ tgbApp.controller('dealDetailController', function($scope, $stateParams, $state,
             if (!$scope.deal.id) {
                 $scope.deal.type = response.data.type;
                 $scope.deal.id = response.data.id;
-                $scope.deal.dealImgeUrl = response.data.dealImgeUrl;
+                $scope.deal.dealImageUrl = response.data.dealImageUrl;
     //            $scope.deals.unshift($scope.deal);
                 dealGroupingService.insertDeal($scope.deal, $scope.dealGroups);
                 

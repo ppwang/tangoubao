@@ -1,4 +1,3 @@
-// TODO: add notification functionalities
 var WechatUser = Parse.Object.extend('WechatUser');
 var wechatAccessToken = require('cloud/wechat/utils/wechat_access_token');
 var emailController = require('cloud/controller/email_controller');
