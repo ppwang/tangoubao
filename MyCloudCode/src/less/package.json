@@ -1,5 +1,5 @@
 {
-  "name": "less",
+  "name": "main",
   "version": "1.0.0",
   "description": "Less for bootstrap based styles",
   "main": "index.js",
