@@ -8,7 +8,7 @@ module.exports.convertToDealModel = function(parseDeal, type) {
 	deal.beginDate = parseDeal.get('beginDate');
 	deal.endDate = parseDeal.get('endDate');
 	var dealImage = parseDeal.get('dealImage');
-	deal.dealImgeUrl = dealImage? dealImage.url() : null;
+	deal.dealImageUrl = dealImage? dealImage.url() : null;
 	deal.detailedDescription = parseDeal.get('detailedDescription');
 	deal.email = parseDeal.get('email');
 	deal.phoneNumber = parseDeal.get('phoneNumber');
@@ -16,6 +16,8 @@ module.exports.convertToDealModel = function(parseDeal, type) {
 	deal.unitPrice = parseDeal.get('unitPrice');
 	deal.createdAt = parseDeal.get('createdAt');
 	deal.creatorName = parseDeal.get('creatorName');
+	var creator = parseDeal.get('createdBy');
+	deal.creatorId = creator.id;
 	deal.type = type;
 	return deal;
 };

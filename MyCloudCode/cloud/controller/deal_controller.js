@@ -109,12 +109,12 @@ var saveDeal = function(parseDeal, req) {
 
 	var beginDate = req.body.beginDate;
 	if (beginDate) {
-		parseDeal.set('beginDate', beginDate);
+		parseDeal.set('beginDate', new Date(beginDate));
 	}
 
 	var endDate = req.body.endDate;
 	if (endDate) {
-		parseDeal.set('endDate', endDate);
+		parseDeal.set('endDate', new Date(endDate));
 	}
 
 	var email = req.body.email;
