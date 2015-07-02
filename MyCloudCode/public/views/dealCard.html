@@ -7,8 +7,9 @@
         <br>
         <span>价格: {{deal.unitPrice | currency}}/{{deal.unitName}}</span>
         <br>
-        <span>团购进度: 还剩{{(deal.endDate - Date.now())/(60*60*24*1000)}}天</span>
+        <span>团购进度: 还剩{{getDealRemainingDays()}}天</span>
         <br>
+        <!-- TODO: show owner name or id -->
         <span>发起人: {{deal.creatorName}}</span>
         <br>
         <span>热度</span>

@@ -120,11 +120,10 @@ tgbApp.factory('dealGroupingService', [function() {
     var dealGroupingService = {};
     
     dealGroupingService.getYearMonthString = function(date) {
-        // TOOD: this is a hack due to begin/end dates are string types in parse db.
-//        return date 
-//            ? date.getFullYear().toString() + '-' + (date.getMonth() + 1).toString() 
-//            : 'Undated';
-        return date ? date.substring(0, 7) : 'Undated';
+        return date 
+            ? date.getFullYear().toString() + '-' + (date.getMonth() + 1).toString() 
+            : 'Undated';
+//        return date ? date.substring(0, 7) : 'Undated';
     };
     
     dealGroupingService.groupDeals = function(deals) {
@@ -140,9 +139,8 @@ tgbApp.factory('dealGroupingService', [function() {
                 // TODO: this doesn't work.
                 //return this.getYearMonthString(deal.endDate);
                 var date = deal.endDate;
-                // TOOD: this is a hack due to begin/end dates are string types in parse db.
-//                return date ? date.getFullYear().toString() + '-' + (date.getMonth() + 1).toString() : 'Undated';
-                return date ? date.substring(0, 7) : 'Undated';
+                return date ? date.getFullYear().toString() + '-' + (date.getMonth() + 1).toString() : 'Undated';
+//                return date ? date.substring(0, 7) : 'Undated';
             });
 
             dealGroups[dealType].dealByYearMonth = {};
@@ -360,6 +358,12 @@ tgbApp.factory('dealDataService', ['$http', 'serviceBaseUrl', '$q', function($ht
         .success(function(data, status, headers, config) {
             // this callback will be called asynchronously
             // when the response is available
+            
+            // Populate date objects.
+            _.forEach(data.deals, function(d) {
+                d.beginDate = new Date(d.beginDate);
+                d.endDate = new Date(d.endDate);
+            });
             dealsDeferred.resolve(data.deals);
         })
         .error(function(data, status, headers, config) {
@@ -527,6 +531,10 @@ tgbApp.controller('dealDetailController', function($scope, $stateParams, $state,
     // Create a shadow copy of pickupOptions, so that we can hook into editable form in a custom way.
     $scope.deal.pickUpOptionsShadow = angular.copy($scope.deal.pickupOptions);
     
+    $scope.getDealRemainingDays = function() {
+        return Math.ceil(($scope.deal.endDate.getTime() - Date.now())/86400000);    
+    };
+    
     $scope.clearproductImageUpload = function() {
         if ($scope.productImageUpload) {
             $scope.productImageUpload.dataURL = undefined;
@@ -555,7 +563,7 @@ tgbApp.controller('dealDetailController', function($scope, $stateParams, $state,
             if (!$scope.deal.id) {
                 $scope.deal.type = response.data.type;
                 $scope.deal.id = response.data.id;
-                $scope.deal.dealImgeUrl = response.data.dealImgeUrl;
+                $scope.deal.dealImageUrl = response.data.dealImageUrl;
     //            $scope.deals.unshift($scope.deal);
                 dealGroupingService.insertDeal($scope.deal, $scope.dealGroups);
                 
