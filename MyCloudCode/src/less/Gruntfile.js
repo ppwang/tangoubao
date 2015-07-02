@@ -160,10 +160,10 @@ module.exports = function (grunt) {
           sourceMap: true,
           outputSourceFiles: true,
           sourceMapURL: '<%= pkg.name %>.css.map',
-          sourceMapFilename: 'dist/css/<%= pkg.name %>.css.map'
+          sourceMapFilename: '../../public/styles/<%= pkg.name %>.css.map'
         },
         src: 'styles.less',
-        dest: 'dist/css/<%= pkg.name %>.css'
+        dest: '../../public/styles/<%= pkg.name %>.css'
       },
       compileTheme: {
         options: {
@@ -171,10 +171,10 @@ module.exports = function (grunt) {
           sourceMap: true,
           outputSourceFiles: true,
           sourceMapURL: '<%= pkg.name %>-theme.css.map',
-          sourceMapFilename: 'dist/css/<%= pkg.name %>-theme.css.map'
+          sourceMapFilename: '../../public/styles/<%= pkg.name %>-theme.css.map'
         },
         src: 'bootstrap/less/theme.less',
-        dest: 'dist/css/<%= pkg.name %>-theme.css'
+        dest: '../../public/styles/<%= pkg.name %>-theme.css'
       }
     },
 
@@ -356,14 +356,14 @@ module.exports = function (grunt) {
     },
 
     watch: {
-      src: {
-        files: '<%= jshint.core.src %>',
-        tasks: ['jshint:core', 'qunit', 'concat']
-      },
-      test: {
-        files: '<%= jshint.test.src %>',
-        tasks: ['jshint:test', 'qunit']
-      },
+      // src: {
+      //   files: '<%= jshint.core.src %>',
+      //   tasks: ['jshint:core', 'qunit', 'concat']
+      // },
+      // test: {
+      //   files: '<%= jshint.test.src %>',
+      //   tasks: ['jshint:test', 'qunit']
+      // },
       less: {
         files: './**/*.less',
         tasks: 'less'
