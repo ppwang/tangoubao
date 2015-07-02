@@ -26,6 +26,15 @@ tgbApp.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, 
                 }
             }
         })
+        .state('publicDeals', {
+            url:'/publicDeals',
+            views: {
+                'content': {
+                    templateUrl: 'views/publicDeals.html',
+                    controller: 'publicDealsController',
+                }
+            }
+        })
         .state('deals.dealDetail', {
             url:'/deal/:id',
             views: {
@@ -35,12 +44,12 @@ tgbApp.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, 
                 }
             }
         })
-        .state('orders', {
-            url:'/orders',
+        .state('createDeal', {
+            url:'/createDeal',
             views: {
                 'content': {
-                    templateUrl: 'views/orders.html',
-                    controller: 'ordersController',
+                    templateUrl: 'views/createDeal.html',
+                    controller: 'createDealController',
                 }
             }
         })
@@ -212,158 +221,30 @@ tgbApp.factory('dealGroupingService', [function() {
     return dealGroupingService;
 }]);
 
-tgbApp.factory('dealDataService', ['$http', 'serviceBaseUrl', '$q', function($http, serviceBaseUrl, $q) {
-
-    // Mock data
-    var mockDealData = 
-        [
-            {
-                id: 1,
-                type: 'own',
-                name: 'deal 1',
-                subtitle: 'subtitle 1',
-                detailedDescription: 'detailed description 1',
-                beginDate: new Date(2015, 7, 1),
-                endDate: new Date(2015, 7, 15),
-                email: 'email1@tgb.com',
-                phoneNumber: '111-1111',
-                pickupOptions: [
-                    {
-                        id: 1,
-                        description: 'pickup option 1',
-                    },
-                    {
-                        id: 2,
-                        description: 'pickup option 2',
-                    },
-                ],
-                unitName: 'box',
-                unitPrice: '20.5',
-                remarks: 'remarks 1',
-            },
-            {
-                id: 2,
-                type: 'own',
-                name: 'deal 2',
-                subtitle: 'subtitle 2',
-                detailedDescription: 'detailed description 2',
-                beginDate: new Date(2015, 7, 8),
-                endDate: new Date(2015, 7, 16),
-                email: 'email2@tgb.com',
-                phoneNumber: '222-2222',
-                unitName: 'lb',
-                unitPrice: '5',
-                remarks: 'remarks 2',
-            },
-            {
-                id: 3,
-                type: 'own',
-                name: 'deal 3',
-                subtitle: 'subtitle 3',
-                detailedDescription: 'detailed description 3',
-                beginDate: new Date(2015, 7, 30),
-                endDate: new Date(2015, 8, 7),
-                email: 'email3@tgb.com',
-                phoneNumber: '333-3333',
-                unitName: '个',
-                unitPrice: '17',
-                remarks: 'remarks 3',
-            },
-            {
-                id: 4,
-                type: 'own',
-                name: 'deal 4',
-                subtitle: 'subtitle 4',
-                detailedDescription: 'detailed description 4',
-                beginDate: new Date(2015, 8, 2),
-                endDate: new Date(2015, 8, 9),
-                email: 'email4@tgb.com',
-                phoneNumber: '444-4444',
-                unitName: '箱',
-                unitPrice: '55',
-                remarks: 'remarks 4',
-            },
-            {
-                id: 5,
-                type: 'follow',
-                name: 'deal 5',
-                subtitle: 'subtitle 5',
-                detailedDescription: 'detailed description 5',
-                beginDate: new Date(2015, 8, 1),
-                endDate: new Date(2015, 8, 14),
-                email: 'email5@tgb.com',
-                phoneNumber: '555-5555',
-                pickupOptions: [
-                    {
-                        id: 1,
-                        description: 'pickup option 1',
-                    },
-                    {
-                        id: 2,
-                        description: 'pickup option 2',
-                    },
-                ],                
-                unitName: '只',
-                unitPrice: '8',
-                remarks: 'remarks 5',
-            },
-            {
-                id: 6,
-                type: 'follow',
-                name: 'deal 6',
-                subtitle: 'subtitle 6',
-                detailedDescription: 'detailed description 6',
-                beginDate: new Date(2015, 8, 2),
-                endDate: new Date(2015, 8, 10),
-                email: 'email6@tgb.com',
-                phoneNumber: '666-6666',
-                pickupOptions: [
-                    {
-                        id: 1,
-                        description: 'pickup option 1',
-                    },
-                    {
-                        id: 2,
-                        description: 'pickup option 2',
-                    },
-                ],                
-                unitName: 'box',
-                unitPrice: '15',
-                remarks: 'remarks 6',
-            },
-            {
-                id: 7,
-                type: 'follow',
-                name: 'deal 7',
-                subtitle: 'subtitle 7',
-                detailedDescription: 'detailed description 7',
-                beginDate: new Date(2015, 8, 30),
-                endDate: new Date(2015, 9, 2),
-                email: 'email7@tgb.com',
-                phoneNumber: '777-7777',
-                unitName: 'box',
-                unitPrice: '7.6',
-                remarks: 'remarks 7',
-            },
-        ];
-    
+tgbApp.factory('dealDataService', ['$http', 'serviceBaseUrl', '$q', function($http, serviceBaseUrl, $q) {    
     var apiUrl = serviceBaseUrl + '/api'
     var dealApiUrl = apiUrl + '/deal';
     var dealsApiUrl = apiUrl + '/deals';
     var dealDataService = {};
-
+    
+    var patchDateTimeProperties = function(deals) {
+        _.forEach(deals, function(d) {
+            if (d.beginDate) {
+                d.beginDate = new Date(d.beginDate);
+            }
+            
+            if (d.endDate) {
+                d.endDate = new Date(d.endDate);
+            }
+        });
+    };
     dealDataService.getDeals = function() {
         var dealsDeferred = $q.defer();
         $http.get(dealsApiUrl)
         .success(function(data, status, headers, config) {
             // this callback will be called asynchronously
             // when the response is available
-            
-            // Populate date objects.
-            _.forEach(data.deals, function(d) {
-                d.beginDate = new Date(d.beginDate);
-                d.endDate = new Date(d.endDate);
-            });
+            patchDateTimeProperties(data.deals);
             dealsDeferred.resolve(data.deals);
         })
         .error(function(data, status, headers, config) {
@@ -374,38 +255,39 @@ tgbApp.factory('dealDataService', ['$http', 'serviceBaseUrl', '$q', function($ht
         });
         
         return dealsDeferred.promise;
-        // TODO: this is mock data
-        // return _.map(mockDealData, function(deal) {
-        //     return {
-        //         id: deal.id,
-        //         name: deal.name,
-        //         type: deal.type,
-        //         beginDate: deal.beginDate,
-        //         endDate: deal.endDate,
-        //     };
-        // });
+    };
+    
+    dealDataService.getPublicDeals = function() {
+        var publicDealsDeferred = $q.defer();
+        
+        $http.get(apiUrl + '/publicDeals')
+        .success(function(data, status, headers, config) {
+            patchDateTimeProperties(data.deals);
+            publicDealsDeferred.resolve(data.deals);
+        })
+        .error(function(data, status, headers, config) {
+            // called asynchronously if an error occurs
+            // or server returns response with an error status.
+            console.log('error code:' + status);
+            publicDealsDeferred.reject(status);
+        });
+
+        return publicDealsDeferred.promise;
     };
     
     dealDataService.getDeal = function(deals, id) {
-        // TODO: temporary code
-//        return _.find(mockDealData, function(deal) {
         return _.find(deals, function(deal) {
             return deal.id === id;
         });
     };
     
     dealDataService.saveDeal = function(deal) {
-        mockDealData.push(deal);
         var newDeal = $http.put(dealApiUrl, deal);
         return newDeal;
-        //return mockDealData.length;
     };
     
     dealDataService.deleteDeal = function(id) {
-        // TODO: temporary code
-        _.remove(mockDealData, function(deal) {
-            return deal.id === id;
-        });
+        // TODO:
     };
     
     return dealDataService;
@@ -474,6 +356,16 @@ tgbApp.factory('orderDataService', ['$http', function($http) {
     return orderDataService;
 }]);
 
+tgbApp.directive('dealCard', function() {
+    return {
+        restrict: 'E',
+        templateUrl: '/directives/dealCard.html',
+        scope: {
+            deal: '=',  
+        },
+    };   
+});
+
 tgbApp.directive('dealDetailEditableForm', function() {
     function link(scope, element, attrs) {
         if (!scope.deal.id) {
@@ -512,6 +404,19 @@ tgbApp.controller('dealsController', function($scope, $state, $rootScope, userSe
             [false]);
     };
 });
+
+tgbApp.controller('publicDealsController', ['$scope', 'dealDataService', 'userService', function($scope, dealDataService, userService) {
+    userService.ensureUserLoggedIn();
+    
+    var setDeals = function(deals) {
+        $scope.Deals = deals;
+        $scope.chunkedDeals = _.chunk(deals, 4); 
+    };
+    
+    dealDataService.getPublicDeals().then(function(deals) {
+        setDeals(deals);
+    });
+}]);
 
 tgbApp.controller('dealDetailController', function($scope, $stateParams, $state, dealDataService, dealGroupingService) {
     var dealId = $stateParams.id;
