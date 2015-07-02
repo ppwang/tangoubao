@@ -134,7 +134,7 @@ var getFollowedDeals = function(currentUser) {
 var getOrderedDeals = function(currentUser) {
 	console.log('get ordered deals');
 	var query = new Parse.Query(ParseOrder);
-	query.equalTo('purchaserId', currentUser.id);
+	query.equalTo('buyerId', currentUser.id);
 	return query.find()
 		.then(function(parseOrders) {
 			var promises = [];
