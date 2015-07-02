@@ -1,0 +1,16 @@
+<div>
+    <img src="{{deal.dealImageUrl}}" class="img-responsive pull-left"/>
+	<div>
+        <span style="font-weight: bold">{{deal.name}}</span>
+        <br>
+        <span>地区: {{deal.region}}</span>
+        <br>
+        <span>价格: {{deal.unitPrice | currency}}/{{deal.unitName}}</span>
+        <br>
+        <span>团购进度: 还剩{{(deal.endDate - Date.now())/(60*60*24*1000)}}天</span>
+        <br>
+        <span>发起人: {{deal.creatorName}}</span>
+        <br>
+        <span>热度</span>
+    </div>
+</div>
