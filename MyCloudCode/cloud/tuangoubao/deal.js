@@ -16,6 +16,8 @@ module.exports.convertToDealModel = function(parseDeal, type) {
 	deal.unitPrice = parseDeal.get('unitPrice');
 	deal.createdAt = parseDeal.get('createdAt');
 	deal.creatorName = parseDeal.get('creatorName');
+	var creator = parseDeal.get('createdBy');
+	deal.creatorId = creator.id;
 	deal.type = type;
 	return deal;
 };
