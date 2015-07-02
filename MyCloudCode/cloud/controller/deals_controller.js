@@ -13,6 +13,8 @@ module.exports.getPublicDeals = function(req, res) {
 	}
 
 	var query = new Parse.Query(ParseDeal);
+	// we are sorting the results by creation date
+	query.addDescending('createdAt');
 	return query.find()
     	.then(function(parseDeals) {
     		console.log('parseDeals: ' + JSON.stringify(parseDeals));
