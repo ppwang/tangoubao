@@ -1,4 +1,6 @@
 var ParseDeal = Parse.Object.extend('Deal');
+var ParseOrder= Parse.Object.extend('Order');
+
 var utils = require('cloud/lib/utils');
 var dealModel = require('cloud/tuangoubao/deal');
 
@@ -46,12 +48,35 @@ module.exports.getDeal = function(req, res) {
 		return res.status(401).send();
 	}
 
-	var objectId = req.params.dealId;
-	if (!objectId) {
+	var dealId = req.params.dealId;
+	if (!dealId) {
 		// create a new deal
 		return res.send('no dealId');
 	}
 	else {
+		var deal = new ParseDeal();
+		deal.id = dealId;
+		return deal.fetch()
+			.then(function(parseDeal) {
+				var creator = parseDeal.get('createdBy');
+				var deal = dealModel.convertToDealModel(parseDeal);
+				if (creator.id != currentUser.id) {
+					console.log('send deal: ' + JSON.stringify(deal));
+					return deal;
+				}
+				// return buyers list as well
+				return dealModel.getBuyers(dealId)
+					.then(function(buyers) {
+						deal.buyers = buyers;
+						return deal;
+					});
+			})
+			.then(function(deal) {
+				return res.status(201).send(deal);
+			}, function(error) {
+				console.log('error: ' + JSON.stringify(error));
+				return res.status(500).end();
+			});
 		return res.send('dealId is: ' + objectId);
 	}
 };
@@ -67,7 +92,7 @@ var modifyDeal = function(objectId, req, user) {
 	    	}
 	    	throw new Error('ParseDeal not found with dealId: ' + objectId);
 	    });
-}
+};
 
 var createDeal = function(req, user) {
 	var parseDeal = new ParseDeal();
@@ -89,7 +114,7 @@ var createDeal = function(req, user) {
 		.then(function() { 
 			return saveDeal(parseDeal, req);
 		});
-}
+};
 
 var saveDeal = function(parseDeal, req) {
 	var name = req.body.name;
@@ -175,4 +200,4 @@ var saveDeal = function(parseDeal, req) {
 
 	console.log('save deal without image: ' + JSON.stringify(parseDeal));
 	return parseDeal.save();
-}
+};

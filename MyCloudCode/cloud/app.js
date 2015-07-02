@@ -56,6 +56,9 @@ var dealController = require('cloud/controller/deal_controller');
 app.get('/api/deal/:dealId?', dealController.getDeal);
 // Use bodyparser to parse form input first and then call putDeal
 app.put('/api/deal', express.bodyParser(), dealController.putDeal);
+// Send deal report to owner
+var emailController = require('cloud/controller/email_controller');
+app.get('/api/dealReport/:dealId?', express.bodyParser(), emailController.sendDealReport);
 
 var dealsController = require('cloud/controller/deals_controller');
 // get a list: one for deals owned; the other for deals followed
