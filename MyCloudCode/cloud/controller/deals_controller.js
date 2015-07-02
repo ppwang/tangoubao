@@ -3,6 +3,39 @@ var ParseDeal = Parse.Object.extend('Deal');
 var ParseFollowDeal = Parse.Object.extend('FollowDeal');
 var ParseOrder = Parse.Object.extend('Order');
 
+module.exports.getPublicDeals = function(req, res) {
+	var currentUser = Parse.User.current();
+	console.log('currentUser: ' + JSON.stringify(currentUser));
+	if (!currentUser) {
+		// require user to log in
+		// TODO: client side code asks user to sign in
+		return res.status(401).send();
+	}
+
+	var query = new Parse.Query(ParseDeal);
+	return query.find()
+    	.then(function(parseDeals) {
+    		console.log('parseDeals: ' + JSON.stringify(parseDeals));
+    		var deals = [];
+
+    		parseDeals.forEach(function(parseDeal) {
+				var deal = dealModel.convertToDealModel(parseDeal, null);
+				console.log('Convert parseDeal to: ' + JSON.stringify(deal));
+				deals.push(deal);
+			});
+
+			return deals;
+    	})
+    	.then(function(deals) {
+    		var responseData = {};
+			responseData.deals = deals;
+			return res.status(200).send(JSON.stringify(responseData));
+	    }, function(error) {
+	    	console.log('error is: ' + JSON.stringify(error));
+	    	return res.status(500).end();
+	    });
+}
+
 module.exports.getDeals = function(req, res) {
 	var currentUser = Parse.User.current();
 	console.log('currentUser: ' + JSON.stringify(currentUser));

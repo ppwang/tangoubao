@@ -60,6 +60,7 @@ app.put('/api/deal', express.bodyParser(), dealController.putDeal);
 var dealsController = require('cloud/controller/deals_controller');
 // get a list: one for deals owned; the other for deals followed
 app.get('/api/deals', dealsController.getDeals);
+app.get('/api/publicDeals', dealsController.getPublicDeals);
 
 // Entry points for follow
 var followController = require('cloud/controller/follow_controller');
