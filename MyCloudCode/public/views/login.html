@@ -2,16 +2,12 @@
     <form ng-show="scenario == 'Sign up'">
         <div class="row"> 
           <div class="col-sm-12 welcome-msg">
-            <h2>
-              Welcome {{user.nickname}}!
-              <div class="head-img"><img class="img-responsive" src="{{user.headimgurl}}" alt=""></img></div>
-            </h2> 
+              <div class="user-signin-card" background-image="{{user.headimgurl}}">
+                {{user.nickname}}
+              </div>
           </div>
         </div>
         <div class="sign-area">
-          <div class="row">
-            <div class="col-sm-12"><h3>Please sign up with Tuan Gou Bao</h3></div>
-            </div>
             <div class="row sign-input">Email: <input type="email" ng-model="user.email" ng-required="true"/></div>
             <div class="row sign-input">Username: <input type="text" ng-model="user.username" ng-required="true"/></div>
             <div class="row sign-input">Password: <input type="password" ng-model="user.password" ng-required="true"/></div>

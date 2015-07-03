@@ -382,6 +382,15 @@ tgbApp.directive('dealDetailEditableForm', function() {
     };   
 });
 
+tgbApp.directive('backgroundImage', function() {
+    return function(scope, element, attrs) {
+        var imgUrl = attrs.backgroundImage;
+        element.css({ 
+            'background-image': 'url(' + imgUrl + ')'
+        });
+    };
+});
+
 tgbApp.controller('dealsController', function($scope, $state, $rootScope, userService, dealDataService, dealGroupingService) {
     userService.ensureUserLoggedIn();
     
