@@ -125,6 +125,23 @@ tgbApp.factory('userService', ['$http', 'serviceBaseUrl', '$rootScope', '$state'
     };
 }]);
 
+tgbApp.factory('regionDataService', ['$http', 'serviceBaseUrl', '$q', function($http, serviceBaseUrl, $q) {
+    return {
+        getRegions: function() {
+            var regionsDeferred = $q.defer();
+            $http.get(serviceBaseUrl + '/api/regions')
+                .success(function(data, status, headers, config) {
+                      regionsDeferred.resolve(data);
+                })
+                .error(function(data, status, headers, config) {
+                    regionsDeferred.reject(status);
+                    console.log('error code:' + status);
+                });
+            return regionsDeferred.promise;
+        },
+    };
+}]);
+
 tgbApp.factory('dealGroupingService', [function() {
     var dealGroupingService = {};
     
@@ -551,7 +568,7 @@ tgbApp.controller('dealDetailController', function($scope, $stateParams, $state,
     };
 });
 
-tgbApp.controller('createDealController', ['$scope', '$rootScope', '$state', 'dealDataService', function($scope, $rootScope, $state, dealDataService) {
+tgbApp.controller('createDealController', ['$scope', '$rootScope', '$state', 'dealDataService', 'regionDataService', function($scope, $rootScope, $state, dealDataService, regionDataService) {
     if (!$rootScope.currentUser) {
         // TODO: after signing in, return to orders page.
         $state.go('login');
@@ -570,10 +587,28 @@ tgbApp.controller('createDealController', ['$scope', '$rootScope', '$state', 'de
         });
     };
 
+    $scope.regions = $rootScope.regions;
+    // Populate the new deal with initial parameters.
     $scope.deal = {};
+    $scope.deal.unitName = '磅';
+    if ($rootScope.currentUser) {
+        $scope.deal.email = $rootScope.currentUser.email;
+        $scope.deal.phoneNumber = $rootScope.currentUser.phoneNumber;
+    }
     $scope.deal.pickupOptions = [];
     addNewPickupOption();
     
+    $scope.clearproductImageUpload = function() {
+        if ($scope.productImageUpload) {
+            $scope.productImageUpload.dataURL = undefined;
+            
+            if ($scope.productImageUpload.resized) {
+                $scope.productImageUpload.resized.dataURL = undefined;            
+            }
+        }
+        $scope.productImageUpload = undefined;
+    };
+
     $scope.addPickupOption = function() {
         addNewPickupOption();
     };
@@ -590,6 +625,13 @@ tgbApp.controller('createDealController', ['$scope', '$rootScope', '$state', 'de
             return !o.address && !o.contactName && !o.phoneNumber;
         });
         
+        if ($scope.productImageUpload && $scope.productImageUpload.resized) {
+            var resizedImage = $scope.productImageUpload.resized;
+            $scope.deal.imageType = resizedImage.type;
+            // TODO: find a better way to parse the base64 image data out of data url.
+            $scope.deal.imageBase64 = $scope.productImageUpload.resized.dataURL.split(',')[1];
+        }
+
         dealDataService.saveDeal($scope.deal);
     };
 }]);
@@ -659,8 +701,16 @@ tgbApp.controller('loginController', function($scope, $location, $state, $rootSc
     };
 });
 
-tgbApp.run(['$rootScope', 'applicationId', 'javaScriptKey', 'userService', '$http', function($rootScope, applicationId, javaScriptKey, userService, $http) {
-    //ParseSDK.initialize(applicationId, javaScriptKey);
+tgbApp.run(['$rootScope', 'userService', 'regionDataService', function($rootScope, userService, regionDataService) {
     $rootScope.scenario = 'Sign up';
     userService.ensureUserLoggedIn();
+    
+    $rootScope.regions = [];
+    regionDataService.getRegions()
+    .then(function(regions) {
+        _.forEach(regions, function(r) {
+            $rootScope.regions.push(r);
+        });
+    });
+
 }]);
