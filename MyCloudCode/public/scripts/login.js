@@ -615,6 +615,10 @@ tgbApp.controller('loginController', function($scope, $location, $state, $rootSc
     if (wechatId && claimtoken) {
         $scope.user.wechatId = wechatId;
         $scope.user.claimtoken = claimtoken;
+        $scope.wechatWelcomeVisible = true;
+    }
+    else {
+        $scope.wechatWelcomeVisible = false;
     }
     $scope.user.nickname = nickname;
     $scope.user.headimgurl = headimgurl;
