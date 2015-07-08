@@ -418,6 +418,14 @@ tgbApp.controller('publicDealsController', ['$scope', 'dealDataService', 'userSe
     });
 }]);
 
+tgbApp.controller('dealCardController', ['$scope', function($scope) {
+    $scope.getDealRemainingDays = function() {
+        if ($scope.deal.endDate) {
+            return Math.ceil(($scope.deal.endDate.getTime() - Date.now())/86400000);
+        }
+    };
+}]);
+
 tgbApp.controller('dealDetailController', function($scope, $stateParams, $state, dealDataService, dealGroupingService) {
     var dealId = $stateParams.id;
     
@@ -518,7 +526,7 @@ tgbApp.controller('dealDetailController', function($scope, $stateParams, $state,
     };
 });
 
-tgbApp.controller('ordersController', function($scope, $state, $rootScope, orderDataService) {
+tgbApp.controller('createDealController', ['$scope', function($scope) {
     if (!$rootScope.currentUser) {
         // TODO: after signing in, return to orders page.
         $state.go('login');
@@ -526,7 +534,7 @@ tgbApp.controller('ordersController', function($scope, $state, $rootScope, order
     
     $scope.orders = orderDataService.getOrders();
     // TODO: should develope a deal/order cache, so that we don't have to load individual deal/order repeatedly.
-});
+}]);
 
 tgbApp.controller('aboutController', function($scope) {
     $scope.message = 'Look! I am an about page.';
