@@ -1,3 +1,6 @@
+var wechatSetting = require('cloud/app.config.js').settings.wechat;
+var tgbWechatUser = require('cloud/tuangoubao/wechat_user');
+
 module.exports.signUp = function(req, res) {
 	var parseUser = new Parse.User();
 	var username = req.body.username;
@@ -104,3 +107,67 @@ var convertToUserResponseData = function(parseUser) {
 		    return JSON.stringify(responseData);
 		});
 }
+
+module.exports.getUserInfo = function(req, res) {
+	var authProvider = req.params.authProvider;
+	
+	// We are supporting only wechat for now
+	if (authProvider != 'wechat' || !req.query.code) {
+		var currentUser = Parse.User.current();
+		if (currentUser) {
+			return convertToUserResponseData(currentUser)
+				.then(function(responseData) {
+            		return res.status(200).send(responseData);
+				});
+		}
+		return res.status(401).end();
+	}
+
+	var wechatOAuthCode = req.query.code;
+	var wechatTokenRequestUrl = 
+			'https://api.weixin.qq.com/sns/oauth2/access_token?grant_type=authorization_code'
+            + '&appid=' + wechatSetting.wechatAppId 
+            + '&secret=' + wechatSetting.wechatAppSecret
+            + '&code=' + wechatOAuthCode;
+
+    console.log('token request: ' + wechatTokenRequestUrl);
+    var now = new Date();
+    return Parse.Cloud.httpRequest({
+        	url: wechatTokenRequestUrl
+    	})
+    	.then(function(httpResponse) {
+    		// TODO: error code check for refresh token ...
+	        console.log('got token: ' + httpResponse.text);
+	        var tokenResult = JSON.parse(httpResponse.text);
+	        var accessToken = {};
+	        accessToken.token = tokenResult.access_token;
+	        accessToken.expiry = now;
+	        accessToken.expiry.setSeconds(now.getSeconds() + tokenResult.expires_in);
+	        accessToken.openid = tokenResult.openid;
+
+	        return accessToken;
+    	})
+    	.then(function(accessToken) {
+    		var wechatUesrInfoUrl = 
+    				'https://api.weixin.qq.com/sns/userinfo?'
+    				+ 'access_token=' + accessToken.token
+    				+ '&openid=' + accessToken.openid
+    				+ '&lang=en';
+			console.log('user info request: ' + wechatUesrInfoUrl);
+			return Parse.Cloud.httpRequest( {
+					url: wechatUesrInfoUrl
+				})
+				.then(function(httpResponse) {
+					return tgbWechatUser.update(accessToken.openid, httpResponse.text, null);
+				});				
+    	})
+    	.then(function(parseWechatUser) {
+    		return tgbWechatUser.convertToWechatUserModel(parseWechatUser);
+		})
+		.then(function(wechatUser) {
+			return res.status(200).send(wechatUser);
+		}, function(error) {
+			console.log('error: ' + JSON.stringify(error));
+			return res.status(500).end();
+		});
+};

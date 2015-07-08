@@ -60,15 +60,25 @@ module.exports.deactivate = function(wechatId) {
 	});
 };
 
+module.exports.convertToWechatUserModel = function(parseWechatUser) {
+    var wechatUser = {};
+    wechatUser.wechatId = parseWechatUser.get('wechatId');
+    wechatUser.nickname = parseWechatUser.get('nickname');
+    wechatUser.headimgurl = parseWechatUser.get('headimgurl');
+    return wechatUser;
+};
+
 var initWechatUser = function(wechatUser, wechatId, wechatUserRawData, refreshClaimToken) {
     wechatUser.set('wechatId', wechatId);
     wechatUser.set('data', wechatUserRawData); // raw data field
     var wechatUserData = JSON.parse(wechatUserRawData);
-    if (!wechatUserData.subscribe || wechatUserData.subscribe == 0) {
-        // This an error situation: we found a user who is not following us. Could be someone try to hack
-        //   this wechat user entity?
-        throw new Error('Query from wechat a unsubscribed user.');
-    }
+
+    // Before, the following is an error situation: we found a user who is not following us. 
+    //    Could be someone try to hack this wechat user entity?
+    // Now, for webpage oauth, we can have users who are not following us.
+    // if (!wechatUserData.subscribe || wechatUserData.subscribe == 0) {
+    //     throw new Error('Query from wechat a unsubscribed user.');
+    // }
 
     // For new user, we will generate a one time claim token for binding with user instance.
     if (refreshClaimToken) {
