@@ -45,6 +45,10 @@ app.post('/login', express.bodyParser(), userController.logIn);
 app.get('/logout', userController.logOut);
 app.get('/api/user/:authProvider?', userController.getUserInfo);
 
+// OAuth connection endpoints
+var oauthController = require('cloud/controller/oauth_controller');
+app.get('/api/oauth/:authProvider?', oauthController.oauthConnect);
+
 // wechat services:
 app.get('/wechat', wechatServices.requestValidate);
 
