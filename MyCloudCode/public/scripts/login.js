@@ -227,24 +227,25 @@ tgbApp.factory('dealDataService', ['$http', 'serviceBaseUrl', '$q', function($ht
     var dealsApiUrl = apiUrl + '/deals';
     var dealDataService = {};
     
-    var patchDateTimeProperties = function(deals) {
-        _.forEach(deals, function(d) {
-            if (d.beginDate) {
-                d.beginDate = new Date(d.beginDate);
-            }
-            
-            if (d.endDate) {
-                d.endDate = new Date(d.endDate);
-            }
-        });
+    var patchDateTimeProperties = function(deal) {
+        if (deal.beginDate) {
+            deal.beginDate = new Date(deal.beginDate);
+        }
+
+        if (deal.endDate) {
+            deal.endDate = new Date(deal.endDate);
+        }
     };
+    
     dealDataService.getDeals = function() {
         var dealsDeferred = $q.defer();
         $http.get(dealsApiUrl)
         .success(function(data, status, headers, config) {
             // this callback will be called asynchronously
             // when the response is available
-            patchDateTimeProperties(data.deals);
+            _.forEach(data.deals, function(d) {
+                patchDateTimeProperties(d);
+                });
             dealsDeferred.resolve(data.deals);
         })
         .error(function(data, status, headers, config) {
@@ -262,7 +263,9 @@ tgbApp.factory('dealDataService', ['$http', 'serviceBaseUrl', '$q', function($ht
         
         $http.get(apiUrl + '/publicDeals')
         .success(function(data, status, headers, config) {
-            patchDateTimeProperties(data.deals);
+            _.forEach(data.deals, function(d) {
+                patchDateTimeProperties(d);
+            });
             publicDealsDeferred.resolve(data.deals);
         })
         .error(function(data, status, headers, config) {
@@ -282,8 +285,21 @@ tgbApp.factory('dealDataService', ['$http', 'serviceBaseUrl', '$q', function($ht
     };
     
     dealDataService.saveDeal = function(deal) {
-        var newDeal = $http.put(dealApiUrl, deal);
-        return newDeal;
+        var newDealDeferred = $q.defer();
+        
+        $http.put(dealApiUrl, deal)
+        .success(function(data, status, headers, config) {
+            patchDateTimeProperties(data);
+            newDealDeferred.resolve(data);
+        })
+        .error(function(data, status, headers, config) {
+            // called asynchronously if an error occurs
+            // or server returns response with an error status.
+            console.log('error code:' + status);
+            newDealDeferred.reject(status);
+        });
+        
+        return newDealDeferred.promise;
     };
     
     dealDataService.deleteDeal = function(id) {
@@ -535,14 +551,47 @@ tgbApp.controller('dealDetailController', function($scope, $stateParams, $state,
     };
 });
 
-tgbApp.controller('createDealController', ['$scope', function($scope) {
+tgbApp.controller('createDealController', ['$scope', '$rootScope', '$state', 'dealDataService', function($scope, $rootScope, $state, dealDataService) {
     if (!$rootScope.currentUser) {
         // TODO: after signing in, return to orders page.
         $state.go('login');
     }
     
-    $scope.orders = orderDataService.getOrders();
-    // TODO: should develope a deal/order cache, so that we don't have to load individual deal/order repeatedly.
+    var addNewPickupOption = function() {
+        var nextId;
+        if ($scope.deal.pickupOptions.length === 0) {
+            nextId = 0;
+        } else {
+            nextId = _.max($scope.deal.pickupOptions, 'id').id + 1;
+        }
+        
+        $scope.deal.pickupOptions.push({
+            id: nextId,
+        });
+    };
+
+    $scope.deal = {};
+    $scope.deal.pickupOptions = [];
+    addNewPickupOption();
+    
+    $scope.addPickupOption = function() {
+        addNewPickupOption();
+    };
+    
+    $scope.removePickupOption = function(option) {
+        _.remove($scope.deal.pickupOptions, function(o) {
+            return o.id === option.id;
+        })    
+    };
+    
+    $scope.saveDeal = function() {
+        // Validate the new deal.
+        _.remove($scope.deal.pickupOptions, function(o) {
+            return !o.address && !o.contactName && !o.phoneNumber;
+        });
+        
+        dealDataService.saveDeal($scope.deal);
+    };
 }]);
 
 tgbApp.controller('aboutController', function($scope) {

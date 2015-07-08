@@ -1,1 +1,34 @@
 <span>商品名称</span>
+<input ng-model="deal.name" />
+<br>
+<span>发起日期</span>
+<input type="date" ng-model="deal.beginDate" />
+<br>
+<span>结束日期</span>
+<input type="date" ng-model="deal.endDate" />
+<br>
+<span>商品描述</span>
+<textarea ng-model="deal.description"></textarea>
+<br>
+<span>商品价格</span>
+<input type="number" ng-model="deal.unitPrice" />
+<span>单位</span>
+<input ng-model="deal.unitName">
+<br>
+<span>包装规格</span>
+<input type="number" ng-model="deal.unitsPerPackage" />
+<input ng-model="deal.unitName" />
+<span> / 件</span>
+<br>
+<span>方式发货</span>
+<div ng-repeat="option in deal.pickupOptions">
+    <input ng-model="option.address" placeholder="地址"/>
+    <br>
+    <input ng-model="option.contactName" placeholder="联系人"/>
+    <input ng-model="option.phoneNumber" placeholder="电话"/>
+    <br>
+    <button ng-click="removePickupOption(option)">删除</button>
+</div>
+<button ng-click="addPickupOption()">添加</button>
+<br>
+<button ng-click="saveDeal()">提交</button>
