@@ -43,6 +43,7 @@ var userController = require('cloud/controller/user_controller');
 app.post('/signup', express.bodyParser(), userController.signUp);
 app.post('/login', express.bodyParser(), userController.logIn);
 app.get('/logout', userController.logOut);
+app.get('/api/user/:authProvider?', userController.getUserInfo);
 
 // wechat services:
 app.get('/wechat', wechatServices.requestValidate);
