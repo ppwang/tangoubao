@@ -62,7 +62,7 @@ var createOrder = function(dealId, currentUser, req) {
 		.then(function() {
 			var parseOrder = new ParseOrder();
 			parseOrder.set('dealId', dealId);
-			parseOrder.set('purchaserId', currentUser.id);
+			parseOrder.set('buyerId', currentUser.id);
 			parseOrder.set('orderAmount', orderAmount);
 			parseOrder.set('orderTime', orderTime);
 			parseOrder.set('pickupLocationId', pickupLocationId);
@@ -99,7 +99,7 @@ var convertToOrderModel = function(parseOrder) {
 	var order = {};
 	order.id = parseOrder.id;
 	order.dealId = parseOrder.get('dealId');
-	order.purchaserId = parseOrder.get('purchaserId');
+	order.buyerId = parseOrder.get('buyerId');
 	order.orderAmount = parseOrder.get('orderAmount');
 	order.orderTime = parseOrder.get('orderTime');
 	order.pickupLocationId = parseOrder.get('pickupLocationId');
