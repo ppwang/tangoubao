@@ -148,24 +148,34 @@ module.exports.getUserInfo = function(req, res) {
 	        return accessToken;
     	})
     	.then(function(accessToken) {
-    		var wechatUesrInfoUrl = 
-    				'https://api.weixin.qq.com/sns/userinfo?'
-    				+ 'access_token=' + accessToken.token
-    				+ '&openid=' + accessToken.openid
-    				+ '&lang=en';
-			console.log('user info request: ' + wechatUesrInfoUrl);
-			return Parse.Cloud.httpRequest( {
-					url: wechatUesrInfoUrl
-				})
-				.then(function(httpResponse) {
-					return tgbWechatUser.update(accessToken.openid, httpResponse.text, null);
-				});				
+    		if (accessToken.token && accessToken.openid) {
+	    		var wechatUesrInfoUrl = 
+	    				'https://api.weixin.qq.com/sns/userinfo?'
+	    				+ 'access_token=' + accessToken.token
+	    				+ '&openid=' + accessToken.openid
+	    				+ '&lang=en';
+				console.log('user info request: ' + wechatUesrInfoUrl);
+				return Parse.Cloud.httpRequest( {
+						url: wechatUesrInfoUrl
+					})
+					.then(function(httpResponse) {
+						return tgbWechatUser.update(accessToken.openid, httpResponse.text, null);
+					});
+			}	
+			return null;	
     	})
     	.then(function(parseWechatUser) {
-    		return tgbWechatUser.convertToWechatUserModel(parseWechatUser);
+    		if (parseWechatUser) {
+	    		return tgbWechatUser.convertToWechatUserModel(parseWechatUser);
+	    	}
+	    	return null;
 		})
 		.then(function(wechatUser) {
-			return res.status(200).send(wechatUser);
+			if (wechatUser) {
+				return res.status(200).send(wechatUser);
+			}
+			console.log('Not valid wechat oauth request. Need to ask user to auth again.');
+			return res.status(401).end();
 		}, function(error) {
 			console.log('error: ' + JSON.stringify(error));
 			return res.status(500).end();

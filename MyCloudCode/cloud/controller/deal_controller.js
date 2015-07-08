@@ -122,14 +122,9 @@ var saveDeal = function(parseDeal, req) {
 		parseDeal.set('name', name);
 	}
 
-	var subtitle = req.body.subtitle;
-	if (subtitle) {
-		parseDeal.set('subtitle', subtitle);
-	}
-
-	var detailedDescription = req.body.detailedDescription;
-	if (detailedDescription) {
-		parseDeal.set('detailedDescription', detailedDescription);
+	var description = req.body.description;
+	if (description) {
+		parseDeal.set('description', description);
 	}
 
 	var beginDate = req.body.beginDate;
@@ -159,7 +154,12 @@ var saveDeal = function(parseDeal, req) {
 
 	var unitPrice = req.body.unitPrice;
 	if (unitPrice) {
-		parseDeal.set('unitPrice', unitPrice);
+		parseDeal.set('unitPrice', parseFloat(unitPrice));
+	}
+
+	var unitsPerPackage = req.body.unitsPerPackage;
+	if (unitsPerPackage) {
+		parseDeal.set('unitsPerPackage', unitsPerPackage);
 	}
 
 	var remarks = req.body.remarks;
