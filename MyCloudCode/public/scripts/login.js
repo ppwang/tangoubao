@@ -460,12 +460,20 @@ tgbApp.controller('publicDealsController', ['$scope', 'dealDataService', 'userSe
     });
 }]);
 
-tgbApp.controller('dealCardController', ['$scope', function($scope) {
-    $scope.getDealRemainingDays = function() {
-        if ($scope.deal.endDate) {
-            return Math.ceil(($scope.deal.endDate.getTime() - Date.now())/86400000);
+tgbApp.controller('dealCardController', ['$scope', '$rootScope', function($scope, $rootScope) {
+    if ($scope.deal.endDate) {
+        $scope.deal.remainingDays = Math.ceil(($scope.deal.endDate.getTime() - Date.now())/86400000);
+    }
+    
+    $rootScope.regionsPromise.then(function(regions) {
+        var region = _.find(regions, function(r) {
+            return r.id === $scope.deal.regionId;
+        });
+        
+        if (region) {
+            $scope.deal.region = region.name;
         }
-    };
+    });
 }]);
 
 tgbApp.controller('dealDetailController', function($scope, $stateParams, $state, dealDataService, dealGroupingService) {

@@ -7,7 +7,7 @@
         <br>
         <span>价格: {{deal.unitPrice | currency}}/{{deal.unitName}}</span>
         <br>
-        <span>团购进度: {{deal.endDate ? '还剩' + getDealRemainingDays() + '天' : '无结束时间'}}</span>
+        <span>团购进度: {{deal.endDate ? '还剩' + deal.remainingDays + '天' : '无结束时间'}}</span>
         <br>
         <!-- TODO: show owner name or id -->
         <span>发起人: {{deal.creatorName}}</span>
