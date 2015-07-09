@@ -8,9 +8,7 @@
 <input type="date" ng-model="deal.endDate" />
 <br>
 <span>发售地区</span>
-<select>
-    <option ng-repeat="region in regions" value="region.id">{{region.name}}</option>
-</select>
+<select ng-model="deal.regionId" ng-options="region.id as region.name for region in regions"></select>
 <br>
 <span>商品描述</span>
 <textarea ng-model="deal.description" placeholder="请指明包装规格(例如每磅,每件), 产品特点,注意事项等。"></textarea>

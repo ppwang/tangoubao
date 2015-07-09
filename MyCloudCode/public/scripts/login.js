@@ -131,7 +131,7 @@ tgbApp.factory('regionDataService', ['$http', 'serviceBaseUrl', '$q', function($
             var regionsDeferred = $q.defer();
             $http.get(serviceBaseUrl + '/api/regions')
                 .success(function(data, status, headers, config) {
-                      regionsDeferred.resolve(data);
+                      regionsDeferred.resolve(data.regions);
                 })
                 .error(function(data, status, headers, config) {
                     regionsDeferred.reject(status);
@@ -587,7 +587,14 @@ tgbApp.controller('createDealController', ['$scope', '$rootScope', '$state', 'de
         });
     };
 
-    $scope.regions = $rootScope.regions;
+    $scope.regions = [];
+    $rootScope.regionsPromise
+    .then(function(regions) {
+        _.forEach(regions, function(r) {
+            $scope.regions.push(r);
+        });
+    });
+    
     // Populate the new deal with initial parameters.
     $scope.deal = {};
     $scope.deal.unitName = '磅';
@@ -709,12 +716,5 @@ tgbApp.run(['$rootScope', 'userService', 'regionDataService', function($rootScop
     $rootScope.scenario = 'Sign up';
     userService.ensureUserLoggedIn();
     
-    $rootScope.regions = [];
-    regionDataService.getRegions()
-    .then(function(regions) {
-        _.forEach(regions, function(r) {
-            $rootScope.regions.push(r);
-        });
-    });
-
+    $rootScope.regionsPromise = regionDataService.getRegions();
 }]);
