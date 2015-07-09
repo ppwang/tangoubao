@@ -26,6 +26,15 @@ tgbApp.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, 
                 }
             }
         })
+        .state('dealDetail', {
+            url: '/dealDetail/:id',
+            views: {  
+                'content': {  
+                    templateUrl: 'views/dealDetail.html',  
+                    controller: 'dealDetailController',  
+                }
+            }
+        })
         .state('createDeal', {
             url:'/createDeal',
             views: {
@@ -63,6 +72,16 @@ tgbApp.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, 
             }
         })
 }]);
+
+tgbApp.filter('daysRemainingFilter', function() {
+    return function(date) {
+        if (date) {
+          return Math.ceil((date.getTime() - Date.now())/86400000);
+        } else {
+            return '未知';
+        }
+    };
+});
 
 tgbApp.factory('serviceBaseUrl', ['$window', function($window) {
     if ($window.location.hostname === '127.0.0.1') {
@@ -108,18 +127,43 @@ tgbApp.factory('userService', ['$http', 'serviceBaseUrl', '$rootScope', '$state'
 }]);
 
 tgbApp.factory('regionDataService', ['$http', 'serviceBaseUrl', '$q', function($http, serviceBaseUrl, $q) {
+    var getRegions = function() {
+        var regionsDeferred = $q.defer();
+        $http.get(serviceBaseUrl + '/api/regions')
+            .success(function(data, status, headers, config) {
+                  regionsDeferred.resolve(data.regions);
+            })
+            .error(function(data, status, headers, config) {
+                regionsDeferred.reject(status);
+                console.log('error code:' + status);
+            });
+        return regionsDeferred.promise;
+    };
+
+    var regionsPromise = getRegions();
+    
     return {
-        getRegions: function() {
-            var regionsDeferred = $q.defer();
-            $http.get(serviceBaseUrl + '/api/regions')
-                .success(function(data, status, headers, config) {
-                      regionsDeferred.resolve(data.regions);
-                })
-                .error(function(data, status, headers, config) {
-                    regionsDeferred.reject(status);
-                    console.log('error code:' + status);
+        populateRegions: function(regionList) {
+            regionsPromise
+            .then(function(regions) {
+                _.forEach(regions, function(r) {
+                    regionList.push(r);
                 });
-            return regionsDeferred.promise;
+            });
+        },
+        
+        setDealRegion: function(deal) {
+            regionsPromise.then(function(regions) {
+                var region = _.find(regions, function(r) {
+                    return r.id === deal.regionId;
+                });
+
+                if (region) {
+                    deal.region = region.name;
+                } else {
+                    deal.region = '??';
+                }
+            });
         },
     };
 }]);
@@ -130,13 +174,17 @@ tgbApp.factory('dealDataService', ['$http', 'serviceBaseUrl', '$q', function($ht
     var dealsApiUrl = apiUrl + '/deals';
     var dealDataService = {};
     
-    var patchDateTimeProperties = function(deal) {
+    var patchDealFromServer = function(deal) {
         if (deal.beginDate) {
             deal.beginDate = new Date(deal.beginDate);
         }
 
         if (deal.endDate) {
             deal.endDate = new Date(deal.endDate);
+        }
+        
+        if (deal.pickupOptions) {
+            deal.pickupOptions = angular.fromJson(deal.pickupOptions);
         }
     };
     
@@ -147,7 +195,7 @@ tgbApp.factory('dealDataService', ['$http', 'serviceBaseUrl', '$q', function($ht
             // this callback will be called asynchronously
             // when the response is available
             _.forEach(data.deals, function(d) {
-                patchDateTimeProperties(d);
+                patchDealFromServer(d);
                 });
             dealsDeferred.resolve(data.deals);
         })
@@ -167,7 +215,7 @@ tgbApp.factory('dealDataService', ['$http', 'serviceBaseUrl', '$q', function($ht
         $http.get(apiUrl + '/publicDeals')
         .success(function(data, status, headers, config) {
             _.forEach(data.deals, function(d) {
-                patchDateTimeProperties(d);
+                patchDealFromServer(d);
             });
             publicDealsDeferred.resolve(data.deals);
         })
@@ -181,10 +229,22 @@ tgbApp.factory('dealDataService', ['$http', 'serviceBaseUrl', '$q', function($ht
         return publicDealsDeferred.promise;
     };
     
-    dealDataService.getDeal = function(deals, id) {
-        return _.find(deals, function(deal) {
-            return deal.id === id;
+    dealDataService.getDeal = function(id) {
+        var resultDeferred = $q.defer();
+        
+        $http.get(apiUrl + '/deal/' + id)
+        .success(function(data, status, headers, config) {
+            patchDealFromServer(data);
+            resultDeferred.resolve(data);
+        })
+        .error(function(data, status, headers, config) {
+            // called asynchronously if an error occurs
+            // or server returns response with an error status.
+            console.log('error code:' + status);
+            resultDeferred.reject(status);
         });
+
+        return resultDeferred.promise;
     };
     
     dealDataService.saveDeal = function(deal) {
@@ -192,7 +252,7 @@ tgbApp.factory('dealDataService', ['$http', 'serviceBaseUrl', '$q', function($ht
         
         $http.put(dealApiUrl, deal)
         .success(function(data, status, headers, config) {
-            patchDateTimeProperties(data);
+            patchDealFromServer(data);
             newDealDeferred.resolve(data);
         })
         .error(function(data, status, headers, config) {
@@ -294,29 +354,6 @@ tgbApp.directive('backgroundImage', function() {
     };
 });
 
-tgbApp.controller('dealsController', function($scope, $state, $rootScope, userService, dealDataService, dealGroupingService) {
-    userService.ensureUserLoggedIn();
-    
-    dealDataService.getDeals().then(function(deals) {
-        $scope.deals = deals;
-        $scope.dealGroups = dealGroupingService.groupDeals(deals);    
-    });
-        
-    $scope.getSortedDealEndDates = function(dealGroup) {
-        return _.sortByOrder(_.keys(dealGroup), [_.identity], [false]);
-    };
-    
-    $scope.getSortedDeals = function(deals) {
-        // Sort by end date descending.
-        return _.sortByOrder(
-            deals, 
-            [function(deal) {
-                return deal.endDate; 
-            }],
-            [false]);
-    };
-});
-
 tgbApp.controller('publicDealsController', ['$scope', 'dealDataService', 'userService', function($scope, dealDataService, userService) {
     userService.ensureUserLoggedIn();
     
@@ -330,19 +367,21 @@ tgbApp.controller('publicDealsController', ['$scope', 'dealDataService', 'userSe
     });
 }]);
 
-tgbApp.controller('dealCardController', ['$scope', '$rootScope', function($scope, $rootScope) {
-    if ($scope.deal.endDate) {
-        $scope.deal.remainingDays = Math.ceil(($scope.deal.endDate.getTime() - Date.now())/86400000);
-    }
+tgbApp.controller('dealCardController', ['$scope', '$rootScope', '$state', 'regionDataService', function($scope, $rootScope, $state, regionDataService) {
+    regionDataService.setDealRegion($scope.deal);
     
-    $rootScope.regionsPromise.then(function(regions) {
-        var region = _.find(regions, function(r) {
-            return r.id === $scope.deal.regionId;
-        });
-        
-        if (region) {
-            $scope.deal.region = region.name;
-        }
+    $scope.showDealDetail = function() {
+        $state.go('dealDetail', {'id': $scope.deal.id} );
+    };
+}]);
+
+tgbApp.controller('dealDetailController', ['$scope', '$stateParams', 'userService', 'dealDataService', 'regionDataService', function($scope, $stateParams, userService, dealDataService, regionDataService) {
+    userService.ensureUserLoggedIn();
+    
+    dealDataService.getDeal($stateParams.id)
+    .then(function(d) {
+        $scope.deal = d;
+        regionDataService.setDealRegion($scope.deal);
     });
 }]);
 
@@ -366,12 +405,7 @@ tgbApp.controller('createDealController', ['$scope', '$rootScope', '$state', 'de
     };
 
     $scope.regions = [];
-    $rootScope.regionsPromise
-    .then(function(regions) {
-        _.forEach(regions, function(r) {
-            $scope.regions.push(r);
-        });
-    });
+    regionDataService.populateRegions($scope.regions);
     
     // Populate the new deal with initial parameters.
     $scope.deal = {};
@@ -494,5 +528,5 @@ tgbApp.run(['$rootScope', 'userService', 'regionDataService', function($rootScop
     $rootScope.scenario = 'Sign up';
     userService.ensureUserLoggedIn();
     
-    $rootScope.regionsPromise = regionDataService.getRegions();
+//    $rootScope.regionsPromise = regionDataService.getRegions();
 }]);
