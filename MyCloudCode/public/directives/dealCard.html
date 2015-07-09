@@ -1,13 +1,13 @@
-<div ng-controller="dealCardController">
+<div ng-controller="dealCardController" ng-click="showDealDetail()">
     <img src="{{deal.dealImageUrl}}" class="img-responsive pull-left"/>
 	<div>
         <span style="font-weight: bold">{{deal.name}}</span>
         <br>
         <span>地区: {{deal.region}}</span>
         <br>
-        <span>价格: {{deal.unitPrice | currency}}/{{deal.unitName}}</span>
+        <span>价格: {{deal.unitPrice | currency:'$'}}/{{deal.unitName}}</span>
         <br>
-        <span>团购进度: {{deal.endDate ? '还剩' + getDealRemainingDays() + '天' : '无结束时间'}}</span>
+        <span>团购进度: 还剩{{deal.endDate | daysRemainingFilter}}天</span>
         <br>
         <!-- TODO: show owner name or id -->
         <span>发起人: {{deal.creatorName}}</span>

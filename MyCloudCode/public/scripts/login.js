@@ -17,15 +17,6 @@ tgbApp.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, 
     $urlRouterProvider.otherwise('/');
  
     $stateProvider
-        .state('deals', {
-            url:'/',
-            views: {
-                'content': {
-                    templateUrl: 'views/deals.html',
-                    controller: 'dealsController',
-                }
-            }
-        })
         .state('publicDeals', {
             url:'/publicDeals',
             views: {
@@ -35,12 +26,12 @@ tgbApp.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, 
                 }
             }
         })
-        .state('deals.dealDetail', {
-            url:'/deal/:id',
-            views: {
-                'dealDetail': {
-                    templateUrl: 'views/dealDetail.html',
-                    controller: 'dealDetailController',
+        .state('dealDetail', {
+            url: '/dealDetail/:id',
+            views: {  
+                'content': {  
+                    templateUrl: 'views/dealDetail.html',  
+                    controller: 'dealDetailController',  
                 }
             }
         })
@@ -81,6 +72,16 @@ tgbApp.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, 
             }
         })
 }]);
+
+tgbApp.filter('daysRemainingFilter', function() {
+    return function(date) {
+        if (date) {
+          return Math.ceil((date.getTime() - Date.now())/86400000);
+        } else {
+            return '未知';
+        }
+    };
+});
 
 tgbApp.factory('serviceBaseUrl', ['$window', function($window) {
     if ($window.location.hostname === '127.0.0.1') {
@@ -126,116 +127,45 @@ tgbApp.factory('userService', ['$http', 'serviceBaseUrl', '$rootScope', '$state'
 }]);
 
 tgbApp.factory('regionDataService', ['$http', 'serviceBaseUrl', '$q', function($http, serviceBaseUrl, $q) {
+    var getRegions = function() {
+        var regionsDeferred = $q.defer();
+        $http.get(serviceBaseUrl + '/api/regions')
+            .success(function(data, status, headers, config) {
+                  regionsDeferred.resolve(data.regions);
+            })
+            .error(function(data, status, headers, config) {
+                regionsDeferred.reject(status);
+                console.log('error code:' + status);
+            });
+        return regionsDeferred.promise;
+    };
+
+    var regionsPromise = getRegions();
+    
     return {
-        getRegions: function() {
-            var regionsDeferred = $q.defer();
-            $http.get(serviceBaseUrl + '/api/regions')
-                .success(function(data, status, headers, config) {
-                      regionsDeferred.resolve(data);
-                })
-                .error(function(data, status, headers, config) {
-                    regionsDeferred.reject(status);
-                    console.log('error code:' + status);
+        populateRegions: function(regionList) {
+            regionsPromise
+            .then(function(regions) {
+                _.forEach(regions, function(r) {
+                    regionList.push(r);
                 });
-            return regionsDeferred.promise;
+            });
+        },
+        
+        setDealRegion: function(deal) {
+            regionsPromise.then(function(regions) {
+                var region = _.find(regions, function(r) {
+                    return r.id === deal.regionId;
+                });
+
+                if (region) {
+                    deal.region = region.name;
+                } else {
+                    deal.region = '??';
+                }
+            });
         },
     };
-}]);
-
-tgbApp.factory('dealGroupingService', [function() {
-    var dealGroupingService = {};
-    
-    dealGroupingService.getYearMonthString = function(date) {
-        return date 
-            ? date.getFullYear().toString() + '-' + (date.getMonth() + 1).toString() 
-            : 'Undated';
-//        return date ? date.substring(0, 7) : 'Undated';
-    };
-    
-    dealGroupingService.groupDeals = function(deals) {
-        // Group the deals first by deal type, then by end date.
-        // TODO: optimize this code, so that we can defined multiple level of nested lists more cleanly.
-        var originalDealByType = _.groupBy(deals, 'type');
-        var dealGroups = {};
-        for (var dealType in originalDealByType) {
-            dealGroups[dealType] = {};
-            dealGroups[dealType].active = true;
-
-            var originalDealByYearMonth = _.groupBy(originalDealByType[dealType], function(deal) {
-                // TODO: this doesn't work.
-                //return this.getYearMonthString(deal.endDate);
-                var date = deal.endDate;
-                return date ? date.getFullYear().toString() + '-' + (date.getMonth() + 1).toString() : 'Undated';
-//                return date ? date.substring(0, 7) : 'Undated';
-            });
-
-            dealGroups[dealType].dealByYearMonth = {};
-            var newDealByYearMonth = dealGroups[dealType].dealByYearMonth;
-            for (var yearMonth in originalDealByYearMonth) {
-                newDealByYearMonth[yearMonth] = {};
-                newDealByYearMonth[yearMonth].active = false;
-                newDealByYearMonth[yearMonth].deals = originalDealByYearMonth[yearMonth];
-            }
-        }
-        
-        return dealGroups;
-    };
-    
-    // Inserts a deal in the proper location in deal group.
-    dealGroupingService.insertDeal = function(deal, dealGroups) {
-        if (!dealGroups['own']) {
-            dealGroups['own'] = {};
-        }
-        var newDealGroup = dealGroups['own'];
-        newDealGroup.active = true;
-        
-        if (!newDealGroup.dealByYearMonth) {
-            newDealGroup.dealByYearMonth = {};
-        }
-        var newDealsByYearMonth = newDealGroup.dealByYearMonth;
-        
-        var yearMonthString = this.getYearMonthString(deal.endDate);
-        if (!newDealsByYearMonth[yearMonthString]) {
-            newDealsByYearMonth[yearMonthString] = {};
-        }
-        var deals = newDealsByYearMonth[yearMonthString];
-        deals.active = true;
-        
-        if (!deals.deals) {
-            deals.deals = [];
-        }
-        deals.deals.unshift(deal);
-    };
-    
-    dealGroupingService.deleteDeal = function(deal, dealGroups) {
-        // Assume the deal exists in the tree.
-        for (var dealType in dealGroups) {
-            var dealByYearMonth = dealGroups[dealType].dealByYearMonth;
-            if (!dealByYearMonth) {
-                continue;
-            }
-
-            var dealByYearMonthString = this.getYearMonthString(deal.endDate);
-            if (!dealByYearMonth[dealByYearMonthString]) {
-                continue;
-            }
-            
-            var deals = dealByYearMonth[dealByYearMonthString].deals;
-            if (!deals) {
-                continue;
-            }
-            
-            _.remove(deals, function(d) {
-                return d.id === deal.id;
-            });
-            
-            if (deals.length === 0) {
-                delete dealByYearMonth[dealByYearMonthString];
-            }
-        }
-    };
-    
-    return dealGroupingService;
 }]);
 
 tgbApp.factory('dealDataService', ['$http', 'serviceBaseUrl', '$q', function($http, serviceBaseUrl, $q) {    
@@ -244,13 +174,17 @@ tgbApp.factory('dealDataService', ['$http', 'serviceBaseUrl', '$q', function($ht
     var dealsApiUrl = apiUrl + '/deals';
     var dealDataService = {};
     
-    var patchDateTimeProperties = function(deal) {
+    var patchDealFromServer = function(deal) {
         if (deal.beginDate) {
             deal.beginDate = new Date(deal.beginDate);
         }
 
         if (deal.endDate) {
             deal.endDate = new Date(deal.endDate);
+        }
+        
+        if (deal.pickupOptions) {
+            deal.pickupOptions = angular.fromJson(deal.pickupOptions);
         }
     };
     
@@ -261,7 +195,7 @@ tgbApp.factory('dealDataService', ['$http', 'serviceBaseUrl', '$q', function($ht
             // this callback will be called asynchronously
             // when the response is available
             _.forEach(data.deals, function(d) {
-                patchDateTimeProperties(d);
+                patchDealFromServer(d);
                 });
             dealsDeferred.resolve(data.deals);
         })
@@ -281,7 +215,7 @@ tgbApp.factory('dealDataService', ['$http', 'serviceBaseUrl', '$q', function($ht
         $http.get(apiUrl + '/publicDeals')
         .success(function(data, status, headers, config) {
             _.forEach(data.deals, function(d) {
-                patchDateTimeProperties(d);
+                patchDealFromServer(d);
             });
             publicDealsDeferred.resolve(data.deals);
         })
@@ -295,10 +229,22 @@ tgbApp.factory('dealDataService', ['$http', 'serviceBaseUrl', '$q', function($ht
         return publicDealsDeferred.promise;
     };
     
-    dealDataService.getDeal = function(deals, id) {
-        return _.find(deals, function(deal) {
-            return deal.id === id;
+    dealDataService.getDeal = function(id) {
+        var resultDeferred = $q.defer();
+        
+        $http.get(apiUrl + '/deal/' + id)
+        .success(function(data, status, headers, config) {
+            patchDealFromServer(data);
+            resultDeferred.resolve(data);
+        })
+        .error(function(data, status, headers, config) {
+            // called asynchronously if an error occurs
+            // or server returns response with an error status.
+            console.log('error code:' + status);
+            resultDeferred.reject(status);
         });
+
+        return resultDeferred.promise;
     };
     
     dealDataService.saveDeal = function(deal) {
@@ -306,7 +252,7 @@ tgbApp.factory('dealDataService', ['$http', 'serviceBaseUrl', '$q', function($ht
         
         $http.put(dealApiUrl, deal)
         .success(function(data, status, headers, config) {
-            patchDateTimeProperties(data);
+            patchDealFromServer(data);
             newDealDeferred.resolve(data);
         })
         .error(function(data, status, headers, config) {
@@ -399,51 +345,12 @@ tgbApp.directive('dealCard', function() {
     };   
 });
 
-tgbApp.directive('dealDetailEditableForm', function() {
-    function link(scope, element, attrs) {
-        if (!scope.deal.id) {
-            // for new deal, default type is "own"
-            scope.deal.type = 'own';
-            scope.editableForm.$show();
-        }
-    };
-
-    return {
-        restrict: 'E',
-        templateUrl: '/views/dealDetailEditableForm.html',
-        link: link,
-    };   
-});
-
 tgbApp.directive('backgroundImage', function() {
     return function(scope, element, attrs) {
         var imgUrl = attrs.backgroundImage;
         element.css({ 
             'background-image': 'url(' + imgUrl + ')'
         });
-    };
-});
-
-tgbApp.controller('dealsController', function($scope, $state, $rootScope, userService, dealDataService, dealGroupingService) {
-    userService.ensureUserLoggedIn();
-    
-    dealDataService.getDeals().then(function(deals) {
-        $scope.deals = deals;
-        $scope.dealGroups = dealGroupingService.groupDeals(deals);    
-    });
-        
-    $scope.getSortedDealEndDates = function(dealGroup) {
-        return _.sortByOrder(_.keys(dealGroup), [_.identity], [false]);
-    };
-    
-    $scope.getSortedDeals = function(deals) {
-        // Sort by end date descending.
-        return _.sortByOrder(
-            deals, 
-            [function(deal) {
-                return deal.endDate; 
-            }],
-            [false]);
     };
 });
 
@@ -460,113 +367,23 @@ tgbApp.controller('publicDealsController', ['$scope', 'dealDataService', 'userSe
     });
 }]);
 
-tgbApp.controller('dealCardController', ['$scope', function($scope) {
-    $scope.getDealRemainingDays = function() {
-        if ($scope.deal.endDate) {
-            return Math.ceil(($scope.deal.endDate.getTime() - Date.now())/86400000);
-        }
+tgbApp.controller('dealCardController', ['$scope', '$rootScope', '$state', 'regionDataService', function($scope, $rootScope, $state, regionDataService) {
+    regionDataService.setDealRegion($scope.deal);
+    
+    $scope.showDealDetail = function() {
+        $state.go('dealDetail', {'id': $scope.deal.id} );
     };
 }]);
 
-tgbApp.controller('dealDetailController', function($scope, $stateParams, $state, dealDataService, dealGroupingService) {
-    var dealId = $stateParams.id;
+tgbApp.controller('dealDetailController', ['$scope', '$stateParams', 'userService', 'dealDataService', 'regionDataService', function($scope, $stateParams, userService, dealDataService, regionDataService) {
+    userService.ensureUserLoggedIn();
     
-    if (dealId == '-1') {
-        $scope.deal = {
-            type: 'own',
-        };
-    } else {
-        $scope.deal = dealDataService.getDeal($scope.deals, dealId);
-    }
-
-    if (!$scope.deal.pickupOptions) {
-        $scope.deal.pickupOptions = {};
-    }
-    
-    // Create a shadow copy of pickupOptions, so that we can hook into editable form in a custom way.
-    $scope.deal.pickUpOptionsShadow = angular.copy($scope.deal.pickupOptions);
-    
-    $scope.getDealRemainingDays = function() {
-        return Math.ceil(($scope.deal.endDate.getTime() - Date.now())/86400000);    
-    };
-    
-    $scope.clearproductImageUpload = function() {
-        if ($scope.productImageUpload) {
-            $scope.productImageUpload.dataURL = undefined;
-            
-            if ($scope.productImageUpload.resized) {
-                $scope.productImageUpload.resized.dataURL = undefined;            
-            }
-        }
-        $scope.productImageUpload = undefined;
-    };
-    
-    $scope.saveDeal = function() {
-        // TODO: optimization - if image is not changed, we don't have to upload it.
-        if ($scope.productImageUpload && $scope.productImageUpload.resized) {
-            var resizedImage = $scope.productImageUpload.resized;
-            $scope.deal.imageType = resizedImage.type;
-            // TODO: find a better way to parse the base64 image data out of data url.
-            $scope.deal.imageBase64 = $scope.productImageUpload.resized.dataURL.split(',')[1];
-        }
-        
-        dealDataService.saveDeal($scope.deal)
-        .then(function(response) {
-            // TODO: need error handling here.
-            
-            // Add to deal to model if it is a new deal.
-            if (!$scope.deal.id) {
-                $scope.deal.type = response.data.type;
-                $scope.deal.id = response.data.id;
-                $scope.deal.dealImageUrl = response.data.dealImageUrl;
-    //            $scope.deals.unshift($scope.deal);
-                dealGroupingService.insertDeal($scope.deal, $scope.dealGroups);
-                
-                // Navigate to the deal that was just created.
-                $state.go('deals.dealDetail', { 'id': $scope.deal.id });
-            }
-            
-            // Synchronize any custom shadow objects.
-            // TODO: copying might be expensive. Consider updating instead. 
-            $scope.deal.pickupOptions = angular.copy($scope.deal.pickUpOptionsShadow);
-        }, function(error){
-            alert(error.message);
-        });
-    };
-    
-    $scope.deleteDeal = function() {
-        // TODO: need error handling here.
-        dealDataService.deleteDeal($scope.deal.id);
-        dealGroupingService.deleteDeal($scope.deal, $scope.dealGroups);
-        $state.go('deals.dealDetail', { 'id': -1 });
-    };
-
-    $scope.newPickupOptionShadow = function() {
-        // TODO: how do we update option id after saving? Probably save will return entire deal object.
-        var newOption = {
-            id: _.max($scope.deal.pickUpOptionsShadow, 'id') + 1,  
-        };
-        $scope.deal.pickUpOptionsShadow.push(newOption);
-    }
-    
-    $scope.deletePickupOptionShadow = function(option) {
-        _.remove($scope.deal.pickUpOptionsShadow, function(o) {
-            return o.id === option.id; 
-        });
-    };
-    
-    $scope.cancelForm = function() {
-        // Restore shadow objects;
-        // TODO: copying might be expensive. Consider updating instead. 
-        $scope.deal.pickUpOptionsShadow = angular.copy($scope.deal.pickupOptions);
-        
-        $scope.editableForm.$cancel();
-    };
-    
-    $scope.purchaseDeal = function() {
-        
-    };
-});
+    dealDataService.getDeal($stateParams.id)
+    .then(function(d) {
+        $scope.deal = d;
+        regionDataService.setDealRegion($scope.deal);
+    });
+}]);
 
 tgbApp.controller('createDealController', ['$scope', '$rootScope', '$state', 'dealDataService', 'regionDataService', function($scope, $rootScope, $state, dealDataService, regionDataService) {
     if (!$rootScope.currentUser) {
@@ -587,7 +404,9 @@ tgbApp.controller('createDealController', ['$scope', '$rootScope', '$state', 'de
         });
     };
 
-    $scope.regions = $rootScope.regions;
+    $scope.regions = [];
+    regionDataService.populateRegions($scope.regions);
+    
     // Populate the new deal with initial parameters.
     $scope.deal = {};
     $scope.deal.unitName = '磅';
@@ -709,12 +528,5 @@ tgbApp.run(['$rootScope', 'userService', 'regionDataService', function($rootScop
     $rootScope.scenario = 'Sign up';
     userService.ensureUserLoggedIn();
     
-    $rootScope.regions = [];
-    regionDataService.getRegions()
-    .then(function(regions) {
-        _.forEach(regions, function(r) {
-            $rootScope.regions.push(r);
-        });
-    });
-
+//    $rootScope.regionsPromise = regionDataService.getRegions();
 }]);
