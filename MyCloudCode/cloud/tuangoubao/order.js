@@ -10,12 +10,15 @@ module.exports.getOrders = function(dealId, deal) {
 	var pickupOptionsDictionary = new Array();
 	var pickupOptionsData = deal.pickupOptions;
 	if (pickupOptionsData) {
+		console.log('pickupOptionsData: ' + pickupOptionsData);
 		var pickupOptions = JSON.parse(pickupOptionsData);
-		pickupOptions.forEach(function(pickupOption) {
-			if (!pickupOptionsDictionary[pickupOption.id]) {
-				pickupOptionsDictionary[pickupOption.id] = pickupOption;
-			}
-		});
+		if (pickupOptions.constructor === Array) {
+			pickupOptions.forEach(function(pickupOption) {
+				if (!pickupOptionsDictionary[pickupOption.id]) {
+					pickupOptionsDictionary[pickupOption.id] = pickupOption;
+				}
+			});
+		}
 	}
 	var orders = [];
 	return query.find()

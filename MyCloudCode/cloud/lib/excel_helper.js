@@ -21,15 +21,20 @@ module.exports.exportDealToExcel = function (dealData) {
 	result += '\n';
 	result += '\n';
 
-	// Orders section
-	result += 'Orders Summary: \n';
-	result += 'Name,Phone,Email,Pickup contact,Pickup address,Pickup phone\n';
-	dealData.orders.forEach(function(order) {
-		var buyer = order.buyer;
-		var pickupOption = order.pickupOption;
-		result += buyer.nickname + ',' + buyer.phone + ',' + buyer.email + ',' 
-			+ pickupOption.contactName + ',' + pickupOption.address + ',' + pickupOption.phoneNumber + '\n';
-	});
+	if (dealData.orders && dealData.orders.constructor === Array) {
+		// Orders section
+		result += 'Orders Summary: \n';
+		result += 'Name,Phone,Email,Pickup contact,Pickup address,Pickup phone\n';
+		dealData.orders.forEach(function(order) {
+			var buyer = order.buyer;
+			var pickupOption = order.pickupOption;
+			result += buyer.nickname + ',' + buyer.phone + ',' + buyer.email + ',' 
+				+ pickupOption.contactName + ',' + pickupOption.address + ',' + pickupOption.phoneNumber + '\n';
+		});
+	}
+	else {
+		result += 'No order for this deal yet!\n';
+	}
 
 	return result;
 }

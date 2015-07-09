@@ -62,9 +62,9 @@ module.exports.sendDealReport = function(req, res) {
 				});
 		})
 		.then(function(deal) {
+			console.log('deal data: ' + JSON.stringify(deal));
 			dealName = deal.name;
-			var dealData = JSON.stringify(deal);
-			var excelData = excelHelper.exportDealToExcel(dealData);
+			var excelData = excelHelper.exportDealToExcel(deal);
 
 			var buffer = new Buffer(excelData);
 			emailData = buffer.toString('base64');
