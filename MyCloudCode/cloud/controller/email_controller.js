@@ -1,5 +1,7 @@
 var ParseDeal = Parse.Object.extend('Deal');
 var dealModel = require('cloud/tuangoubao/deal');
+var orderModel = require('cloud/tuangoubao/order');
+var excelHelper = require('cloud/lib/excel_helper');
 var Buffer = require('buffer').Buffer;
 
 var mandrillSetting = require('cloud/app.config.js').settings.mandrill;
@@ -40,6 +42,7 @@ module.exports.sendDealReport = function(req, res) {
 		return res.send('no dealId');
 	}
 	var emailData;
+	var dealName;
 
 	var tmpDeal = new ParseDeal();
 	tmpDeal.id = dealId;
@@ -52,15 +55,18 @@ module.exports.sendDealReport = function(req, res) {
 				return deal;
 			}
 			// return buyers list as well
-			return dealModel.getBuyers(dealId)
-				.then(function(buyers) {
-					deal.buyers = buyers;
+			return orderModel.getOrders(dealId, deal)
+				.then(function(orders) {
+					deal.orders = orders;
 					return deal;
 				});
 		})
 		.then(function(deal) {
+			dealName = deal.name;
 			var dealData = JSON.stringify(deal);
-			var buffer = new Buffer(dealData);
+			var excelData = excelHelper.exportDealToExcel(dealData);
+
+			var buffer = new Buffer(excelData);
 			emailData = buffer.toString('base64');
 			console.log('emailData: ' + emailData);
 			return currentUser.fetch();
@@ -69,10 +75,11 @@ module.exports.sendDealReport = function(req, res) {
 			var emailAddress = instantiatedUser.get('email');
 			var sendeeName = instantiatedUser.get('username');
 			console.log('emailData: ' + emailData);
+			// Add 
 			return mandrill.sendEmail({
 				message: {
-					text: "Your order is ready!",
-					subject: "Your tuangoubao order is ready!",
+					text: "Deal summary for " + dealName,
+					subject: "Your tuangoubao deal summary file is attached",
 					from_email: "info@tuangoubao.parseapps.com",
 					from_name: "Your friend at Tuan Gou Bao",
 					to: [
@@ -84,7 +91,7 @@ module.exports.sendDealReport = function(req, res) {
 			      	"attachments": [
 			            {
 			                "type": "text/plain",
-			                "name": "myfile.txt",
+			                "name": "deal_summary.csv",
 			                "content": emailData
 			            }
 			        ],

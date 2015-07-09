@@ -94,3 +94,14 @@ Parse.Cloud.beforeSave(Parse.User, function(request, response) {
     	return response.error();
     });
 });
+
+module.exports.convertToUserModel = function(parseUser) {
+	var user = {};
+	user.id = parseUser.id;
+    user.username = parseUser.get('username');
+    user.nickname = parseUser.get('nickname');
+    user.email = parseUser.get('email');
+    user.phone = parseUser.get('phone');
+    user.headimgurl = parseUser.get('headimgurl');
+    return user;
+};

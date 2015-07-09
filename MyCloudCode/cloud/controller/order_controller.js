@@ -1,4 +1,5 @@
 var ParseOrder= Parse.Object.extend('Order');
+var orderModel = require('cloud/tuangoubao/order');
 
 module.exports.orderDeal = function(req, res) {
 	var currentUser = Parse.User.current();
@@ -20,7 +21,7 @@ module.exports.orderDeal = function(req, res) {
 		return createOrder(dealId, currentUser, req)
 			.then(function(parseOrder) {
 				if (parseOrder) {
-					var order = convertToOrderModel(parseOrder);
+					var order = orderModel.convertToOrderModel(parseOrder);
 					console.log('create order: ' + JSON.stringify(order));
 					return order;
 				}
@@ -35,7 +36,7 @@ module.exports.orderDeal = function(req, res) {
 	}
 	return modifyOrder(orderId, currentUser, req)
 		.then(function(parseOrder) {
-			var order = convertToOrderModel(parseOrder);
+			var order = orderModel.convertToOrderModel(parseOrder);
 			console.log('modify order to: ' + JSON.stringify(order));
 			return order
 		})
@@ -50,10 +51,10 @@ module.exports.orderDeal = function(req, res) {
 var createOrder = function(dealId, currentUser, req) {
 	var phone = req.body.phone;
 	var orderAmount = req.body.amount;
-	var pickupLocationId = req.body.pickupLocationId;
+	var pickupOptionId = req.body.pickupOptionId;
 	var orderTime = req.body.orderTime;
 
-	if (!phone || !orderAmount || !pickupLocationId) {
+	if (!phone || !orderAmount || !pickupOptionId) {
 		return;
 	}
 
@@ -65,7 +66,7 @@ var createOrder = function(dealId, currentUser, req) {
 			parseOrder.set('buyerId', currentUser.id);
 			parseOrder.set('orderAmount', orderAmount);
 			parseOrder.set('orderTime', orderTime);
-			parseOrder.set('pickupLocationId', pickupLocationId);
+			parseOrder.set('pickupOptionId', pickupOptionId);
 			return parseOrder.save();
 		});
 };
@@ -73,10 +74,10 @@ var createOrder = function(dealId, currentUser, req) {
 var modifyOrder = function(orderId, currentUser, req) {
 	var phone = req.body.phone;
 	var orderAmount = req.body.amount;
-	var pickupLocationId = req.body.pickupLocationId;
+	var pickupOptionId = req.body.pickupOptionId;
 	var orderTime = req.body.orderTime;
 
-	if (!phone || !orderAmount || !pickupLocationId) {
+	if (!phone || !orderAmount || !pickupOptionId) {
 		return;
 	}
 
@@ -90,20 +91,9 @@ var modifyOrder = function(orderId, currentUser, req) {
 		.then(function(parseOrder) {
 			parseOrder.set('orderAmount', orderAmount);
 			parseOrder.set('orderTime', orderTime);
-			parseOrder.set('pickupLocationId', pickupLocationId);
+			parseOrder.set('pickupOptionId', pickupOptionId);
 			return parseOrder.save();
 		});
-};
-
-var convertToOrderModel = function(parseOrder) {
-	var order = {};
-	order.id = parseOrder.id;
-	order.dealId = parseOrder.get('dealId');
-	order.buyerId = parseOrder.get('buyerId');
-	order.orderAmount = parseOrder.get('orderAmount');
-	order.orderTime = parseOrder.get('orderTime');
-	order.pickupLocationId = parseOrder.get('pickupLocationId');
-	return order;
 };
 
 module.exports.deleteOrder = function(req, res) {

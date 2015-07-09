@@ -1,5 +1,6 @@
 var wechatSetting = require('cloud/app.config.js').settings.wechat;
 var tgbWechatUser = require('cloud/tuangoubao/wechat_user');
+var tgbUser = require('cloud/tuangoubao/user');
 
 module.exports.signUp = function(req, res) {
 	var parseUser = new Parse.User();
@@ -97,12 +98,7 @@ var convertToUserResponseData = function(parseUser) {
 	return parseUser.fetch()
 		.then(function(instantiatedUser) {
 			var responseData = {};
-		    responseData.user = {};
-		    responseData.user.id = instantiatedUser.id;
-		    responseData.user.username = instantiatedUser.get('username');
-		    responseData.user.email = instantiatedUser.get('email');
-		    responseData.user.phone = instantiatedUser.get('phone');
-		    responseData.user.headimgurl = instantiatedUser.get('headimgurl');
+		    responseData.user = tgbUser.convertToUserModel(instantiatedUser);
 		    console.log('convertToUserResponseData: ' + JSON.stringify(responseData));
 		    return JSON.stringify(responseData);
 		});

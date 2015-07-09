@@ -1,5 +1,4 @@
 var ParseDeal = Parse.Object.extend('Deal');
-var ParseOrder= Parse.Object.extend('Order');
 
 module.exports.convertToDealModel = function(parseDeal, type) {
 	var deal = {};
@@ -17,40 +16,10 @@ module.exports.convertToDealModel = function(parseDeal, type) {
 	deal.createdAt = parseDeal.createdAt;
 	deal.creatorName = parseDeal.get('creatorName');
 	deal.pickupOptions = parseDeal.get('pickupOptions');
+	deal.regionId = parseDeal.get('regionId');
 	deal.unitsPerPackage = parseDeal.get('unitsPerPackage');
 	var creator = parseDeal.get('createdBy');
 	deal.creatorId = creator.id;
 	deal.type = type;
 	return deal;
-};
-
-module.exports.getBuyers = function(dealId) {
-	console.log('get ordered deals');
-	var query = new Parse.Query(ParseOrder);
-	query.equalTo('dealId', dealId);
-	return query.find()
-		.then(function(parseOrders) {
-			var promises = [];
-			parseOrders.forEach(function(parseOrder) {
-				var buyerId = parseOrder.get('buyerId');
-				var buyer = new Parse.User();
-				buyer.id = dealId;
-				promises.push(orderedDeal.fetch());
-			});
-			return Parse.Promise.when(promises);
-		})
-		.then(function() {
-			var buyers = [];
-			for(var i=0; i<arguments.length; i++) {
-				var buyer = {};
-				var parseBuyer = arguments[i];
-				buyer.id = parseBuyer.id;
-				buyer.username = parseBuyer.get('username');
-				buyer.email = parseBuyer.get('email');
-				buyer.phone = parseBuyer.get('phone');
-				buyer.headimgurl = parseBuyer.get('headimgurl');
-				buyers.push(buyer);
-			}
-			return buyers;
-		});
 };

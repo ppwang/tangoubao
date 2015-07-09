@@ -1,8 +1,10 @@
 var ParseDeal = Parse.Object.extend('Deal');
 var ParseOrder= Parse.Object.extend('Order');
+var ParseFollowDeal = Parse.Object.extend('FollowDeal');
 
 var utils = require('cloud/lib/utils');
 var dealModel = require('cloud/tuangoubao/deal');
+var orderModel = require('cloud/tuangoubao/order');
 
 module.exports.putDeal = function(req, res) {
 	var currentUser = Parse.User.current();
@@ -60,16 +62,49 @@ module.exports.getDeal = function(req, res) {
 			.then(function(parseDeal) {
 				var creator = parseDeal.get('createdBy');
 				var deal = dealModel.convertToDealModel(parseDeal);
+				deal.owned = true;
 				if (creator.id != currentUser.id) {
 					console.log('send deal: ' + JSON.stringify(deal));
+					deal.owned = false;
 					return deal;
 				}
+
 				// return buyers list as well
-				return dealModel.getBuyers(dealId)
-					.then(function(buyers) {
-						deal.buyers = buyers;
+				return orderModel.getOrders(deal, dealId)
+					.then(function(orders) {
+						deal.orders = orders;
 						return deal;
 					});
+			})
+			.then(function(deal) {
+				// Adding followed information below.
+				var query = new Parse.Query(ParseFollowDeal);
+				console.log('query follow dealId:' + dealId + ' by userId: ' + currentUser.id);
+			    query.equalTo('dealId', dealId);
+			    query.equalTo('followerId', currentUser.id);
+			    return query.first()
+			    	.then(function(parseFollowDeal) {
+			    		deal.followed = parseFollowDeal? true : false;
+			    		return deal;
+			    	});
+			})
+			.then(function(deal) {
+				// Adding ordered information below.
+				var query = new Parse.Query(ParseOrder);
+				console.log('query order dealId:' + dealId + ' by userId: ' + currentUser.id);
+			    query.equalTo('dealId', dealId);
+			    query.equalTo('buyerId', currentUser.id);
+			    return query.first()
+			    	.then(function(parseOrder) {
+			    		deal.ordered = false; 
+			    		if (parseOrder) {
+			    			var orderAmount = parseOrder.get('orderAmount');
+			    			if (orderAmount > 0) {
+			    				deal.ordered = true;
+			    			}
+			    		}
+			    		return deal;
+			    	});
 			})
 			.then(function(deal) {
 				return res.status(201).send(deal);
@@ -172,6 +207,11 @@ var saveDeal = function(parseDeal, req) {
 	var pickupOptions = req.body.pickupOptions;
 	if (pickupOptions) {
 		parseDeal.set('pickupOptions', JSON.stringify(pickupOptions));
+	}
+
+	var regionId = req.body.regionId;
+	if (regionId) {
+		parseDeal.set('regionId', regionId);
 	}
 
 	var imageData = req.body.imageBase64;
