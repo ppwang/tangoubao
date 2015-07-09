@@ -17,30 +17,12 @@ tgbApp.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, 
     $urlRouterProvider.otherwise('/');
  
     $stateProvider
-        .state('deals', {
-            url:'/',
-            views: {
-                'content': {
-                    templateUrl: 'views/deals.html',
-                    controller: 'dealsController',
-                }
-            }
-        })
         .state('publicDeals', {
             url:'/publicDeals',
             views: {
                 'content': {
                     templateUrl: 'views/publicDeals.html',
                     controller: 'publicDealsController',
-                }
-            }
-        })
-        .state('deals.dealDetail', {
-            url:'/deal/:id',
-            views: {
-                'dealDetail': {
-                    templateUrl: 'views/dealDetail.html',
-                    controller: 'dealDetailController',
                 }
             }
         })
@@ -140,102 +122,6 @@ tgbApp.factory('regionDataService', ['$http', 'serviceBaseUrl', '$q', function($
             return regionsDeferred.promise;
         },
     };
-}]);
-
-tgbApp.factory('dealGroupingService', [function() {
-    var dealGroupingService = {};
-    
-    dealGroupingService.getYearMonthString = function(date) {
-        return date 
-            ? date.getFullYear().toString() + '-' + (date.getMonth() + 1).toString() 
-            : 'Undated';
-//        return date ? date.substring(0, 7) : 'Undated';
-    };
-    
-    dealGroupingService.groupDeals = function(deals) {
-        // Group the deals first by deal type, then by end date.
-        // TODO: optimize this code, so that we can defined multiple level of nested lists more cleanly.
-        var originalDealByType = _.groupBy(deals, 'type');
-        var dealGroups = {};
-        for (var dealType in originalDealByType) {
-            dealGroups[dealType] = {};
-            dealGroups[dealType].active = true;
-
-            var originalDealByYearMonth = _.groupBy(originalDealByType[dealType], function(deal) {
-                // TODO: this doesn't work.
-                //return this.getYearMonthString(deal.endDate);
-                var date = deal.endDate;
-                return date ? date.getFullYear().toString() + '-' + (date.getMonth() + 1).toString() : 'Undated';
-//                return date ? date.substring(0, 7) : 'Undated';
-            });
-
-            dealGroups[dealType].dealByYearMonth = {};
-            var newDealByYearMonth = dealGroups[dealType].dealByYearMonth;
-            for (var yearMonth in originalDealByYearMonth) {
-                newDealByYearMonth[yearMonth] = {};
-                newDealByYearMonth[yearMonth].active = false;
-                newDealByYearMonth[yearMonth].deals = originalDealByYearMonth[yearMonth];
-            }
-        }
-        
-        return dealGroups;
-    };
-    
-    // Inserts a deal in the proper location in deal group.
-    dealGroupingService.insertDeal = function(deal, dealGroups) {
-        if (!dealGroups['own']) {
-            dealGroups['own'] = {};
-        }
-        var newDealGroup = dealGroups['own'];
-        newDealGroup.active = true;
-        
-        if (!newDealGroup.dealByYearMonth) {
-            newDealGroup.dealByYearMonth = {};
-        }
-        var newDealsByYearMonth = newDealGroup.dealByYearMonth;
-        
-        var yearMonthString = this.getYearMonthString(deal.endDate);
-        if (!newDealsByYearMonth[yearMonthString]) {
-            newDealsByYearMonth[yearMonthString] = {};
-        }
-        var deals = newDealsByYearMonth[yearMonthString];
-        deals.active = true;
-        
-        if (!deals.deals) {
-            deals.deals = [];
-        }
-        deals.deals.unshift(deal);
-    };
-    
-    dealGroupingService.deleteDeal = function(deal, dealGroups) {
-        // Assume the deal exists in the tree.
-        for (var dealType in dealGroups) {
-            var dealByYearMonth = dealGroups[dealType].dealByYearMonth;
-            if (!dealByYearMonth) {
-                continue;
-            }
-
-            var dealByYearMonthString = this.getYearMonthString(deal.endDate);
-            if (!dealByYearMonth[dealByYearMonthString]) {
-                continue;
-            }
-            
-            var deals = dealByYearMonth[dealByYearMonthString].deals;
-            if (!deals) {
-                continue;
-            }
-            
-            _.remove(deals, function(d) {
-                return d.id === deal.id;
-            });
-            
-            if (deals.length === 0) {
-                delete dealByYearMonth[dealByYearMonthString];
-            }
-        }
-    };
-    
-    return dealGroupingService;
 }]);
 
 tgbApp.factory('dealDataService', ['$http', 'serviceBaseUrl', '$q', function($http, serviceBaseUrl, $q) {    
@@ -399,22 +285,6 @@ tgbApp.directive('dealCard', function() {
     };   
 });
 
-tgbApp.directive('dealDetailEditableForm', function() {
-    function link(scope, element, attrs) {
-        if (!scope.deal.id) {
-            // for new deal, default type is "own"
-            scope.deal.type = 'own';
-            scope.editableForm.$show();
-        }
-    };
-
-    return {
-        restrict: 'E',
-        templateUrl: '/views/dealDetailEditableForm.html',
-        link: link,
-    };   
-});
-
 tgbApp.directive('backgroundImage', function() {
     return function(scope, element, attrs) {
         var imgUrl = attrs.backgroundImage;
@@ -475,106 +345,6 @@ tgbApp.controller('dealCardController', ['$scope', '$rootScope', function($scope
         }
     });
 }]);
-
-tgbApp.controller('dealDetailController', function($scope, $stateParams, $state, dealDataService, dealGroupingService) {
-    var dealId = $stateParams.id;
-    
-    if (dealId == '-1') {
-        $scope.deal = {
-            type: 'own',
-        };
-    } else {
-        $scope.deal = dealDataService.getDeal($scope.deals, dealId);
-    }
-
-    if (!$scope.deal.pickupOptions) {
-        $scope.deal.pickupOptions = {};
-    }
-    
-    // Create a shadow copy of pickupOptions, so that we can hook into editable form in a custom way.
-    $scope.deal.pickUpOptionsShadow = angular.copy($scope.deal.pickupOptions);
-    
-    $scope.getDealRemainingDays = function() {
-        return Math.ceil(($scope.deal.endDate.getTime() - Date.now())/86400000);    
-    };
-    
-    $scope.clearproductImageUpload = function() {
-        if ($scope.productImageUpload) {
-            $scope.productImageUpload.dataURL = undefined;
-            
-            if ($scope.productImageUpload.resized) {
-                $scope.productImageUpload.resized.dataURL = undefined;            
-            }
-        }
-        $scope.productImageUpload = undefined;
-    };
-    
-    $scope.saveDeal = function() {
-        // TODO: optimization - if image is not changed, we don't have to upload it.
-        if ($scope.productImageUpload && $scope.productImageUpload.resized) {
-            var resizedImage = $scope.productImageUpload.resized;
-            $scope.deal.imageType = resizedImage.type;
-            // TODO: find a better way to parse the base64 image data out of data url.
-            $scope.deal.imageBase64 = $scope.productImageUpload.resized.dataURL.split(',')[1];
-        }
-        
-        dealDataService.saveDeal($scope.deal)
-        .then(function(response) {
-            // TODO: need error handling here.
-            
-            // Add to deal to model if it is a new deal.
-            if (!$scope.deal.id) {
-                $scope.deal.type = response.data.type;
-                $scope.deal.id = response.data.id;
-                $scope.deal.dealImageUrl = response.data.dealImageUrl;
-    //            $scope.deals.unshift($scope.deal);
-                dealGroupingService.insertDeal($scope.deal, $scope.dealGroups);
-                
-                // Navigate to the deal that was just created.
-                $state.go('deals.dealDetail', { 'id': $scope.deal.id });
-            }
-            
-            // Synchronize any custom shadow objects.
-            // TODO: copying might be expensive. Consider updating instead. 
-            $scope.deal.pickupOptions = angular.copy($scope.deal.pickUpOptionsShadow);
-        }, function(error){
-            alert(error.message);
-        });
-    };
-    
-    $scope.deleteDeal = function() {
-        // TODO: need error handling here.
-        dealDataService.deleteDeal($scope.deal.id);
-        dealGroupingService.deleteDeal($scope.deal, $scope.dealGroups);
-        $state.go('deals.dealDetail', { 'id': -1 });
-    };
-
-    $scope.newPickupOptionShadow = function() {
-        // TODO: how do we update option id after saving? Probably save will return entire deal object.
-        var newOption = {
-            id: _.max($scope.deal.pickUpOptionsShadow, 'id') + 1,  
-        };
-        $scope.deal.pickUpOptionsShadow.push(newOption);
-    }
-    
-    $scope.deletePickupOptionShadow = function(option) {
-        _.remove($scope.deal.pickUpOptionsShadow, function(o) {
-            return o.id === option.id; 
-        });
-    };
-    
-    $scope.cancelForm = function() {
-        // Restore shadow objects;
-        // TODO: copying might be expensive. Consider updating instead. 
-        $scope.deal.pickUpOptionsShadow = angular.copy($scope.deal.pickupOptions);
-        
-        $scope.editableForm.$cancel();
-    };
-    
-    $scope.purchaseDeal = function() {
-        
-    };
-});
 
 tgbApp.controller('createDealController', ['$scope', '$rootScope', '$state', 'dealDataService', 'regionDataService', function($scope, $rootScope, $state, dealDataService, regionDataService) {
     if (!$rootScope.currentUser) {
