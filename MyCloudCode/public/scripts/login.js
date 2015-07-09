@@ -44,6 +44,15 @@ tgbApp.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, 
                 }
             }
         })
+        .state('createOrder', {
+            url:'/createOrder?dealId',
+            views: {
+                'content': {
+                    templateUrl: 'views/createOrder.html',
+                    controller: 'createOrderController',
+                }
+            }
+        })
         .state('about', {
             url:'/about',
             views: {
@@ -265,6 +274,36 @@ tgbApp.factory('dealDataService', ['$http', 'serviceBaseUrl', '$q', function($ht
         return newDealDeferred.promise;
     };
     
+    dealDataService.followDeal = function(id) {
+        var resultDeferred = $q.defer();
+        
+        return $http.put(apiUrl + '/followDeal/' + id)
+        .success(function(data, status, headers, config) {
+            resultDeferred.resolve();
+        })
+        .error(function(data, status, headers, config) {
+            console.log('error code:' + status);
+            resultDeferred.reject(status);
+        });
+        
+        return resultDeferred.promise;
+    };
+
+    dealDataService.unfollowDeal = function(id) {
+        var resultDeferred = $q.defer();
+        
+        return $http.delete(apiUrl + '/followDeal/' + id)
+        .success(function(data, status, headers, config) {
+            resultDeferred.resolve();
+        })
+        .error(function(data, status, headers, config) {
+            console.log('error code:' + status);
+            resultDeferred.reject(status);
+        });
+        
+        return resultDeferred.promise;
+    };
+
     dealDataService.deleteDeal = function(id) {
         // TODO:
     };
@@ -273,44 +312,6 @@ tgbApp.factory('dealDataService', ['$http', 'serviceBaseUrl', '$q', function($ht
 }]);
 
 tgbApp.factory('orderDataService', ['$http', function($http) {
-    var mockOrderData = 
-        [
-            {
-                id: 1,
-                dealId: 5,
-                state: 'created',
-                createdDate: new Date(2015, 8, 2),
-                numberOfUnits: 6,
-                pickupOptionId: 2,
-                wechatId: 'customer1',
-                phoneNumber: '123-4325',
-                email: 'customer1@abc.com',
-            },
-            {
-                id: 2,
-                dealId: 5,
-                state: 'completed',
-                createdDate: new Date(2015, 8, 3),
-                completedDate: new Date(2015, 9, 1),
-                numberOfUnits: 3,
-                pickupOptionId: 1,                
-                wechatId: 'customer2',
-                phoneNumber: '365-7285',
-                email: 'customer2@abc.com',
-            },
-            {
-                id: 3,
-                dealId: 6,
-                state: 'created',
-                createdDate: new Date(2015, 8, 5),
-                numberOfUnits: 4.5,
-                pickupOptionId: 2,                
-                wechatId: 'customer3',
-                phoneNumber: '177-3984',
-                email: 'customer3@abc.com',
-            },
-        ];
-        
     var orderDataService = {};
     
     orderDataService.getOrders = function()
@@ -375,7 +376,7 @@ tgbApp.controller('dealCardController', ['$scope', '$rootScope', '$state', 'regi
     };
 }]);
 
-tgbApp.controller('dealDetailController', ['$scope', '$stateParams', 'userService', 'dealDataService', 'regionDataService', function($scope, $stateParams, userService, dealDataService, regionDataService) {
+tgbApp.controller('dealDetailController', ['$scope', '$state', '$stateParams', 'userService', 'dealDataService', 'regionDataService', function($scope, $state, $stateParams, userService, dealDataService, regionDataService) {
     userService.ensureUserLoggedIn();
     
     dealDataService.getDeal($stateParams.id)
@@ -383,6 +384,29 @@ tgbApp.controller('dealDetailController', ['$scope', '$stateParams', 'userServic
         $scope.deal = d;
         regionDataService.setDealRegion($scope.deal);
     });
+    
+    $scope.toggleFollowedStatus = function() {
+        var resultPromise;
+        if ($scope.deal.followed) {
+            dealDataService.unfollowDeal($scope.deal.id)
+            .then(function() {
+                $scope.deal.followed = false; 
+            });
+        } else {
+            dealDataService.followDeal($scope.deal.id)
+            .then(function() {
+                $scope.deal.followed = true;
+            });
+        }
+    };
+    
+    $scope.purchaseDeal = function() {
+        $state.go('createOrder', { 'dealId': $scope.deal.id });
+    };
+    
+    $scope.manageDeal = function() {
+        
+    };
 }]);
 
 tgbApp.controller('createDealController', ['$scope', '$rootScope', '$state', 'dealDataService', 'regionDataService', function($scope, $rootScope, $state, dealDataService, regionDataService) {
@@ -455,6 +479,10 @@ tgbApp.controller('createDealController', ['$scope', '$rootScope', '$state', 'de
     };
 }]);
 
+tgbApp.controller('createOrderController', ['$scope', '$state', '$stateParams', function($scope, $state, $stateParams) {
+    var id = $stateParams.dealId;
+}]);
+
 tgbApp.controller('aboutController', function($scope) {
     $scope.message = 'Look! I am an about page.';
 });
@@ -505,7 +533,7 @@ tgbApp.controller('loginController', function($scope, $location, $state, $rootSc
         userService.logIn(user)
             .then(function(user) {
                 $rootScope.currentUser = user;
-                $state.go('deals');
+                $state.go('publicDeals');
             },
             function(error) {
                 $scope.statusMessage = "Unable to log in: " + error.code + " " + error.message;
