@@ -1,7 +1,7 @@
 <div ng-hide="currentUser">
     <form ng-show="scenario == 'Sign up'">
         <div class="row"> 
-          <div class="col-sm-12 welcome-msg">
+          <div class="col-sm-12 signup-welcome-msg">
               <div class="wechat-welcome-message" ng-show="{{wechatWelcomeVisible}} == true">
                 您刚刚通过微信关联了北美团购宝。请您完成以下注册信息，即可参与团购或发起团购。
               </div>
@@ -15,53 +15,51 @@
           </div>
         </div>
         <div class="sign-area">
-            <div class="row sign-input">
-              <div class="sign-input-row">
-                Email: <input type="email" ng-model="user.email" ng-required="true"/>
+            <div class="row signup-input">
+              <div class="signup-input-row">
+                邮箱: <input type="email" ng-model="user.email" ng-required="true"/>
               </div>
             </div>
-            <div class="row sign-input">
-              <div class="sign-input-row">
-                Username: <input type="text" ng-model="user.username" ng-required="true"/>
+            <div class="row signup-input">
+              <div class="signup-input-row">
+                昵称: <input type="text" ng-model="user.username" ng-required="true"/>
               </div>
             </div>
-            <div class="row sign-input">
-              <div class="sign-input-row">
-                Password: <input type="password" ng-model="user.password" ng-required="true"/>
+            <div class="row signup-input">
+              <div class="signup-input-row">
+                密码: <input type="password" ng-model="user.password" ng-required="true"/>
               </div>
             </div>
-            <div class="row sign-input">
-              <button ng-click="signUp(user)">Sign up</button>
-              or <a ng-click='scenario="Log in"'>Log in</a>
+            <div class="row signup-button-container">
+              <button class="signup-button" ng-click="signUp(user)">注册</button>
+            </div>
+            <div class="login-reference">
+              Already got an account? Log in <a ng-click='scenario="Log in"'>&nbsp;here&nbsp;&nbsp;&nbsp;&nbsp;</a>
             </div>
         </div>
     </form>
     <form ng-show="scenario == 'Log in'">
       <div class="row"> 
-        <div class="col-sm-12 welcome-msg">
-          <h2>
-            Welcome {{user.nickname}}!
-            <div class="head-img"><img class="img-responsive" src="{{user.headimgurl}}" alt=""></img></div>
-          </h2>
+        <div class="col-sm-12 signin-welcome-msg">
+          <h1>
+            GSG 北美团购宝
+          </h1>
         </div>
       </div>
       <div class="sign-area">
-        <div class="row">
-          <h3>Log in</h3>      
-        </div>
-        <div class="row sign-input">
-          <div class="sign-input-row">
-            Username: <input type="text" ng-model="user.username" ng-required="true"/>
+        <div class="signin-inputs">
+          <div class="row signin-input-row">
+            <input type="text" ng-model="user.username" ng-required="true" placeholder="用户名"/>
+          </div>
+          <div class="row signin-input-row">
+            <input type="password" ng-model="user.password" ng-required="true" placeholder="密码"/>
           </div>
         </div>
-        <div class="row sign-input">
-          <div class="sign-input-row">
-            Password: <input type="password" ng-model="user.password" ng-required="true"/>
-          </div>
+        <div class="row signin-button-container">
+          <button class="signin-button" ng-click="logIn(user)">登录</button>
         </div>
-        <div class="row sign-input">
-          <button ng-click="logIn(user)">Log in</button>
-          or <a ng-click='scenario="Sign up"'>Sign up</a>
+        <div class="signup-reference">
+          New to TuanGouBao? Sign up <a ng-click='scenario="Sign up"'>&nbsp;here&nbsp;&nbsp;&nbsp;&nbsp;</a>
         </div>
       </div>
     </form>

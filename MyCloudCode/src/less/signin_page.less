@@ -1,5 +1,5 @@
 .user-signin-card {
-	background-size: contain;
+	background-size: 15em;
 	background-repeat: no-repeat;
 	background-position: center center;
 	line-height: 10em;
@@ -9,7 +9,8 @@
 	color: white;
 	font-size: 1.5em;
 	text-shadow: 2px 1px #050505;
-	margin: 2em auto;
+	margin: 1em auto;
+	text-align: center;
 }
 
 .wechat-welcome-message {
@@ -25,21 +26,81 @@
   padding: 0 0 20px 0;
 }
 
-.welcome-msg {
+.signup-welcome-msg {
     text-align: center;
 }
 
-.sign-input {
+.signup-input {
     margin: 10px auto;
 }
 
-.sign-input-row {
-	width: 20em;
+.signup-input-row {
+	width: 80%;
 	margin: 0.2em auto;
-	box-shadow: 0px 3px 3px #888888;
+	box-shadow: 1px 5px 5px #888888;
+	border-radius: 1px;
 	color: #ED9501;
 	input {
 		border: none;
 		color: black;
+		margin-bottom: 2px;
+		width: 80%;
 	}
 }
+
+.signup-button-container {
+	margin-top: 2em;
+	.signup-button {
+		color: white;
+		background-color: #ED9501;
+		margin-left: 55%;
+		width: 20%;
+		font-size: 1.3em;
+		border-style: none;
+		box-shadow: 0px 5px 5px #808080;
+		letter-spacing: 0.1em;
+	}
+}
+
+.signin-welcome-msg {
+    text-align: center;
+    margin: 15% auto; 
+    color: #E06023;
+    font-family: Georgia, "Times New Roman", "Microsoft YaHei", serif;
+}
+
+.signin-inputs {
+	.signin-input-row {
+		input {
+			width: 90%;
+			line-height: 2em;
+			background-color: #EDEDED;
+			border: 0 inset;
+			margin-bottom: 1px;
+			border-color: #888888;
+			box-shadow: 0px 5px 5px #888888;
+		}
+	}
+}
+
+.signin-button-container {
+	margin-top: 2em;
+	.signin-button {
+		width: 90%;
+		font-size: 1.3em;
+		border-style: none;
+		box-shadow: 0px 5px 5px #808080;
+		letter-spacing: 0.1em;
+		background-color: #A4A4A4;
+		font-weight: bold;
+		line-height: 2em;
+	}
+}
+
+.login-reference,
+.signup-reference {
+	position: absolute;
+	right: 10%;
+	bottom: 2%;
+}
+
