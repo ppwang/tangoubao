@@ -45,7 +45,7 @@ var createInvitationCard = function (wechatId, nickname, headimgurl, claimtoken)
             + '\n' 
             + '如果已有账户，请按以下链接进入你的账户。'
             + '<a href="' + serviceSetting.baseUrl 
-                + '?wechatId=' + wechatId 
+                + '/#/welcome?wechatId=' + wechatId 
                 + '&nickname=' + nickname
                 + '&claimtoken=' + claimtoken
                 + '&headimgurl=' + encodeURIComponent(headimgurl)
