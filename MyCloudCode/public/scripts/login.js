@@ -146,7 +146,11 @@ tgbApp.factory('userService', ['$http', '$q', 'serviceBaseUrl', '$rootScope', '$
             })
             .error(function(data, status, headers, config) {
                 setCurrentUser(null);
-                resultDeferred.reject("Unable to log in: " + status + " " + data);
+                resultDeferred.reject(
+                    {
+                        data: data,
+                        status: status,
+                    });
                 console.log('error code:' + status);
             });
 
@@ -162,7 +166,11 @@ tgbApp.factory('userService', ['$http', '$q', 'serviceBaseUrl', '$rootScope', '$
                 resultDeferred.resolve();
             })
             .error(function(data, status, headers, config) {
-                resultDeferred.reject("Unable to log in: " + status + " " + data);
+                resultDeferred.reject(
+                    {
+                        data: data,
+                        status: status,
+                    });
                 console.log('error code:' + status);
             });
         
@@ -579,14 +587,14 @@ tgbApp.controller('loginController', function($scope, $location, $state, userSer
         userService.signUp(user).then(
             function() {
             },
-            function(error) {
-                if (error.data == "Email not verified!") {
+            function(response) {
+                if (response.data == "Email not verified!") {
                     $('#email-confirm-modal').modal({
                         keyboard: false
                     });
                 }
                 else {
-                    $scope.statusMessage = error;                    
+                    $scope.statusMessage = "Unable to sign up: " + response.status + " " + response.data;                    
                 }
             });
     };
@@ -599,14 +607,14 @@ tgbApp.controller('loginController', function($scope, $location, $state, userSer
             function(user) {
                 $state.go('publicDeals');
             },
-            function(error) {
-                if (error.data == "Email not verified!") {
+            function(response) {
+                if (response.data == "Email not verified!") {
                     $('#email-confirm-modal').modal({
                         keyboard: false
                     });
                 }
                 else {
-                    $scope.statusMessage = error;
+                    $scope.statusMessage = "Unable to log in: " + response.status + " " + response.data;
                 }
             });
     };
