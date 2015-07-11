@@ -521,12 +521,15 @@ tgbApp.controller('loginController', function($scope, $location, $state, $rootSc
                 $rootScope.currentUser = user;
             },
             function(error) {
-                $scope.statusMessage = "Unable to log in: " + error.status + " " + error.data;
+                if (error.data == "Email not verified!") {
+                    $('#email-confirm-modal').modal({
+                        keyboard: false
+                    });
+                }
+                else {
+                    $scope.statusMessage = "Unable to log in: " + error.status + " " + error.data;                    
+                }
             });
-        // TODO: put the following modal dialog triggering code to proper place.
-        $('#email-confirm-modal').modal({
-            keyboard: false
-        });
     };
   
     $scope.logIn = function(user) {
@@ -539,7 +542,14 @@ tgbApp.controller('loginController', function($scope, $location, $state, $rootSc
                 $state.go('publicDeals');
             },
             function(error) {
-                $scope.statusMessage = "Unable to log in: " + error.status + " " + error.data;
+                if (error.data == "Email not verified!") {
+                    $('#email-confirm-modal').modal({
+                        keyboard: false
+                    });
+                }
+                else {
+                    $scope.statusMessage = "Unable to log in: " + error.status + " " + error.data;
+                }
             });
     };
   
