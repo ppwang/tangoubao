@@ -14,7 +14,7 @@ tgbApp.config(['$httpProvider', function($httpProvider) {
 }]);
 
 tgbApp.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, $urlRouterProvider) {
-    $urlRouterProvider.otherwise('/');
+    $urlRouterProvider.otherwise('/publicDeals');
  
     $stateProvider
         .state('welcome', {
@@ -111,40 +111,90 @@ tgbApp.factory('serviceBaseUrl', ['$window', function($window) {
     return serviceBaseUrl;
 }]);
 
-tgbApp.factory('userService', ['$http', 'serviceBaseUrl', '$rootScope', '$state', function($http, serviceBaseUrl, $rootScope, $state) {
+tgbApp.factory('userService', ['$http', '$q', 'serviceBaseUrl', '$rootScope', '$state', function($http, $q, serviceBaseUrl, $rootScope, $state) {
+    var currentUser;
+    
+    var setCurrentUser = function(user) {
+        currentUser = user;
+        // TODO：refactor the code so we no longer rely on currentUser being set on root scope.
+        $rootScope.currentUser = user;
+    };
+    
     return {
         signUp: function(user) {
-            return $http.post(serviceBaseUrl + '/signUp', user);
+            var resultDeferred = $q.defer();
+
+            $http.post(serviceBaseUrl + '/signUp', user)
+            .success(function(data, status, headers, config) {
+                setCurrentUser(data.user);
+                resultDeferred.resolve();
+            })
+            .error(function(data, status, headers, config) {
+                setCurrentUser(null);
+                resultDeferred.reject("Unable to log in: " + status + " " + data);
+                console.log('error code:' + status);
+            });
+            
+            return resultDeferred.promise;
         },
         
         logIn: function(user) {
+            var resultDeferred = $q.defer();
+            var httpResult;
+
             if (user) {
-                return $http.post(serviceBaseUrl + '/login', user);
+                httpResult = $http.post(serviceBaseUrl + '/login', user);
             } else {
-                return $http.post(serviceBaseUrl + '/login');
+                httpResult = $http.post(serviceBaseUrl + '/login');
             }
+
+            httpResult
+            .success(function(data, status, headers, config) {
+                setCurrentUser(data.user);
+                resultDeferred.resolve(currentUser);
+            })
+            .error(function(data, status, headers, config) {
+                setCurrentUser(null);
+                resultDeferred.reject("Unable to log in: " + status + " " + data);
+                console.log('error code:' + status);
+            });
+
+            return resultDeferred.promise;
         },
         
         logOut: function() {
-            return $http.get(serviceBaseUrl + '/logOut');
+            var resultDeferred = $q.defer();
+            setCurrentUser(null);
+
+            $http.get(serviceBaseUrl + '/logOut')
+            .success(function(data, status, headers, config) {
+                resultDeferred.resolve();
+            })
+            .error(function(data, status, headers, config) {
+                resultDeferred.reject("Unable to log in: " + status + " " + data);
+                console.log('error code:' + status);
+            });
+        
+            return resultDeferred.promise;
         },
         
         ensureUserLoggedIn: function() {
-            if (!$rootScope.currentUser) {
-                this.logIn()
-                    .success(function(data, status, headers, config) {
-                          $rootScope.currentUser = data.user;
-                    })
-                    .error(function(data, status, headers, config) {
-                        $rootScope.currentUser = null;
+            if (!currentUser) {
+                this.logIn(null)
+                .then(
+                    function(user) {
+                    },
+                    function(error) {
                         $state.go('login');            
-                    });
-            }
+                    })
+            };
         },
     };
 }]);
 
 tgbApp.factory('regionDataService', ['$http', 'serviceBaseUrl', '$q', function($http, serviceBaseUrl, $q) {
+    var regionsPromise;
+
     var getRegions = function() {
         var regionsDeferred = $q.defer();
         $http.get(serviceBaseUrl + '/api/regions')
@@ -158,10 +208,15 @@ tgbApp.factory('regionDataService', ['$http', 'serviceBaseUrl', '$q', function($
         return regionsDeferred.promise;
     };
 
-    var regionsPromise = getRegions();
-    
+    var init = function() {
+        if (!regionsPromise) {
+            regionsPromise = getRegions();
+        }    
+    };
+        
     return {
         populateRegions: function(regionList) {
+            init();
             regionsPromise
             .then(function(regions) {
                 _.forEach(regions, function(r) {
@@ -171,6 +226,7 @@ tgbApp.factory('regionDataService', ['$http', 'serviceBaseUrl', '$q', function($
         },
         
         setDealRegion: function(deal) {
+            init();
             regionsPromise.then(function(regions) {
                 var region = _.find(regions, function(r) {
                     return r.id === deal.regionId;
@@ -367,6 +423,9 @@ tgbApp.directive('backgroundImage', function() {
 tgbApp.controller('welcomeController', ['$scope', 'userService', function($scope, userService) {
     userService.ensureUserLoggedIn();
 }]);
+//tgbApp.controller('$scope', 'topNavController', ['$scope', 'userService', function(userService) {
+//    $scope.currentUser = userService.currentUser;
+//}]);
 
 tgbApp.controller('publicDealsController', ['$scope', 'dealDataService', 'userService', function($scope, dealDataService, userService) {
     userService.ensureUserLoggedIn();
@@ -381,7 +440,7 @@ tgbApp.controller('publicDealsController', ['$scope', 'dealDataService', 'userSe
     });
 }]);
 
-tgbApp.controller('dealCardController', ['$scope', '$rootScope', '$state', 'regionDataService', function($scope, $rootScope, $state, regionDataService) {
+tgbApp.controller('dealCardController', ['$scope', '$state', 'regionDataService', function($scope, $state, regionDataService) {
     regionDataService.setDealRegion($scope.deal);
     
     $scope.showDealDetail = function() {
@@ -422,11 +481,8 @@ tgbApp.controller('dealDetailController', ['$scope', '$state', '$stateParams', '
     };
 }]);
 
-tgbApp.controller('createDealController', ['$scope', '$rootScope', '$state', 'dealDataService', 'regionDataService', function($scope, $rootScope, $state, dealDataService, regionDataService) {
-    if (!$rootScope.currentUser) {
-        // TODO: after signing in, return to orders page.
-        $state.go('login');
-    }
+tgbApp.controller('createDealController', ['$scope', '$state', 'dealDataService', 'regionDataService', 'userService', function($scope, $state, dealDataService, regionDataService, userService) {
+    userService.ensureUserLoggedIn();
     
     var addNewPickupOption = function() {
         var nextId;
@@ -447,9 +503,9 @@ tgbApp.controller('createDealController', ['$scope', '$rootScope', '$state', 'de
     // Populate the new deal with initial parameters.
     $scope.deal = {};
     $scope.deal.unitName = '磅';
-    if ($rootScope.currentUser) {
-        $scope.deal.email = $rootScope.currentUser.email;
-        $scope.deal.phoneNumber = $rootScope.currentUser.phoneNumber;
+    if (userService.currentUser) {
+        $scope.deal.email = userService.email;
+        $scope.deal.phoneNumber = userService.phoneNumber;
     }
     $scope.deal.pickupOptions = [];
     addNewPickupOption();
@@ -492,8 +548,11 @@ tgbApp.controller('createDealController', ['$scope', '$rootScope', '$state', 'de
     };
 }]);
 
-tgbApp.controller('createOrderController', ['$scope', '$state', '$stateParams', function($scope, $state, $stateParams) {
+tgbApp.controller('createOrderController', ['$scope', '$state', '$stateParams', 'userService', function($scope, $state, $stateParams, userService) {
+    userService.ensureUserLoggedIn();
+
     var id = $stateParams.dealId;
+    $scope.order = {};
 }]);
 
 tgbApp.controller('aboutController', function($scope) {
@@ -504,7 +563,7 @@ tgbApp.controller('contactController', function($scope) {
     $scope.message = 'Contact us! JK. This is just a demo.';
 });
 
-tgbApp.controller('loginController', function($scope, $location, $state, $rootScope, userService) {
+tgbApp.controller('loginController', function($scope, $location, $state, userService) {
 
     if (!$scope.user)
     {
@@ -529,9 +588,8 @@ tgbApp.controller('loginController', function($scope, $location, $state, $rootSc
         clearStatusMessage();
         user.wechatId = $scope.user.wechatId;
         user.claimtoken = $scope.user.claimtoken;
-        userService.signUp(user)
-            .then(function(user) {
-                $rootScope.currentUser = user;
+        userService.signUp(user).then(
+            function() {
             },
             function(error) {
                 if (error.data == "Email not verified!") {
@@ -540,7 +598,7 @@ tgbApp.controller('loginController', function($scope, $location, $state, $rootSc
                     });
                 }
                 else {
-                    $scope.statusMessage = "Unable to log in: " + error.status + " " + error.data;                    
+                    $scope.statusMessage = error;                    
                 }
             });
     };
@@ -549,9 +607,8 @@ tgbApp.controller('loginController', function($scope, $location, $state, $rootSc
         clearStatusMessage();
         user.wechatId = $scope.user.wechatId;
         user.claimtoken = $scope.user.claimtoken;
-        userService.logIn(user)
-            .then(function(user) {
-                $rootScope.currentUser = user;
+        userService.logIn(user).then(
+            function(user) {
                 $state.go('welcome');
             },
             function(error) {
@@ -561,7 +618,7 @@ tgbApp.controller('loginController', function($scope, $location, $state, $rootSc
                     });
                 }
                 else {
-                    $scope.statusMessage = "Unable to log in: " + error.status + " " + error.data;
+                    $scope.statusMessage = error;
                 }
             });
     };
@@ -569,7 +626,6 @@ tgbApp.controller('loginController', function($scope, $location, $state, $rootSc
     $scope.logOut = function() {
         clearStatusMessage();
         userService.logOut();
-        $rootScope.currentUser = null;
     };
     
     // Private methods.
@@ -580,7 +636,4 @@ tgbApp.controller('loginController', function($scope, $location, $state, $rootSc
 
 tgbApp.run(['$rootScope', 'userService', 'regionDataService', function($rootScope, userService, regionDataService) {
     $rootScope.scenario = 'Sign up';
-    userService.ensureUserLoggedIn();
-    
-//    $rootScope.regionsPromise = regionDataService.getRegions();
 }]);
