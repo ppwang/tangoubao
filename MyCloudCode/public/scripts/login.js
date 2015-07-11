@@ -519,11 +519,16 @@ tgbApp.controller('loginController', function($scope, $location, $state, $rootSc
         userService.signUp(user)
             .then(function(user) {
                 $rootScope.currentUser = user;
-                $state.go('deals');
+                $('#email-confirm-modal').modal({
+                    keyboard: false
+                });
             },
             function(error) {
                 $scope.statusMessage = "Unable to sign up:  " + error.code + " " + error.message;
             });
+        $('#email-confirm-modal').modal({
+            keyboard: false
+        });
     };
   
     $scope.logIn = function(user) {
