@@ -68,7 +68,7 @@ module.exports.logIn = function(req, res) {
 		// parseExpressCookieSession will automatically set cookie.
 		console.log('currentUser: ' + JSON.stringify(currentUser));
 		if (currentUser == 'Email not verified') {
-			return res.status(401).end('Email not verified!');
+			return res.status(401.2).end('Email not verified!');
 		}
 		if (currentUser) {
 			return convertToUserResponseData(currentUser)

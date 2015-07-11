@@ -17,6 +17,15 @@ tgbApp.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, 
     $urlRouterProvider.otherwise('/');
  
     $stateProvider
+        .state('welcome', {
+            url:'/welcome',
+            views: {
+                'content': {
+                    templateUrl: 'views/welcome.html',
+                    controller: 'welcomeController',
+                }
+            }
+        })
         .state('publicDeals', {
             url:'/publicDeals',
             views: {
@@ -355,6 +364,10 @@ tgbApp.directive('backgroundImage', function() {
     };
 });
 
+tgbApp.controller('welcomeController', ['$scope', 'userService', function($scope, userService) {
+    userService.ensureUserLoggedIn();
+}]);
+
 tgbApp.controller('publicDealsController', ['$scope', 'dealDataService', 'userService', function($scope, dealDataService, userService) {
     userService.ensureUserLoggedIn();
     
@@ -539,7 +552,7 @@ tgbApp.controller('loginController', function($scope, $location, $state, $rootSc
         userService.logIn(user)
             .then(function(user) {
                 $rootScope.currentUser = user;
-                $state.go('publicDeals');
+                $state.go('welcome');
             },
             function(error) {
                 if (error.data == "Email not verified!") {
