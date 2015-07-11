@@ -30,8 +30,8 @@
                 密码: <input type="password" ng-model="user.password" ng-required="true"/>
               </div>
             </div>
+            <div class="row signup-terms">点击注册，代表您已经同意北美团购宝 <a href="/terms.html">用户协议</a></div>
             <div class="row signup-button-container">
-              <span><a href="/terms.html">Terms</a></span>
               <button class="signup-button" ng-click="signUp(user)">注册</button>
             </div>
             <div class="login-reference">
@@ -41,7 +41,7 @@
     </form>
     <form ng-show="scenario == 'Log in'">
       <div class="row"> 
-        <div class="col-sm-12 signin-welcome-msg">
+        <div class="col-sm-12 signin-welcome-msg tgb-site-title">
           <h1>
             GSG 北美团购宝
           </h1>
