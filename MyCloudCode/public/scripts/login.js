@@ -54,7 +54,9 @@ tgbApp.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, 
             }
         })
         .state('createOrder', {
+            //　dealId is extra. It is used to redirect user when deal is not passed. Usually this happens when page is refreshed.
             url:'/createOrder?dealId',
+            params: { deal: null },
             views: {
                 'content': {
                     templateUrl: 'views/createOrder.html',
@@ -121,6 +123,8 @@ tgbApp.factory('userService', ['$http', '$q', 'serviceBaseUrl', '$rootScope', '$
     };
     
     return {
+        currentUser: currentUser,
+        
         signUp: function(user) {
             var resultDeferred = $q.defer();
 
@@ -188,14 +192,19 @@ tgbApp.factory('userService', ['$http', '$q', 'serviceBaseUrl', '$rootScope', '$
         
         ensureUserLoggedIn: function() {
             if (!currentUser) {
-                this.logIn(null)
+                return this.logIn(null)
                 .then(
                     function(user) {
+                        return user;
                     },
                     function(error) {
                         $state.go('login');            
                     })
-            };
+            } else {
+                var resultDeferred = $q.defer();
+                resultDeferred.resolve(currentUser);
+                return resultDeferred.promise;
+            }
         },
     };
 }]);
@@ -350,7 +359,7 @@ tgbApp.factory('dealDataService', ['$http', 'serviceBaseUrl', '$q', function($ht
     dealDataService.followDeal = function(id) {
         var resultDeferred = $q.defer();
         
-        return $http.put(apiUrl + '/followDeal/' + id)
+        $http.put(apiUrl + '/followDeal/' + id)
         .success(function(data, status, headers, config) {
             resultDeferred.resolve();
         })
@@ -365,7 +374,7 @@ tgbApp.factory('dealDataService', ['$http', 'serviceBaseUrl', '$q', function($ht
     dealDataService.unfollowDeal = function(id) {
         var resultDeferred = $q.defer();
         
-        return $http.delete(apiUrl + '/followDeal/' + id)
+        $http.delete(apiUrl + '/followDeal/' + id)
         .success(function(data, status, headers, config) {
             resultDeferred.resolve();
         })
@@ -384,26 +393,22 @@ tgbApp.factory('dealDataService', ['$http', 'serviceBaseUrl', '$q', function($ht
     return dealDataService;
 }]);
 
-tgbApp.factory('orderDataService', ['$http', function($http) {
+tgbApp.factory('orderDataService', ['$http', 'serviceBaseUrl', '$q', function($http, serviceBaseUrl, $q) {
     var orderDataService = {};
     
-    orderDataService.getOrders = function()
-    {
-        return _.map(mockOrderData, function(order) {
-            return {
-                id: order.id,
-                dealId: order.dealId,
-                state: order.state,
-                createdDate: order.createdDate,
-                completedDate: order.completedDate,
-            };
-        });          
-    };
-
-    orderDataService.getOrdersByDealId = function(dealId) {
-        return _.filter(mockOrderData, function(o) {
-            return o.dealId === dealId;
+    orderDataService.createOrder = function(order) {
+        resultDeferred = $q.defer();
+        
+        $http.put(serviceBaseUrl + '/api/order', order)
+        .success(function(data, status, headers, config) {
+            resultDeferred.resolve();
+        })
+        .error(function(data, status, headers, config) {
+            console.log('error code:' + status);
+            resultDeferred.reject(status);
         });
+        
+        return resultDeferred.promise;
     };
     
     return orderDataService;
@@ -481,7 +486,12 @@ tgbApp.controller('dealDetailController', ['$scope', '$state', '$stateParams', '
     };
     
     $scope.purchaseDeal = function() {
-        $state.go('createOrder', { 'dealId': $scope.deal.id });
+        $state.go(
+            'createOrder', 
+            { 
+                deal: $scope.deal,
+                dealId: $scope.deal.id,
+            });
     };
     
     $scope.manageDeal = function() {
@@ -556,11 +566,36 @@ tgbApp.controller('createDealController', ['$scope', '$state', 'dealDataService'
     };
 }]);
 
-tgbApp.controller('createOrderController', ['$scope', '$state', '$stateParams', 'userService', function($scope, $state, $stateParams, userService) {
-    userService.ensureUserLoggedIn();
-
-    var id = $stateParams.dealId;
+tgbApp.controller('createOrderController', ['$scope', '$state', '$stateParams', 'userService', 'orderDataService', function($scope, $state, $stateParams, userService, orderDataService) {
     $scope.order = {};
+    userService.ensureUserLoggedIn().then(function(user) {
+        $scope.user = user;
+        $scope.order.email = user.email;
+        $scope.phoneNumber = user.phoneNumber;
+    });
+
+    if (!$stateParams.deal) {
+        // deal parameter can be null if browser is refreshed (since the entire deal object is not in the url).
+        $state.go(
+            'dealDetail',
+            {
+                id: $stateParams.dealId,
+            }
+        );
+        return;
+    }
+        
+    $scope.deal = $stateParams.deal;
+    
+    $scope.createOrder = function() {
+        orderDataService.createOrder($scope.order).then(
+            function() {
+                var i = 1;
+            },
+            function(error) {
+                
+            });
+    };
 }]);
 
 tgbApp.controller('aboutController', function($scope) {
