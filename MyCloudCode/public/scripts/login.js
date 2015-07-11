@@ -519,13 +519,11 @@ tgbApp.controller('loginController', function($scope, $location, $state, $rootSc
         userService.signUp(user)
             .then(function(user) {
                 $rootScope.currentUser = user;
-                $('#email-confirm-modal').modal({
-                    keyboard: false
-                });
             },
             function(error) {
-                $scope.statusMessage = "Unable to sign up:  " + error.code + " " + error.message;
+                $scope.statusMessage = "Unable to log in: " + error.status + " " + error.data;
             });
+        // TODO: put the following modal dialog triggering code to proper place.
         $('#email-confirm-modal').modal({
             keyboard: false
         });
@@ -541,7 +539,7 @@ tgbApp.controller('loginController', function($scope, $location, $state, $rootSc
                 $state.go('publicDeals');
             },
             function(error) {
-                $scope.statusMessage = "Unable to log in: " + error.code + " " + error.message;
+                $scope.statusMessage = "Unable to log in: " + error.status + " " + error.data;
             });
     };
   

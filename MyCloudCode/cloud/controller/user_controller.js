@@ -22,7 +22,7 @@ module.exports.signUp = function(req, res) {
     	.then(function() {
     		Parse.User.logOut();
     		// Send 401.2 to indicate user has not verified email
-    		return res.status(401.2).end();
+    		return res.status('401.2').end('Email not verified!');
     	}, function(error) {
 			console.log('error: ' + JSON.stringify(error));
 			return res.status(500).end();
@@ -53,7 +53,6 @@ module.exports.logIn = function(req, res) {
 		var emailVerified = parseUser.get('emailVerified');
 		console.log('emailVerified:  ' + emailVerified);
 		if (!emailVerified) {
-    		// Send 401.2 to indicate user has not verified email
     		Parse.User.logOut();
     		return 'Email not verified';			
 		}
@@ -69,7 +68,7 @@ module.exports.logIn = function(req, res) {
 		// parseExpressCookieSession will automatically set cookie.
 		console.log('currentUser: ' + JSON.stringify(currentUser));
 		if (currentUser == 'Email not verified') {
-			return res.status(401.2).end();
+			return res.status('401.2').end('Email not verified!');
 		}
 		if (currentUser) {
 			return convertToUserResponseData(currentUser)
