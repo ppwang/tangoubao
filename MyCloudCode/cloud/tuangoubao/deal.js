@@ -7,7 +7,15 @@ module.exports.convertToDealModel = function(parseDeal, type) {
 	deal.beginDate = parseDeal.get('beginDate');
 	deal.endDate = parseDeal.get('endDate');
 	var dealImage = parseDeal.get('dealImage');
-	deal.dealImageUrl = dealImage? dealImage.url() : null;
+	var dealImageUrl = dealImage? dealImage.url() : null;
+	if (dealImageUrl) {
+		// This is because parse does not server https url to its files.
+		// See for reference: http://hackingtheimpossible.com/quick-tip-serve-parse-files-via-https/
+		deal.dealImageUrl = dealImageUrl.replace("http://", "https://s3.amazonaws.com/")
+	}
+	else {
+		deal.dealImageUrl = null;
+	}
 	deal.description = parseDeal.get('description');
 	deal.email = parseDeal.get('email');
 	deal.phoneNumber = parseDeal.get('phoneNumber');

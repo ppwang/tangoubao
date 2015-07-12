@@ -6,7 +6,7 @@
 //     orders = [ order ]
 //     order = {orderAmount, orderTime, orderAmount, pickupOption, buyer}
 //	   pickupOption = {id, address, contactName, phoneNumber}
-//	   buyer = {id, username, nickname, email, phone, headimgurl}
+//	   buyer = {id, username, nickname, email, phoneNumber, headimgurl}
 module.exports.exportDealToExcel = function (dealData) {
 	// TODO: convert to xlsx later. For now, use csv for simplicity
 	var result = '';
@@ -24,11 +24,11 @@ module.exports.exportDealToExcel = function (dealData) {
 	if (dealData.orders && dealData.orders.constructor === Array) {
 		// Orders section
 		result += 'Orders Summary: \n';
-		result += 'Name,Phone,Email,Pickup contact,Pickup address,Pickup phone\n';
+		result += 'Name,PhoneNumber,Email,Pickup contact,Pickup address,Pickup phone\n';
 		dealData.orders.forEach(function(order) {
 			var buyer = order.buyer;
 			var pickupOption = order.pickupOption;
-			result += buyer.nickname + ',' + buyer.phone + ',' + buyer.email + ',' 
+			result += buyer.nickname + ',' + buyer.phoneNumber + ',' + buyer.email + ',' 
 				+ pickupOption.contactName + ',' + pickupOption.address + ',' + pickupOption.phoneNumber + '\n';
 		});
 	}
