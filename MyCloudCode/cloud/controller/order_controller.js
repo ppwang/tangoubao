@@ -49,48 +49,67 @@ module.exports.orderDeal = function(req, res) {
 };
 
 var createOrder = function(dealId, currentUser, req) {
-	var phone = req.body.phone;
-	var orderAmount = req.body.amount;
+	console.log('create order begin:' + JSON.stringify(currentUser));
+	console.log('create order begin:' + JSON.stringify(req.body));
+	var phoneNumber = req.body.phoneNumber;
+	var quantity = req.body.quantity;
 	var pickupOptionId = req.body.pickupOptionId;
-	var orderTime = req.body.orderTime;
 
-	if (!phone || !orderAmount || !pickupOptionId) {
-		return;
+	if (!phoneNumber || !quantity || (pickupOptionId == null)) {
+		console.log('phoneNumber: ' + phoneNumber + '; quantity: ' + quantity + '; pickupOptionId:' + pickupOptionId);
+		throw new Error('Missing data');
 	}
+	console.log('currentUser:' + JSON.stringify(currentUser));
 
-	currentUser.set('phone', phone);
-	return currentUser.save()
+	return currentUser.fetch()
+		.then(function(instantiatedUser) {
+			var userPhone = instantiatedUser.get('phoneNumber');
+			if (!userPhone) {
+				console.log('set phoneNumber:' + phoneNumber);
+				instantiatedUser.set('bypassClaim', 'true');
+				instantiatedUser.set('phoneNumber', phoneNumber);
+				return instantiatedUser.save();
+			}
+			return;
+		})
 		.then(function() {
+			console.log('create new deal');
 			var parseOrder = new ParseOrder();
 			parseOrder.set('dealId', dealId);
 			parseOrder.set('buyerId', currentUser.id);
-			parseOrder.set('orderAmount', orderAmount);
-			parseOrder.set('orderTime', orderTime);
+			parseOrder.set('quantity', quantity);
 			parseOrder.set('pickupOptionId', pickupOptionId);
+			parseOrder.set('phoneNumber', phoneNumber);
 			return parseOrder.save();
 		});
 };
 
 var modifyOrder = function(orderId, currentUser, req) {
-	var phone = req.body.phone;
-	var orderAmount = req.body.amount;
+	var phoneNumber = req.body.phoneNumber;
+	var quantity = req.body.quantity;
 	var pickupOptionId = req.body.pickupOptionId;
-	var orderTime = req.body.orderTime;
 
-	if (!phone || !orderAmount || !pickupOptionId) {
+	if (!phoneNumber || !quantity || !pickupOptionId) {
 		return;
 	}
 
-	currentUser.set('phone', phone);
-	return currentUser.save()
+	return currentUser.fetch()
+		.then(function(instantiatedUser) {
+			var phoneNumber = instantiatedUser.get('phoneNumber');
+			if (!phoneNumber) {
+				instantiatedUser.set('bypassClaim', 'true');
+				instantiatedUser.set('phoneNumber', phoneNumber);
+				return instantiatedUser.save();
+			}
+			return;
+		})
 		.then(function() {
 			var parseOrder = new ParseOrder();
 			parseOrder.id = orderId;
 			return parseOrder.fetch();
 		})
 		.then(function(parseOrder) {
-			parseOrder.set('orderAmount', orderAmount);
-			parseOrder.set('orderTime', orderTime);
+			parseOrder.set('quantity', quantity);
 			parseOrder.set('pickupOptionId', pickupOptionId);
 			return parseOrder.save();
 		});

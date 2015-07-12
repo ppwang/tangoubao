@@ -7,9 +7,14 @@ Parse.Cloud.beforeSave(Parse.User, function(request, response) {
 	currentUser = request.object;
 	// workaround for master save path also going through before save
 	var masterRequest = currentUser.get('masterRequest');
+	var bypassClaim = currentUser.get('bypassClaim');
 	if (masterRequest) {
 		currentUser.set('masterRequest', undefined);
 		return response.success();
+	}
+
+	if (bypassClaim) {
+		currentUser.set('bypassClaim', undefined);
 	}
 
 	if (!currentUser) {
@@ -101,7 +106,7 @@ module.exports.convertToUserModel = function(parseUser) {
     user.username = parseUser.get('username');
     user.nickname = parseUser.get('nickname');
     user.email = parseUser.get('email');
-    user.phone = parseUser.get('phone');
+    user.phoneNumber = parseUser.get('phoneNumber');
     user.headimgurl = parseUser.get('headimgurl');
     return user;
 };
