@@ -297,6 +297,10 @@ tgbApp.factory('regionDataService', ['$http', 'serviceBaseUrl', '$q', function($
 
 tgbApp.factory('dealDataService', ['$http', 'serviceBaseUrl', '$q', 'regionDataService', function($http, serviceBaseUrl, $q, regionDataService) {
     // Cached data
+    // The deals are transformed in the following sequence:
+    // - Group by type (own, follow, order)
+    // - Group by status (active, closed)
+    // - Sort by endDate in descending order.
     var cachedDealsPromise;
     
     var apiUrl = serviceBaseUrl + '/api'
@@ -320,6 +324,23 @@ tgbApp.factory('dealDataService', ['$http', 'serviceBaseUrl', '$q', 'regionDataS
         regionDataService.setDealRegion(deal);
     };
     
+    var groupDeals = function(deals) {
+        // Group by type.
+        var groupByType = _.groupBy(deals, 'type');
+        for (var type in groupByType) {
+            // Group by status.
+            groupByType[type] = _.groupBy(groupByType[type], function(d) {
+                return d.status || 'active';
+            });
+            
+            // Sort by endTime.
+            for (var status in groupByType[type]) {
+                groupByType[type][status] = _.sortByOrder(groupByType[type][status], ['endDate'], [false]);
+            }
+        };
+        return groupByType;
+    };
+    
     dealDataService.patchDealFromServer = patchDealFromServer;
     
     dealDataService.getDeals = function() {
@@ -333,18 +354,25 @@ tgbApp.factory('dealDataService', ['$http', 'serviceBaseUrl', '$q', 'regionDataS
             _.forEach(data.deals, function(d) {
                 patchDealFromServer(d);
             });
-            resultDeferred.resolve(data.deals);
+            var groupedDeals = groupDeals(data.deals);
+            resultDeferred.resolve(groupedDeals);
             cachedDealsPromise = resultDeferred.promise;
         })
         .error(function(data, status, headers, config) {
             // called asynchronously if an error occurs
             // or server returns response with an error status.
             console.log('error code:' + status);
-            resultDeferred.reject(null);
+            resultDeferred.reject(status);
             cachedDealsPromise = null;
         });
         
         return resultDeferred.promise;
+    };
+    
+    dealDataService.getOwnedDeals = function() {
+        return getDeals().then(function(deals) {
+            
+        });
     };
     
     dealDataService.getPublicDeals = function() {
@@ -509,6 +537,16 @@ tgbApp.directive('dealCard', function() {
     };   
 });
 
+tgbApp.directive('dealCardList', function() {
+    return {
+        restrict: 'E',
+        templateUrl: '/directives/dealCardList.html',
+        scope: {
+            dealsPromiseWrapper: '=',  
+        },
+    };   
+});
+
 tgbApp.directive('backgroundImage', function() {
     return function(scope, element, attrs) {
         var imgUrl = attrs.backgroundImage;
@@ -528,20 +566,23 @@ tgbApp.controller('welcomeController', ['$scope', 'userService', function($scope
 tgbApp.controller('publicDealsController', ['$scope', 'dealDataService', 'userService', function($scope, dealDataService, userService) {
     userService.ensureUserLoggedIn();
     
-    var setDeals = function(deals) {
-        $scope.Deals = deals;
-        $scope.chunkedDeals = _.chunk(deals, 4); 
+    // Wrap the promise in an object before passing into child directive.
+    // http://stackoverflow.com/questions/17159614/how-do-i-pass-promises-as-directive-attributes-in-angular
+    $scope.dealsPromiseWrapper = {
+        promise: dealDataService.getPublicDeals(),
     };
-    
-    dealDataService.getPublicDeals().then(function(deals) {
-        setDeals(deals);
-    });
 }]);
 
 tgbApp.controller('dealCardController', ['$scope', '$state', function($scope, $state) {
     $scope.showDealDetail = function() {
         $state.go('dealDetail', {'id': $scope.deal.id} );
     };
+}]);
+
+tgbApp.controller('dealCardListController', ['$scope', function($scope) {
+    $scope.dealsPromiseWrapper.promise.then(function(deals) {
+        $scope.chunkedDeals = _.chunk(deals, 4); 
+    });
 }]);
 
 tgbApp.controller('dealDetailController', ['$scope', '$state', '$stateParams', 'userService', 'dealDataService', function($scope, $state, $stateParams, userService, dealDataService) {
@@ -691,8 +732,6 @@ tgbApp.controller('createOrderController', ['$scope', '$state', '$stateParams', 
     if (pickupOptions && pickupOptions.length > 0) {
         $scope.order.pickupOptionId = pickupOptions[0].id;  
     }
-    $scope.order.dealName = $scope.deal.name;
-    $scope.order.dealImageUrl = $scope.deal.dealImageUrl;
     
     $scope.createOrder = function() {
         var deal = $scope.deal;
@@ -722,12 +761,18 @@ tgbApp.controller('createOrderController', ['$scope', '$state', '$stateParams', 
     };
 }]);
 
-tgbApp.controller('sellerAccountController', ['$state', function($state) {
+tgbApp.controller('sellerAccountController', ['$state', 'userService', function($state, userService) {
+    userService.ensureUserLoggedIn();
+    
     $state.go('sellerAccount.inProgressDeals');
 }]);
 
-tgbApp.controller('inProgressDealsController', [function() {
-    
+tgbApp.controller('inProgressDealsController', ['$scope', 'dealDataService', function($scope, dealDataService) {
+    $scope.dealsPromiseWrapper = {
+        promise: dealDataService.getDeals().then(function(deals) {
+            return deals.own.active;
+        }),
+    };
 }]);
 
 tgbApp.controller('modalDialogController', ['$scope', '$modalInstance', 'settings', function($scope, $modalInstance, settings) {
