@@ -43,6 +43,47 @@ module.exports.putDeal = function(req, res) {
 		});
 };
 
+module.exports.putStatus = function(req, res) {
+	var currentUser = Parse.User.current();
+	console.log('currentUser: ' + JSON.stringify(currentUser));
+	if (!currentUser) {
+		// require user to log in
+		return res.status(401).send();
+	}
+
+	var dealId = req.params.dealId;
+	if (!dealId) {
+		return res.status(404).send();
+	}
+
+	var status = req.query.status;
+	if (!status || (status != 'closed' && status != 'active')) {
+		return res.status(404).send();
+	}
+
+	var parseDealPromise = new ParseDeal();
+	parseDealPromise.id = dealId;
+	return parseDealPromise.fetch()
+		.then(function(parseDeal) {
+			var deal = dealModel.convertToDealModel(parseDeal);
+			if (deal.creatorId != currentUser.id) {
+				return 'Not authorized';
+			}
+			parseDeal.set('status', status);
+			return parseDeal.save();
+		})
+		.then(function(savedPareseDeal) {
+			if (savedPareseDeal == 'Not authorized') {
+				return res.status(401).end();
+			}
+			var deal = dealModel.convertToDealModel(savedPareseDeal);
+			return res.status(200).send(deal);
+		}, function(error) {
+			console.log('error: ' + JSON.stringify(error));
+			return res.status(500).end();
+		});
+};
+
 module.exports.getDeal = function(req, res) {
 	var currentUser = Parse.User.current();
 	if (!currentUser) {

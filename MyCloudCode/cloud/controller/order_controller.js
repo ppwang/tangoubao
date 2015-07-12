@@ -54,6 +54,48 @@ module.exports.putOrder = function(req, res) {
 		});
 };
 
+module.exports.putStatus = function(req, res) {
+	var currentUser = Parse.User.current();
+	console.log('currentUser: ' + JSON.stringify(currentUser));
+	if (!currentUser) {
+		// require user to log in
+		return res.status(401).send();
+	}
+
+	var orderId = req.params.orderId;
+	if (!orderId) {
+		return res.status(404).send();
+	}
+
+	var status = req.query.status;
+	if (!status || (status != 'closed' && status != 'active')) {
+		return res.status(404).send();
+	}
+
+	console.log('put orderId: ' + orderId);
+	var parseOrderPromise = new ParseOrder();
+	parseOrderPromise.id = orderId;
+	return parseOrderPromise.fetch()
+		.then(function(parseOrder) {
+			var order = orderModel.convertToOrderModel(parseOrder);
+			if (order.creatorId != currentUser.id) {
+				return 'Not authorized';
+			}
+			parseOrder.set('status', status);
+			return parseOrder.save();
+		})
+		.then(function(savedParseOrder) {
+			if (savedParseOrder == 'Not authorized') {
+				return res.status(401).end();
+			}
+			var order = orderModel.convertToOrderModel(savedParseOrder);
+			return res.status(200).send(order);
+		}, function(error) {
+			console.log('error: ' + JSON.stringify(error));
+			return res.status(500).end();
+		});
+};
+
 module.exports.getOrder = function(req, res) {
 	var currentUser = Parse.User.current();
 	if (!currentUser) {

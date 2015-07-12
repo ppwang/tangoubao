@@ -60,6 +60,8 @@ var dealController = require('cloud/controller/deal_controller');
 app.get('/api/deal/:dealId?', dealController.getDeal);
 // Use bodyparser to parse form input first and then call putDeal
 app.put('/api/deal', express.bodyParser(), dealController.putDeal);
+// Set deal status: active/closed
+app.put('/api/dealStatus/:dealId?', dealController.putStatus);
 
 // Send deal report to owner
 var emailController = require('cloud/controller/email_controller');
@@ -83,6 +85,7 @@ var orderController = require('cloud/controller/order_controller');
 app.put('/api/order', express.bodyParser(), orderController.putOrder);
 app.get('/api/order/:orderId?', orderController.getOrder);
 app.delete('/api/order/:orderId?', orderController.deleteOrder);
+app.put('/api/orderStatus/:orderId?', orderController.putStatus);
 
 // Entry points for orders
 var ordersController = require('cloud/controller/orders_controller');

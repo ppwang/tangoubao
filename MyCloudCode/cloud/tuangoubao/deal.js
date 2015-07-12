@@ -26,6 +26,7 @@ module.exports.convertToDealModel = function(parseDeal, type) {
 	deal.pickupOptions = parseDeal.get('pickupOptions');
 	deal.regionId = parseDeal.get('regionId');
 	deal.unitsPerPackage = parseDeal.get('unitsPerPackage');
+	deal.status = parseDeal.get('status');
 	var creator = parseDeal.get('createdBy');
 	deal.creatorId = creator.id;
 	deal.type = type;
