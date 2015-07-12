@@ -73,7 +73,7 @@ var sendNotification = function (accessToken, wechatId) {
                    "color":"#173177"
                },
                "keyword1":{
-                   "value":"100磅", // order amount
+                   "value":"100磅", // quantity
                    "color":"#173177"
                },
                "keyword2":{

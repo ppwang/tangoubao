@@ -77,11 +77,17 @@ app.delete('/api/followDeal/:dealId?', followController.unfollowDeal);
 app.put('/api/followUser/:userId?', followController.followUser);
 app.delete('/api/followUser/:userId?', followController.unfollowUser);
 
-// Entry points for orders
+// Entry points for order
 var orderController = require('cloud/controller/order_controller');
 // Use bodyparser to parse form input first
-app.put('/api/order', express.bodyParser(), orderController.orderDeal);
+app.put('/api/order', express.bodyParser(), orderController.putOrder);
+app.get('/api/order/:orderId?', orderController.getOrder);
 app.delete('/api/order/:orderId?', orderController.deleteOrder);
+
+// Entry points for orders
+var ordersController = require('cloud/controller/orders_controller');
+app.get('/api/myOrders', ordersController.getMyOrders);
+app.get('/api/orders/:dealId?', ordersController.getOrders);
 
 // Entry points for notification
 var notificationController = require('cloud/controller/notification_controller');

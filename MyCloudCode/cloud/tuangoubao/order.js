@@ -29,7 +29,7 @@ module.exports.getOrders = function(dealId, deal) {
 				order.pickupOption = pickupOptionsDictionary[order.pickupOptionId];
 				orders.push(order);
 				var buyer = new Parse.User();
-				buyer.id = order.buyerId;
+				buyer.id = order.creatorId;
 				promises.push(buyer.fetch());
 			});
 			return Parse.Promise.when(promises);
@@ -38,14 +38,14 @@ module.exports.getOrders = function(dealId, deal) {
 			var buyerDictionary = new Array();
 			for(var i=0; i<arguments.length; i++) {
 				var parseBuyer = arguments[i];
-				var buyerId = parseBuyer.id;
-				if (!buyerDictionary[buyerId]) {
-					buyerDictionary[buyerId] = tgbUser.convertToUserModel(parseBuyer);
+				var creatorId = parseBuyer.id;
+				if (!buyerDictionary[creatorId]) {
+					buyerDictionary[creatorId] = tgbUser.convertToUserModel(parseBuyer);
 				}
 			}
 
 			orders.forEach(function(order) {
-				order.buyer = buyerDictionary[order.buyerId];
+				order.buyer = buyerDictionary[order.creatorId];
 			});
 			return orders;
 		});
@@ -55,9 +55,14 @@ module.exports.convertToOrderModel = function(parseOrder) {
 	var order = {};
 	order.id = parseOrder.id;
 	order.dealId = parseOrder.get('dealId');
-	order.buyerId = parseOrder.get('buyerId');
-	order.orderAmount = parseOrder.get('orderAmount');
-	order.orderTime = parseOrder.get('orderTime');
+	order.creatorId = parseOrder.get('creatorId');
+	order.quantity = parseOrder.get('quantity');
+	order.orderTime = parseOrder.createdAt;
 	order.pickupOptionId = parseOrder.get('pickupOptionId');
+	order.phoneNumber = parseOrder.get('phoneNumber');
+	order.dealName = parseOrder.get('dealName');
+	order.dealImageUrl = parseOrder.get('dealImageUrl');
+	order.creatorName = parseOrder.get('creatorName');
+	order.creatorImageUrl = parseOrder.get('creatorImageUrl');
 	return order;
 };

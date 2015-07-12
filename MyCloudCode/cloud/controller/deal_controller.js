@@ -93,13 +93,13 @@ module.exports.getDeal = function(req, res) {
 				var query = new Parse.Query(ParseOrder);
 				console.log('query order dealId:' + dealId + ' by userId: ' + currentUser.id);
 			    query.equalTo('dealId', dealId);
-			    query.equalTo('buyerId', currentUser.id);
+			    query.equalTo('creatorId', currentUser.id);
 			    return query.first()
 			    	.then(function(parseOrder) {
 			    		deal.ordered = false; 
 			    		if (parseOrder) {
-			    			var orderAmount = parseOrder.get('orderAmount');
-			    			if (orderAmount > 0) {
+			    			var quantity = parseOrder.get('quantity');
+			    			if (quantity > 0) {
 			    				deal.ordered = true;
 			    			}
 			    		}
@@ -112,7 +112,6 @@ module.exports.getDeal = function(req, res) {
 				console.log('error: ' + JSON.stringify(error));
 				return res.status(500).end();
 			});
-		return res.send('dealId is: ' + objectId);
 	}
 };
 
