@@ -1,13 +1,13 @@
 <span>订货人: {{user.nickname}}</span>
 <br>
 <span>电话: </span>
-<input ng-model="order.phoneNumber"/>
+<input ng-model="order.phoneNumber" ng-required="true"/>
 <br>
 <span>Email: </span>
-<input ng-model="order.email"/>
+<input ng-model="order.email" ng-required="true"/>
 <br>
 <span>数量: </span>
-<input type="number" ng-model="order.quantity" ng-pattern="/^\d*$/" />
+<input type="number" ng-model="order.quantity" ng-pattern="/^\d*$/"  ng-required="true"/>
 <br>
 <span>发货方式: </span>
 <div ng-repeat="pickupOption in deal.pickupOptions">

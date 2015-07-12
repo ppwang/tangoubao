@@ -1,4 +1,4 @@
-var tgbApp = angular.module('tuanGouBao', ['GlobalConfiguration', 'ui.router', 'xeditable', 'imageupload']);
+var tgbApp = angular.module('tuanGouBao', ['GlobalConfiguration', 'ui.router', 'xeditable', 'imageupload', 'ui.bootstrap']);
 
 //tgbApp.config(function($locationProvider) {
 //    //$locationProvider.html5Mode(true).hashPrefix('!');
@@ -414,6 +414,28 @@ tgbApp.factory('orderDataService', ['$http', 'serviceBaseUrl', '$q', function($h
     return orderDataService;
 }]);
 
+tgbApp.factory('modalDialogService', ['$modal', function($modal) {
+    var modalDialogService = {};
+    
+    modalDialogService.show = function(settings) {
+        var modalInstance = $modal.open({
+            templateUrl: 'views/modalDialog.html',
+            controller: 'modalDialogController',
+            size: 'sm',
+            backdrop: 'static',
+            resolve: {
+                settings: function () {
+                    return settings;
+                }
+            }
+        });
+        
+        return modalInstance.result;
+    };
+    
+    return modalDialogService;
+}]);
+
 tgbApp.directive('dealCard', function() {
     return {
         restrict: 'E',
@@ -566,12 +588,15 @@ tgbApp.controller('createDealController', ['$scope', '$state', 'dealDataService'
     };
 }]);
 
-tgbApp.controller('createOrderController', ['$scope', '$state', '$stateParams', 'userService', 'orderDataService', function($scope, $state, $stateParams, userService, orderDataService) {
-    $scope.order = {};
+tgbApp.controller('createOrderController', ['$scope', '$state', '$stateParams', 'userService', 'orderDataService', 'modalDialogService', function($scope, $state, $stateParams, userService, orderDataService, modalDialogService) {
+    $scope.order = {
+        dealId: $stateParams.dealId,
+    };
+    
     userService.ensureUserLoggedIn().then(function(user) {
         $scope.user = user;
         $scope.order.email = user.email;
-        $scope.phoneNumber = user.phoneNumber;
+        $scope.order.phoneNumber = user.phoneNumber;
     });
 
     if (!$stateParams.deal) {
@@ -586,15 +611,48 @@ tgbApp.controller('createOrderController', ['$scope', '$state', '$stateParams', 
     }
         
     $scope.deal = $stateParams.deal;
-    
+    var pickupOptions = $scope.deal.pickupOptions;
+    if (pickupOptions && pickupOptions.length > 0) {
+        $scope.order.pickupOptionId = pickupOptions[0].id;  
+    }
     $scope.createOrder = function() {
-        orderDataService.createOrder($scope.order).then(
-            function() {
-                var i = 1;
-            },
-            function(error) {
-                
+        var deal = $scope.deal;
+        var order = $scope.order;
+        var units = order.quantity * deal.unitsPerPackage;
+        var price = units * deal.unitPrice;
+        var address = _.find(deal.pickupOptions, function(o) {
+            return o.id === order.pickupOptionId;
+        }).address;
+        var message = '您即将预定 ' + deal.name + ' ' + order.quantity + '件(共' + units + deal.unitName + '), 总计' + price + '美元. 取货地址是 ' + address + '. 谢谢您的参与!';
+        
+        modalDialogService.show({
+            message: message,
+            showCancelButton: true,
+        }).then(function() {
+            orderDataService.createOrder($scope.order).then(function() {
+                // TODO: show order details.
+            }, function(error) {
+                var orderFailedMessage = '您的订单提交不成功,　请稍后再试试.';
+                modalDialogService.show({
+                    message: orderFailedMessage,
+                    showCancelButton: false,
+                });
             });
+        }, function() {
+        });
+    };
+}]);
+
+tgbApp.controller('modalDialogController', ['$scope', '$modalInstance', 'settings', function($scope, $modalInstance, settings) {
+    $scope.settings = settings;
+    
+    
+    $scope.ok = function () {
+        $modalInstance.close(null);
+    };
+
+    $scope.cancel = function () {
+        $modalInstance.dismiss(null);
     };
 }]);
 

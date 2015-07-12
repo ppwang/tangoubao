@@ -3,7 +3,7 @@
 <span style="font-weight: bold">{{deal.name}}</span>
 <br>
 <span>地区: {{deal.region}}</span>
-<span>价格: {{deal.unitPrice | currency:'$'}}/件 (每件{{deal.unitsPerPackage}}{{deal.unitName}})</span>
+<span>价格: {{deal.unitPrice | currency:'$'}}/{{deal.unitName}} (每件{{deal.unitsPerPackage}}{{deal.unitName}})</span>
 <br>
 <span>开始日期: {{deal.beginDate | date:'yyyy年MM月dd日'}}</span>
 <span>截止: {{deal.endDate | date:'yyyy年MM月dd日'}}</span>
