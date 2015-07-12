@@ -46,6 +46,13 @@
                 <ul class="nav navbar-nav">
                     <li><a ui-sref="publicDeals" data-toggle="collapse" data-target=".navbar-collapse">参与团购</a></li>
                     <li><a ui-sref="createDeal" data-toggle="collapse" data-target=".navbar-collapse">发起团购</a></li>
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">我的团购宝<span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a ui-sref="buyerAccount" data-toggle="collapse" data-target=".navbar-collapse">我是买家</a></li>
+                            <li><a ui-sref="sellerAccount" data-toggle="collapse" data-target=".navbar-collapse">我是卖家</a></li>
+                        </ul>
+                    </li>
                     <li><a ui-sref="about" data-toggle="collapse" data-target=".navbar-collapse">About</a></li>
                     <li><a ui-sref="contact" data-toggle="collapse" data-target=".navbar-collapse">Contact</a></li>
                     <li><a ui-sref="login" data-toggle="collapse" data-target=".navbar-collapse">{{currentUser ? 'Logout' : 'Login'}}</a></li>
