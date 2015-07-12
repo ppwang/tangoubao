@@ -53,6 +53,15 @@ tgbApp.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, 
                 }
             }
         })
+        .state('orderDetail', {
+            url:'/orderDetail/:orderId',
+            views: {
+                'content': {
+                    templateUrl: 'views/orderDetail.html',
+                    controller: 'orderDetailController',
+                }
+            }
+        })
         .state('createOrder', {
             //　dealId is extra. It is used to redirect user when deal is not passed. Usually this happens when page is refreshed.
             url:'/createOrder?dealId',
@@ -411,6 +420,21 @@ tgbApp.factory('orderDataService', ['$http', 'serviceBaseUrl', '$q', function($h
         return resultDeferred.promise;
     };
     
+    orderDataService.getOrder = function(orderId) {
+        var resultDeferred = $q.defer();
+        
+        $http.get(serviceBaseUrl + '/api/order/' + orderId)
+        .success(function(data, status, headers, config) {
+            resultDeferred.resolve(data.order);
+        })
+        .error(function(data, status, headers, config) {
+            console.log('error code:' + status);
+            resultDeferred.reject(status);
+        });
+        
+        return resultDeferred.promise;
+    };
+    
     return orderDataService;
 }]);
 
@@ -588,6 +612,20 @@ tgbApp.controller('createDealController', ['$scope', '$state', 'dealDataService'
     };
 }]);
 
+tgbApp.controller('orderDetailController', ['$scope', '$stateParams', 'userService', 'orderDataService', 'regionDataService', function($scope, $stateParams, userService, orderDataService, regionDataService) {
+    userService.ensureUserLoggedIn();
+
+    var orderId = $stateParams.orderId;
+    orderDataService.getOrder(orderId).then(function(order) {
+        $scope.order = order;
+        $scope.pickupOption = _.find($scope.deal.pickupOptions, function(o){
+            return o.id === order.pickupOptionId;
+        });
+        
+        regionDataService.setDealRegion($scope.order.deal);
+    });
+}]);
+
 tgbApp.controller('createOrderController', ['$scope', '$state', '$stateParams', 'userService', 'orderDataService', 'modalDialogService', function($scope, $state, $stateParams, userService, orderDataService, modalDialogService) {
     $scope.order = {
         dealId: $stateParams.dealId,
@@ -597,6 +635,9 @@ tgbApp.controller('createOrderController', ['$scope', '$state', '$stateParams', 
         $scope.user = user;
         $scope.order.email = user.email;
         $scope.order.phoneNumber = user.phoneNumber;
+        $scope.order.buyerName = user.nickname;
+        // TODO: verify that imageUrl is the correct property.
+        $scope.order.buyerImageUrl = user.imageUrl;
     });
 
     if (!$stateParams.deal) {
@@ -611,10 +652,14 @@ tgbApp.controller('createOrderController', ['$scope', '$state', '$stateParams', 
     }
         
     $scope.deal = $stateParams.deal;
+
     var pickupOptions = $scope.deal.pickupOptions;
     if (pickupOptions && pickupOptions.length > 0) {
         $scope.order.pickupOptionId = pickupOptions[0].id;  
     }
+    $scope.order.dealName = $scope.deal.name;
+    $scope.order.dealImageUrl = $scope.deal.dealImageUrl;
+    
     $scope.createOrder = function() {
         var deal = $scope.deal;
         var order = $scope.order;
@@ -735,6 +780,6 @@ tgbApp.controller('loginController', function($scope, $location, $state, userSer
     };
 });
 
-tgbApp.run(['$rootScope', 'userService', 'regionDataService', function($rootScope, userService, regionDataService) {
+tgbApp.run(['$rootScope', function($rootScope) {
     $rootScope.scenario = 'Sign up';
 }]);
