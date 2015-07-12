@@ -30,7 +30,7 @@ tgbApp.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, 
             url:'/publicDeals',
             views: {
                 'content': {
-                    templateUrl: 'views/publicDeals.html',
+                    templateUrl: 'views/deals.html',
                     controller: 'publicDealsController',
                 }
             }
@@ -91,12 +91,12 @@ tgbApp.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, 
                 }
             }
         })
-        .state('sellerAccount.inProgressDeals', {
-            url:'/inProgressDeals',
+        .state('sellerAccount.deals', {
+            url:'/deals/:status',
             views: {
                 'content': {
-                    templateUrl: 'views/inProgressDeals.html',
-                    controller: 'inProgressDealsController',
+                    templateUrl: 'views/deals.html',
+                    controller: 'filteredDealsController',
                 }
             }
         })
@@ -132,7 +132,12 @@ tgbApp.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, 
 tgbApp.filter('daysRemainingFilter', function() {
     return function(date) {
         if (date) {
-          return Math.ceil((date.getTime() - Date.now())/86400000);
+            var daysRemaining = Math.ceil((date.getTime() - Date.now())/86400000);
+            if (daysRemaining > 0) {
+                return '还剩' + daysRemaining + '天';
+            } else {
+                return '已截止订购';
+            }
         } else {
             return '未知';
         }
@@ -335,7 +340,7 @@ tgbApp.factory('dealDataService', ['$http', 'serviceBaseUrl', '$q', 'regionDataS
             
             // Sort by endTime.
             for (var status in groupByType[type]) {
-                groupByType[type][status] = _.sortByOrder(groupByType[type][status], ['endDate'], [false]);
+                groupByType[type][status] = _.sortByOrder(groupByType[type][status], ['createdAt'], [false]);
             }
         };
         return groupByType;
@@ -764,13 +769,15 @@ tgbApp.controller('createOrderController', ['$scope', '$state', '$stateParams', 
 tgbApp.controller('sellerAccountController', ['$state', 'userService', function($state, userService) {
     userService.ensureUserLoggedIn();
     
-    $state.go('sellerAccount.inProgressDeals');
+//    $state.go('sellerAccount.deals', {
+//        status: 'active',
+//    });
 }]);
 
-tgbApp.controller('inProgressDealsController', ['$scope', 'dealDataService', function($scope, dealDataService) {
+tgbApp.controller('filteredDealsController', ['$scope', '$stateParams', 'dealDataService', function($scope, $stateParams, dealDataService) {
     $scope.dealsPromiseWrapper = {
         promise: dealDataService.getDeals().then(function(deals) {
-            return deals.own.active;
+            return deals.own[$stateParams.status];
         }),
     };
 }]);

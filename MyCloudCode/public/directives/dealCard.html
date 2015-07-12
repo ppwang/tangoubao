@@ -7,7 +7,7 @@
         <br>
         <span>价格: {{deal.unitPrice | currency:'$'}}/{{deal.unitName}}</span>
         <br>
-        <span>团购进度: 还剩{{deal.endDate | daysRemainingFilter}}天</span>
+        <span>团购进度: {{deal.endDate | daysRemainingFilter}}</span>
         <br>
         <!-- TODO: show owner name or id -->
         <span>发起人: {{deal.creatorName}}</span>
