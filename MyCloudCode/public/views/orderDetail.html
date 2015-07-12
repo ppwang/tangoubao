@@ -1,0 +1,29 @@
+<span>{{order.deal.name}}</span>
+<br>
+<span>地区: {{order.deal.region}}</span>
+<span>价格: {{order.deal.unitPrice | currency:'$'}}/{{order.deal.unitName}} (每件{{order.deal.unitsPerPackage}}{{order.deal.unitName}})</span>
+<br>
+<span>开始日期: {{order.deal.beginDate | date:'yyyy年MM月dd日'}}</span>
+<span>截止: {{order.deal.endDate | date:'yyyy年MM月dd日'}}</span>
+<br>
+<span>团购进度: 还剩{{order.deal.endDate | daysRemainingFilter}}天</span>
+<br>
+<span>发起人: {{order.deal.creatorName}}</span>
+<br>
+<span>订货人: {{order.creator.nickname}}</span>
+<br>
+<span>电话: {{order.creator.phoneNumber}}</span>
+<br>
+<span>Email: {{order.creator.email}}</span>
+<br>
+<span>数额: {{order.quantity}}件, {{order.quantity * order.deal.unitsPerPackage}}{{order.deal.unitName}}, 共计{{ order.quantity * order.deal.unitsPerPackage * order.deal.unitPrice | currency:'$'}}</span>
+<br>
+<span>发货方式</span>
+<br>
+<span>发货地址: {{pickupOption.address}}</span>
+<br>
+<span>发货人员: {{pickupOption.contactName}}</span>
+<br>
+<span>联系电话: {{pickupOption.phoneNumber}}</span>
+<br>
+<span>团购成功</span>
