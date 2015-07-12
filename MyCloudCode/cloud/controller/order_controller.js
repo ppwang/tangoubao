@@ -45,14 +45,20 @@ module.exports.putOrder = function(req, res) {
 	}
 	return modifyOrder(orderId, currentUser, req)
 		.then(function(parseOrder) {
+			if (parseOrder == 'Invalid order') {
+				return 'Invalid order';
+			}
 			if (parseOrder) {
 				var order = orderModel.convertToOrderModel(parseOrder);
 				console.log('modify order to: ' + JSON.stringify(order));
-				return order
+				return order;
 			}
 			return;
 		})
 		.then(function(responseData) {
+			if (responseData == 'Invalid order') {
+				return res.status(404).send('Invalid order');
+			}
 			return res.status(200).send(responseData);
 		}, function(error) {
 			console.log('order: ' + JSON.stringify(error));
@@ -218,7 +224,7 @@ var createOrder = function(dealId, currentUser, req) {
 			parseOrder.set('pickupOptionId', pickupOptionId);
 			parseOrder.set('phoneNumber', phoneNumber);
 			parseOrder.set('dealName', deal.name);
-			parseOrder.set('dealImageUrl', deal.dealImageUrl)
+			parseOrder.set('dealImageUrl', deal.dealImageUrl);
 			parseOrder.set('creatorName', creatorName);
 			parseOrder.set('creatorImageUrl', creatorImageUrl);
 			return parseOrder.save();
@@ -236,8 +242,20 @@ var modifyOrder = function(orderId, currentUser, req) {
 		throw new Error('Missing data');
 	}
 
-	return currentUser.fetch()
-		.then(function(instantiatedUser) {
+	var promises = [];
+	promises.push(currentUser.fetch());
+	var parseDealPromise = new ParseDeal();
+	parseDealPromise.id = dealId;
+	promises.push(parseDealPromise.fetch());
+	var deal;
+
+	return Parse.Promise.when(promises)
+		.then(function(instantiatedUser, instantiatedDeal) {
+			deal = tgbDeal.convertToDealModel(instantiatedDeal);
+			if (!tgbDeal.isValidOrder(deal, new Date())) {
+				console.log('Invalid order');
+				return 'Invalid order';
+			}
 			var userPhone = instantiatedUser.get('phoneNumber');
 			if (!userPhone) {
 				instantiatedUser.set('bypassClaim', 'true');
@@ -246,15 +264,24 @@ var modifyOrder = function(orderId, currentUser, req) {
 			}
 			return;
 		})
-		.then(function() {
+		.then(function(savedUser) {
+			if (savedUser == 'Invalid order') {
+				return 'Invalid order';
+			}
+
 			var parseOrder = new ParseOrder();
 			parseOrder.id = orderId;
 			return parseOrder.fetch();
 		})
 		.then(function(parseOrder) {
+			if (parseOrder == 'Invalid order') {
+				return 'Invalid order';
+			}
 			parseOrder.set('quantity', quantity);
 			parseOrder.set('pickupOptionId', pickupOptionId);
 			parseOrder.set('phoneNumber', phoneNumber);
+			parseOrder.set('dealName', deal.name);
+			parseOrder.set('dealImageUrl', deal.dealImageUrl);
 			parseOrder.set('creatorName', creatorName);
 			parseOrder.set('creatorImageUrl', creatorImageUrl);
 			return parseOrder.save();
