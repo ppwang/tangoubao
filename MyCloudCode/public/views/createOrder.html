@@ -1,2 +1,24 @@
-<span>订货人: </span>
-<input ng-model="order.creatorName">{{currentUser.name}}</input>
+<span>订货人: {{user.nickname}}</span>
+<br>
+<span>电话: </span>
+<input ng-model="order.phoneNumber" ng-required="true"/>
+<br>
+<span>Email: </span>
+<input ng-model="order.email" ng-required="true"/>
+<br>
+<span>数量: </span>
+<input type="number" ng-model="order.quantity" ng-pattern="/^\d*$/"  ng-required="true"/>
+<br>
+<span>发货方式: </span>
+<div ng-repeat="pickupOption in deal.pickupOptions">
+    <label>
+        <input type="radio" ng-model="order.pickupOptionId" ng-value="pickupOption.id"/>
+        <span>地址: {{pickupOption.address}}</span>
+        <br>
+        <span>发货人: {{pickupOption.contactName}}</span>
+        <br>
+        <span>电话: {{pickupOption.phoneNumber}}</span>
+    </label>
+</div>
+<br>
+<button ng-click="createOrder()">立即购买</button>
