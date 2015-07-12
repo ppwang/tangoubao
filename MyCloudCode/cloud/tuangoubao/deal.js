@@ -32,3 +32,18 @@ module.exports.convertToDealModel = function(parseDeal, type) {
 	deal.type = type;
 	return deal;
 };
+
+module.exports.isValidOrder = function(dealModel, orderDate) {
+	console.log('check valid order: ' + JSON.stringify(dealModel));
+	console.log('deal status: ' + dealModel.status);
+	console.log('order date: ' + orderDate);
+	if (dealModel.status == 'closed') {
+		console.log('invalid due to status');
+		return false;
+	}
+	var endDate = dealModel.endDate;
+	if (endDate) {
+		return orderDate <= endDate;
+	}
+	return true;
+};

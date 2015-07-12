@@ -23,6 +23,9 @@ module.exports.putOrder = function(req, res) {
 	if (!orderId) {
 		return createOrder(dealId, currentUser, req)
 			.then(function(parseOrder) {
+				if (parseOrder == 'Invalid order') {
+					return 'Invalid order';
+				}
 				if (parseOrder) {
 					var order = orderModel.convertToOrderModel(parseOrder);
 					console.log('create order: ' + JSON.stringify(order));
@@ -31,10 +34,13 @@ module.exports.putOrder = function(req, res) {
 				return;
 			})
 			.then(function(responseData) {
-				res.status(200).send(responseData);
+				if (responseData == 'Invalid order') {
+					return res.status(404).send('Invalid order');
+				}
+				return res.status(200).send(responseData);
 			}, function(error) {
 				console.log('order: ' + JSON.stringify(error));
-				res.status(500).end();
+				return res.status(500).end();
 			});
 	}
 	return modifyOrder(orderId, currentUser, req)
@@ -47,10 +53,10 @@ module.exports.putOrder = function(req, res) {
 			return;
 		})
 		.then(function(responseData) {
-			res.status(200).send(responseData);
+			return res.status(200).send(responseData);
 		}, function(error) {
 			console.log('order: ' + JSON.stringify(error));
-			res.status(500).end();
+			return res.status(500).end();
 		});
 };
 
@@ -167,8 +173,6 @@ var createOrder = function(dealId, currentUser, req) {
 	var phoneNumber = req.body.phoneNumber;
 	var quantity = req.body.quantity;
 	var pickupOptionId = req.body.pickupOptionId;
-	var dealName = req.body.dealName;
-	var dealImageUrl = req.body.dealImageUrl;
 	var creatorName = req.body.creatorName;
 	var creatorImageUrl = req.body.creatorImageUrl;
 
@@ -178,8 +182,21 @@ var createOrder = function(dealId, currentUser, req) {
 	}
 	console.log('currentUser:' + JSON.stringify(currentUser));
 
-	return currentUser.fetch()
-		.then(function(instantiatedUser) {
+	var promises = [];
+	promises.push(currentUser.fetch());
+	var parseDealPromise = new ParseDeal();
+	parseDealPromise.id = dealId;
+	promises.push(parseDealPromise.fetch());
+	var deal;
+
+	return Parse.Promise.when(promises)
+		.then(function(instantiatedUser, instantiatedDeal) {
+			deal = tgbDeal.convertToDealModel(instantiatedDeal);
+			if (!tgbDeal.isValidOrder(deal, new Date())) {
+				console.log('Invalid order');
+				return 'Invalid order';
+			}
+			
 			var userPhone = instantiatedUser.get('phoneNumber');
 			if (!userPhone) {
 				console.log('set phoneNumber:' + phoneNumber);
@@ -189,7 +206,10 @@ var createOrder = function(dealId, currentUser, req) {
 			}
 			return;
 		})
-		.then(function() {
+		.then(function(savedUser) {
+			if (savedUser == 'Invalid order') {
+				return 'Invalid order';
+			}
 			console.log('create new deal');
 			var parseOrder = new ParseOrder();
 			parseOrder.set('dealId', dealId);
@@ -197,8 +217,8 @@ var createOrder = function(dealId, currentUser, req) {
 			parseOrder.set('quantity', quantity);
 			parseOrder.set('pickupOptionId', pickupOptionId);
 			parseOrder.set('phoneNumber', phoneNumber);
-			parseOrder.set('dealName', dealName);
-			parseOrder.set('dealImageUrl', dealImageUrl);
+			parseOrder.set('dealName', deal.name);
+			parseOrder.set('dealImageUrl', deal.dealImageUrl)
 			parseOrder.set('creatorName', creatorName);
 			parseOrder.set('creatorImageUrl', creatorImageUrl);
 			return parseOrder.save();
@@ -209,8 +229,6 @@ var modifyOrder = function(orderId, currentUser, req) {
 	var phoneNumber = req.body.phoneNumber;
 	var quantity = req.body.quantity;
 	var pickupOptionId = req.body.pickupOptionId;
-	var dealName = req.body.dealName;
-	var dealImageUrl = req.body.dealImageUrl;
 	var creatorName = req.body.creatorName;
 	var creatorImageUrl = req.body.creatorImageUrl;
 
@@ -237,8 +255,6 @@ var modifyOrder = function(orderId, currentUser, req) {
 			parseOrder.set('quantity', quantity);
 			parseOrder.set('pickupOptionId', pickupOptionId);
 			parseOrder.set('phoneNumber', phoneNumber);
-			parseOrder.set('dealName', dealName);
-			parseOrder.set('dealImageUrl', dealImageUrl);
 			parseOrder.set('creatorName', creatorName);
 			parseOrder.set('creatorImageUrl', creatorImageUrl);
 			return parseOrder.save();
