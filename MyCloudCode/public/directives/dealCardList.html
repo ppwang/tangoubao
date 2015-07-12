@@ -1,0 +1,8 @@
+<!-- List of deal cards. -->
+<div class="container-fluid" ng-controller="dealCardListController">
+    <div class=row ng-repeat="dealGroup in chunkedDeals">
+        <div class="col-xs-3 letter-box" ng-repeat="deal in dealGroup" >
+            <deal-card deal="deal"/>
+        </div>
+    </div>
+</div>
