@@ -56,11 +56,11 @@ app.get('/wechat', wechatServices.requestValidate);
 app.post('/wechat', wechatServices.reply);
 
 // Entry points for deal/deals
-
 var dealController = require('cloud/controller/deal_controller');
 app.get('/api/deal/:dealId?', dealController.getDeal);
 // Use bodyparser to parse form input first and then call putDeal
 app.put('/api/deal', express.bodyParser(), dealController.putDeal);
+
 // Send deal report to owner
 var emailController = require('cloud/controller/email_controller');
 app.get('/api/dealReport/:dealId?', express.bodyParser(), emailController.sendDealReport);

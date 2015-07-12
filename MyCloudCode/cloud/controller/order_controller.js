@@ -1,5 +1,6 @@
 var ParseOrder= Parse.Object.extend('Order');
 var orderModel = require('cloud/tuangoubao/order');
+var userModel = require('cloud/tuangoubao/user');
 var ParseDeal = Parse.Object.extend('Deal');
 var tgbDeal = require('cloud/tuangoubao/deal');
 
@@ -69,6 +70,8 @@ module.exports.getOrder = function(req, res) {
 		var tmpOrder = new ParseOrder();
 		tmpOrder.id = orderId;
 		var parseOrder;
+		var deal;
+		var creator;
 		return tmpOrder.fetch()
 			.then(function(_parseOrder) {
 				parseOrder = _parseOrder;
@@ -90,19 +93,22 @@ module.exports.getOrder = function(req, res) {
 			})
 			.then(function(parseDeal, parseUser) {
 				console.log('get fresh user: ' + JSON.stringify(parseUser));
-				var deal = tgbDeal.convertToDealModel(parseDeal);
-				var creatorName = parseUser.get('nickname');
-				var creatorImageUrl = parseUser.get('headimgurl');
+				deal = tgbDeal.convertToDealModel(parseDeal);
+				creator = userModel.convertToUserModel(parseUser);
 				parseOrder.set('dealName', deal.name);
 				parseOrder.set('dealImageUrl', deal.dealImageUrl);
-				parseOrder.set('creatorName', creatorName);
-				parseOrder.set('creatorImageUrl', creatorImageUrl);
+				parseOrder.set('creatorName', creator.nickname);
+				parseOrder.set('creatorImageUrl', creator.headimgurl);
 				console.log('to save parseOrder: ' + JSON.stringify(parseOrder));
 				return parseOrder.save()
 			})
 			.then(function(savedParseOrder) {
 				var order = orderModel.convertToOrderModel(parseOrder);
 				console.log('sending back order model: ' + JSON.stringify(order));
+				console.log('sending back deal model: ' + JSON.stringify(deal));
+				console.log('sending back creator model: ' + JSON.stringify(creator));
+				order.deal = deal;
+				order.creator = creator;
 				return res.status(201).send(order);
 			}, function(error) {
 				console.log('error: ' + JSON.stringify(error));
