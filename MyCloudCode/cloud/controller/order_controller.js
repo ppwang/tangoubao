@@ -49,18 +49,23 @@ module.exports.orderDeal = function(req, res) {
 };
 
 var createOrder = function(dealId, currentUser, req) {
+	console.log('create order begin:' + JSON.stringify(currentUser));
+	console.log('create order begin:' + JSON.stringify(req.body));
 	var phoneNumber = req.body.phoneNumber;
 	var quantity = req.body.quantity;
 	var pickupOptionId = req.body.pickupOptionId;
 
-	if (!phoneNumber || !quantity || !pickupOptionId) {
-		return;
+	if (!phoneNumber || !quantity || (pickupOptionId == null)) {
+		console.log('phoneNumber: ' + phoneNumber + '; quantity: ' + quantity + '; pickupOptionId:' + pickupOptionId);
+		throw new Error('Missing data');
 	}
+	console.log('currentUser:' + JSON.stringify(currentUser));
 
 	return currentUser.fetch()
 		.then(function(instantiatedUser) {
-			var phoneNumber = instantiatedUser.get('phoneNumber');
-			if (!phoneNumber) {
+			var userPhone = instantiatedUser.get('phoneNumber');
+			if (!userPhone) {
+				console.log('set phoneNumber:' + phoneNumber);
 				instantiatedUser.set('bypassClaim', 'true');
 				instantiatedUser.set('phoneNumber', phoneNumber);
 				return instantiatedUser.save();
@@ -68,6 +73,7 @@ var createOrder = function(dealId, currentUser, req) {
 			return;
 		})
 		.then(function() {
+			console.log('create new deal');
 			var parseOrder = new ParseOrder();
 			parseOrder.set('dealId', dealId);
 			parseOrder.set('buyerId', currentUser.id);

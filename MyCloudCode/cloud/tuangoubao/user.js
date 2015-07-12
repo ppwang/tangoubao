@@ -8,9 +8,13 @@ Parse.Cloud.beforeSave(Parse.User, function(request, response) {
 	// workaround for master save path also going through before save
 	var masterRequest = currentUser.get('masterRequest');
 	var bypassClaim = currentUser.get('bypassClaim');
-	if (masterRequest || bypassClaim) {
+	if (masterRequest) {
 		currentUser.set('masterRequest', undefined);
 		return response.success();
+	}
+
+	if (bypassClaim) {
+		currentUser.set('bypassClaim', undefined);
 	}
 
 	if (!currentUser) {
