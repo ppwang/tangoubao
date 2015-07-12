@@ -73,6 +73,33 @@ tgbApp.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, 
                 }
             }
         })
+        .state('buyerAccount', {
+            url:'/createDeal',
+            views: {
+                'content': {
+                    templateUrl: 'views/createDeal.html',
+                    controller: 'createDealController',
+                }
+            }
+        })
+        .state('sellerAccount', {
+            url:'/sellerAccount',
+            views: {
+                'content': {
+                    templateUrl: 'views/sellerAccount.html',
+                    controller: 'sellerAccountController',
+                }
+            }
+        })
+        .state('sellerAccount.inProgressDeals', {
+            url:'/inProgressDeals',
+            views: {
+                'content': {
+                    templateUrl: 'views/inProgressDeals.html',
+                    controller: 'inProgressDealsController',
+                }
+            }
+        })
         .state('about', {
             url:'/about',
             views: {
@@ -268,7 +295,10 @@ tgbApp.factory('regionDataService', ['$http', 'serviceBaseUrl', '$q', function($
     };
 }]);
 
-tgbApp.factory('dealDataService', ['$http', 'serviceBaseUrl', '$q', function($http, serviceBaseUrl, $q) {    
+tgbApp.factory('dealDataService', ['$http', 'serviceBaseUrl', '$q', 'regionDataService', function($http, serviceBaseUrl, $q, regionDataService) {
+    // Cached data
+    var cachedDealsPromise;
+    
     var apiUrl = serviceBaseUrl + '/api'
     var dealApiUrl = apiUrl + '/deal';
     var dealsApiUrl = apiUrl + '/deals';
@@ -286,27 +316,35 @@ tgbApp.factory('dealDataService', ['$http', 'serviceBaseUrl', '$q', function($ht
         if (deal.pickupOptions) {
             deal.pickupOptions = angular.fromJson(deal.pickupOptions);
         }
+        
+        regionDataService.setDealRegion(deal);
     };
     
+    dealDataService.patchDealFromServer = patchDealFromServer;
+    
     dealDataService.getDeals = function() {
-        var dealsDeferred = $q.defer();
+        if (cachedDealsPromise) {
+            return cachedDealsPromise;
+        }
+        
+        var resultDeferred = $q.defer();
         $http.get(dealsApiUrl)
         .success(function(data, status, headers, config) {
-            // this callback will be called asynchronously
-            // when the response is available
             _.forEach(data.deals, function(d) {
                 patchDealFromServer(d);
-                });
-            dealsDeferred.resolve(data.deals);
+            });
+            resultDeferred.resolve(data.deals);
+            cachedDealsPromise = resultDeferred.promise;
         })
         .error(function(data, status, headers, config) {
             // called asynchronously if an error occurs
             // or server returns response with an error status.
             console.log('error code:' + status);
-            dealsDeferred.reject(status);
+            resultDeferred.reject(null);
+            cachedDealsPromise = null;
         });
         
-        return dealsDeferred.promise;
+        return resultDeferred.promise;
     };
     
     dealDataService.getPublicDeals = function() {
@@ -402,7 +440,7 @@ tgbApp.factory('dealDataService', ['$http', 'serviceBaseUrl', '$q', function($ht
     return dealDataService;
 }]);
 
-tgbApp.factory('orderDataService', ['$http', 'serviceBaseUrl', '$q', function($http, serviceBaseUrl, $q) {
+tgbApp.factory('orderDataService', ['$http', 'serviceBaseUrl', '$q', 'dealDataService', function($http, serviceBaseUrl, $q, dealDataService) {
     var orderDataService = {};
     
     orderDataService.createOrder = function(order) {
@@ -425,7 +463,8 @@ tgbApp.factory('orderDataService', ['$http', 'serviceBaseUrl', '$q', function($h
         
         $http.get(serviceBaseUrl + '/api/order/' + orderId)
         .success(function(data, status, headers, config) {
-            resultDeferred.resolve(data.order);
+            dealDataService.patchDealFromServer(data.deal);
+            resultDeferred.resolve(data);
         })
         .error(function(data, status, headers, config) {
             console.log('error code:' + status);
@@ -499,21 +538,18 @@ tgbApp.controller('publicDealsController', ['$scope', 'dealDataService', 'userSe
     });
 }]);
 
-tgbApp.controller('dealCardController', ['$scope', '$state', 'regionDataService', function($scope, $state, regionDataService) {
-    regionDataService.setDealRegion($scope.deal);
-    
+tgbApp.controller('dealCardController', ['$scope', '$state', function($scope, $state) {
     $scope.showDealDetail = function() {
         $state.go('dealDetail', {'id': $scope.deal.id} );
     };
 }]);
 
-tgbApp.controller('dealDetailController', ['$scope', '$state', '$stateParams', 'userService', 'dealDataService', 'regionDataService', function($scope, $state, $stateParams, userService, dealDataService, regionDataService) {
+tgbApp.controller('dealDetailController', ['$scope', '$state', '$stateParams', 'userService', 'dealDataService', function($scope, $state, $stateParams, userService, dealDataService) {
     userService.ensureUserLoggedIn();
     
     dealDataService.getDeal($stateParams.id)
     .then(function(d) {
         $scope.deal = d;
-        regionDataService.setDealRegion($scope.deal);
     });
     
     $scope.toggleFollowedStatus = function() {
@@ -618,11 +654,9 @@ tgbApp.controller('orderDetailController', ['$scope', '$stateParams', 'userServi
     var orderId = $stateParams.orderId;
     orderDataService.getOrder(orderId).then(function(order) {
         $scope.order = order;
-        $scope.pickupOption = _.find($scope.deal.pickupOptions, function(o){
+        $scope.pickupOption = _.find($scope.order.deal.pickupOptions, function(o){
             return o.id === order.pickupOptionId;
         });
-        
-        regionDataService.setDealRegion($scope.order.deal);
     });
 }]);
 
@@ -635,9 +669,9 @@ tgbApp.controller('createOrderController', ['$scope', '$state', '$stateParams', 
         $scope.user = user;
         $scope.order.email = user.email;
         $scope.order.phoneNumber = user.phoneNumber;
-        $scope.order.buyerName = user.nickname;
+        $scope.order.creatorName = user.nickname;
         // TODO: verify that imageUrl is the correct property.
-        $scope.order.buyerImageUrl = user.imageUrl;
+        $scope.order.creatorImageUrl = user.headimgurl;
     });
 
     if (!$stateParams.deal) {
@@ -686,6 +720,14 @@ tgbApp.controller('createOrderController', ['$scope', '$state', '$stateParams', 
         }, function() {
         });
     };
+}]);
+
+tgbApp.controller('sellerAccountController', ['$state', function($state) {
+    $state.go('sellerAccount.inProgressDeals');
+}]);
+
+tgbApp.controller('inProgressDealsController', [function() {
+    
 }]);
 
 tgbApp.controller('modalDialogController', ['$scope', '$modalInstance', 'settings', function($scope, $modalInstance, settings) {
