@@ -1,5 +1,5 @@
 <ul class="nav nav-tabs">
-  <li role="presentation"><a ui-sref=".inProgressDeals">进行中的</a></li>
-  <li role="presentation"><a ui-sref=".inProgressDeals">Profile</a></li>
+  <li role="presentation"><a ui-sref=".deals({status: 'active'})">进行中的</a></li>
+  <li role="presentation"><a ui-sref=".deals({status: 'closed'})">已结束的</a></li>
 </ul>
 <div ui-view="content"></div>

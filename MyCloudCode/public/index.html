@@ -50,7 +50,7 @@
                         <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">我的团购宝<span class="caret"></span></a>
                         <ul class="dropdown-menu">
                             <li><a ui-sref="buyerAccount" data-toggle="collapse" data-target=".navbar-collapse">我是买家</a></li>
-                            <li><a ui-sref="sellerAccount" data-toggle="collapse" data-target=".navbar-collapse">我是卖家</a></li>
+                            <li><a ui-sref="sellerAccount.deals({status: 'active'})" data-toggle="collapse" data-target=".navbar-collapse">我是卖家</a></li>
                         </ul>
                     </li>
                     <li><a ui-sref="about" data-toggle="collapse" data-target=".navbar-collapse">About</a></li>
