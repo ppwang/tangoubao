@@ -74,11 +74,20 @@ tgbApp.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, 
             }
         })
         .state('buyerAccount', {
-            url:'/createDeal',
+            url:'/buyerAccount',
             views: {
                 'content': {
-                    templateUrl: 'views/createDeal.html',
-                    controller: 'createDealController',
+                    templateUrl: 'views/buyerAccount.html',
+                    controller: 'buyerAccountController',
+                }
+            }
+        })
+        .state('buyerAccount.orders', {
+            url:'/orders/:status',
+            views: {
+                'content': {
+                    templateUrl: 'views/orders.html',
+                    controller: 'filteredOrdersController',
                 }
             }
         })
@@ -374,12 +383,6 @@ tgbApp.factory('dealDataService', ['$http', 'serviceBaseUrl', '$q', 'regionDataS
         return resultDeferred.promise;
     };
     
-    dealDataService.getOwnedDeals = function() {
-        return getDeals().then(function(deals) {
-            
-        });
-    };
-    
     dealDataService.getPublicDeals = function() {
         var publicDealsDeferred = $q.defer();
         
@@ -474,6 +477,23 @@ tgbApp.factory('dealDataService', ['$http', 'serviceBaseUrl', '$q', 'regionDataS
 }]);
 
 tgbApp.factory('orderDataService', ['$http', 'serviceBaseUrl', '$q', 'dealDataService', function($http, serviceBaseUrl, $q, dealDataService) {
+    // Cached data
+    var cachedOrdersPromise;
+    
+    var groupOrders = function(orders) {
+        // Group by status.
+        var groupByStatus = _.groupBy(orders, function(d) {
+                return d.status || 'active';
+        });
+        
+        for (var status in groupByStatus) {
+            // Sort by created time.
+            // TODO: is the property named createdAt or orderTime?
+            groupByStatus[status] = _.sortByOrder(groupByStatus[status], ['orderTime'], [false]);
+        };
+        return groupByStatus;
+    };
+    
     var orderDataService = {};
     
     orderDataService.createOrder = function(order) {
@@ -504,6 +524,28 @@ tgbApp.factory('orderDataService', ['$http', 'serviceBaseUrl', '$q', 'dealDataSe
             resultDeferred.reject(status);
         });
         
+        return resultDeferred.promise;
+    };
+    
+    orderDataService.getOrders = function() {
+        if (cachedOrdersPromise) {
+            return cachedOrdersPromise;
+        }
+        
+        var resultDeferred = $q.defer();
+        
+         $http.get(serviceBaseUrl + '/api/myOrders')
+         .success(function(data, status, headers, config) {
+             var groupedOrders = groupOrders(data.orders);
+             resultDeferred.resolve(groupedOrders);
+             cachedOrdersPromise = resultDeferred.promise; 
+         })
+         .error(function(data, status, headers, config) {
+             console.log('error code:' + status);
+             resultDeferred.reject(status);
+             cachedOrdersPromise = null;
+         });
+
         return resultDeferred.promise;
     };
     
@@ -552,6 +594,26 @@ tgbApp.directive('dealCardList', function() {
     };   
 });
 
+tgbApp.directive('orderCard', function() {
+    return {
+        restrict: 'E',
+        templateUrl: '/directives/orderCard.html',
+        scope: {
+            order: '=',  
+        },
+    };   
+});
+
+tgbApp.directive('orderCardList', function() {
+    return {
+        restrict: 'E',
+        templateUrl: '/directives/orderCardList.html',
+        scope: {
+            ordersPromiseWrapper: '=',  
+        },
+    };   
+});
+
 tgbApp.directive('backgroundImage', function() {
     return function(scope, element, attrs) {
         var imgUrl = attrs.backgroundImage;
@@ -587,6 +649,18 @@ tgbApp.controller('dealCardController', ['$scope', '$state', function($scope, $s
 tgbApp.controller('dealCardListController', ['$scope', function($scope) {
     $scope.dealsPromiseWrapper.promise.then(function(deals) {
         $scope.chunkedDeals = _.chunk(deals, 4); 
+    });
+}]);
+
+tgbApp.controller('orderCardController', ['$scope', '$state', function($scope, $state) {
+    $scope.showOrderDetail = function() {
+        $state.go('orderDetail', {'id': $scope.order.id} );
+    };
+}]);
+
+tgbApp.controller('orderCardListController', ['$scope', function($scope) {
+    $scope.ordersPromiseWrapper.promise.then(function(orders) {
+        $scope.chunkedOrders = _.chunk(orders, 4); 
     });
 }]);
 
@@ -743,9 +817,10 @@ tgbApp.controller('createOrderController', ['$scope', '$state', '$stateParams', 
         var order = $scope.order;
         var units = order.quantity * deal.unitsPerPackage;
         var price = units * deal.unitPrice;
-        var address = _.find(deal.pickupOptions, function(o) {
+        var pickupOption = _.find(deal.pickupOptions, function(o) {
             return o.id === order.pickupOptionId;
-        }).address;
+        });
+        var address = pickupOption ? pickupOption.address : '未知';
         var message = '您即将预定 ' + deal.name + ' ' + order.quantity + '件(共' + units + deal.unitName + '), 总计' + price + '美元. 取货地址是 ' + address + '. 谢谢您的参与!';
         
         modalDialogService.show({
@@ -766,12 +841,20 @@ tgbApp.controller('createOrderController', ['$scope', '$state', '$stateParams', 
     };
 }]);
 
+tgbApp.controller('buyerAccountController', ['$state', 'userService', function($state, userService) {
+    userService.ensureUserLoggedIn();
+}]);
+
+tgbApp.controller('filteredOrdersController', ['$scope', '$stateParams', 'orderDataService', function($scope, $stateParams, orderDataService) {
+    $scope.ordersPromiseWrapper = {
+        promise: orderDataService.getOrders().then(function(orders) {
+            return orders[$stateParams.status];
+        }),
+    };
+}]);
+
 tgbApp.controller('sellerAccountController', ['$state', 'userService', function($state, userService) {
     userService.ensureUserLoggedIn();
-    
-//    $state.go('sellerAccount.deals', {
-//        status: 'active',
-//    });
 }]);
 
 tgbApp.controller('filteredDealsController', ['$scope', '$stateParams', 'dealDataService', function($scope, $stateParams, dealDataService) {

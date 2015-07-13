@@ -1,0 +1,6 @@
+<ul class="nav nav-tabs">
+  <li role="presentation"><a ui-sref=".orders({status: 'active'})">进行中的</a></li>
+  <li role="presentation"><a ui-sref=".orders({status: 'closed'})">关注的</a></li>
+  <li role="presentation"><a ui-sref=".orders({status: 'closed'})">已成交的</a></li>
+</ul>
+<div ui-view="content"></div>

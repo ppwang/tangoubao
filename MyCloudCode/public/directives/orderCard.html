@@ -1,0 +1,22 @@
+<div ng-controller="orderCardController" ng-click="showOrderDetail()">
+    <img ng-src="{{order.dealImageUrl}}" alt="N/A" class="img-responsive pull-left"/>
+	<div>
+        <span style="font-weight: bold">{{order.dealName}}</span>
+        <br>
+        <span>购买数量: {{order.quantity}}件</span>
+        <br>
+        <span>购买时间: {{order.orderTime | date:'yyyy年MM月dd日'}}</span>
+<!--
+        <span>地区: {{orderdeal.region}}</span>
+        <br>
+        <span>价格: {{deal.unitPrice | currency:'$'}}/{{deal.unitName}}</span>
+        <br>
+        <span>团购进度: {{deal.endDate | daysRemainingFilter}}</span>
+        <br>
+         TODO: show owner name or id 
+        <span>发起人: {{deal.creatorName}}</span>
+        <br>
+        <span>热度</span>
+-->
+    </div>
+</div>
