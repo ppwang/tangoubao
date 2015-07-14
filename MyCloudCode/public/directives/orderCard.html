@@ -1,6 +1,6 @@
-<div ng-controller="orderCardController" ng-click="showOrderDetail()">
-    <img ng-src="{{order.dealImageUrl}}" alt="N/A" class="img-responsive pull-left"/>
-	<div>
+<div ng-controller="orderCardController" ng-click="showOrderDetail()" class="order-card col-lg-12 col-md-12 col-sm-12 col-xs-12">
+    <img ng-src="{{order.dealImageUrl}}" alt="N/A" class="img-responsive pull-left col-lg-6 col-md-6 col-sm-6 col-xs-6"/>
+	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
         <span style="font-weight: bold">{{order.dealName}}</span>
         <br>
         <span>购买数量: {{order.quantity}}件</span>
