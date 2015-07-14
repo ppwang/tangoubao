@@ -227,6 +227,9 @@ var createOrder = function(dealId, currentUser, req) {
 			parseOrder.set('dealImageUrl', deal.dealImageUrl);
 			parseOrder.set('creatorName', creatorName);
 			parseOrder.set('creatorImageUrl', creatorImageUrl);
+			// total order price:
+			var totalPrice = deal.unitPrice * quantity;
+			parseOrder.set('price', totalPrice);
 			return parseOrder.save();
 		});
 };
@@ -284,6 +287,10 @@ var modifyOrder = function(orderId, currentUser, req) {
 			parseOrder.set('dealImageUrl', deal.dealImageUrl);
 			parseOrder.set('creatorName', creatorName);
 			parseOrder.set('creatorImageUrl', creatorImageUrl);
+			// TBD: do we allow deal unitprice change from seller?
+			// total order price:
+			var totalPrice = deal.unitPrice * quantity;
+			parseOrder.set('price', totalPrice);
 			return parseOrder.save();
 		});
 };

@@ -65,5 +65,6 @@ module.exports.convertToOrderModel = function(parseOrder) {
 	order.creatorName = parseOrder.get('creatorName');
 	order.creatorImageUrl = parseOrder.get('creatorImageUrl');
 	order.status = parseOrder.get('status');
+	order.price = parseOrder.get('price');
 	return order;
 };

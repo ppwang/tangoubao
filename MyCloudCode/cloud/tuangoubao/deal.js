@@ -43,6 +43,7 @@ module.exports.isValidOrder = function(dealModel, orderDate) {
 	}
 	var endDate = dealModel.endDate;
 	if (endDate) {
+		// TBD: Only date (no time) compare?
 		return orderDate <= endDate;
 	}
 	return true;
