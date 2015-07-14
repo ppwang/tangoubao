@@ -91,6 +91,15 @@ tgbApp.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, 
                 }
             }
         })
+        .state('buyerAccount.followedDeals', {
+            url:'/followedDeals',
+            views: {
+                'content': {
+                    templateUrl: 'views/deals.html',
+                    controller: 'followedDealsController',
+                }
+            }
+        })
         .state('sellerAccount', {
             url:'/sellerAccount',
             views: {
@@ -861,6 +870,14 @@ tgbApp.controller('filteredDealsController', ['$scope', '$stateParams', 'dealDat
     $scope.dealsPromiseWrapper = {
         promise: dealDataService.getDeals().then(function(deals) {
             return deals.own[$stateParams.status];
+        }),
+    };
+}]);
+
+tgbApp.controller('followedDealsController', ['$scope', 'dealDataService', function($scope, dealDataService) {
+    $scope.dealsPromiseWrapper = {
+        promise: dealDataService.getDeals().then(function(deals) {
+            return deals.follow.active;
         }),
     };
 }]);
