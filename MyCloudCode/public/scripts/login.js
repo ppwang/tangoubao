@@ -336,6 +336,8 @@ tgbApp.factory('dealDataService', ['$http', 'serviceBaseUrl', '$q', 'regionDataS
     // - Sort by endDate in descending order.
     var cachedDealsPromise;
     
+    var cachedPublicDealsPromise;
+    
     var apiUrl = serviceBaseUrl + '/api'
     var dealApiUrl = apiUrl + '/deal';
     var dealsApiUrl = apiUrl + '/deals';
@@ -374,6 +376,11 @@ tgbApp.factory('dealDataService', ['$http', 'serviceBaseUrl', '$q', 'regionDataS
         return groupByType;
     };
     
+    var dirtyCache = function() {
+        cachedDealsPromise = null;
+        cachedPublicDealsPromise = null;
+    };
+    
     dealDataService.patchDealFromServer = patchDealFromServer;
     
     dealDataService.getDeals = function() {
@@ -403,23 +410,29 @@ tgbApp.factory('dealDataService', ['$http', 'serviceBaseUrl', '$q', 'regionDataS
     };
     
     dealDataService.getPublicDeals = function() {
-        var publicDealsDeferred = $q.defer();
+        if (cachedPublicDealsPromise) {
+            return cachedPublicDealsPromise;    
+        }
+        
+        var resultDeferred = $q.defer();
         
         $http.get(apiUrl + '/publicDeals')
         .success(function(data, status, headers, config) {
             _.forEach(data.deals, function(d) {
                 patchDealFromServer(d);
             });
-            publicDealsDeferred.resolve(data.deals);
+            resultDeferred.resolve(data.deals);
+            cachedPublicDealsPromise = resultDeferred.promise;
         })
         .error(function(data, status, headers, config) {
             // called asynchronously if an error occurs
             // or server returns response with an error status.
             console.log('error code:' + status);
-            publicDealsDeferred.reject(status);
+            resultDeferred.reject(status);
+            cachedPublicDealsPromise = null;
         });
 
-        return publicDealsDeferred.promise;
+        return resultDeferred.promise;
     };
     
     dealDataService.getDeal = function(id) {
@@ -447,6 +460,7 @@ tgbApp.factory('dealDataService', ['$http', 'serviceBaseUrl', '$q', 'regionDataS
         .success(function(data, status, headers, config) {
             patchDealFromServer(data);
             newDealDeferred.resolve(data);
+            dirtyCache();
         })
         .error(function(data, status, headers, config) {
             // called asynchronously if an error occurs
@@ -458,12 +472,13 @@ tgbApp.factory('dealDataService', ['$http', 'serviceBaseUrl', '$q', 'regionDataS
         return newDealDeferred.promise;
     };
     
-    dealDataService.followDeal = function(id) {
+    dealDataService.followDeal = function(deal) {
         var resultDeferred = $q.defer();
         
-        $http.put(apiUrl + '/followDeal/' + id)
+        $http.put(apiUrl + '/followDeal/' + deal.id)
         .success(function(data, status, headers, config) {
             resultDeferred.resolve();
+            deal.followed = true;
         })
         .error(function(data, status, headers, config) {
             console.log('error code:' + status);
@@ -473,12 +488,13 @@ tgbApp.factory('dealDataService', ['$http', 'serviceBaseUrl', '$q', 'regionDataS
         return resultDeferred.promise;
     };
 
-    dealDataService.unfollowDeal = function(id) {
+    dealDataService.unfollowDeal = function(deal) {
         var resultDeferred = $q.defer();
         
-        $http.delete(apiUrl + '/followDeal/' + id)
+        $http.delete(apiUrl + '/followDeal/' + deal.id)
         .success(function(data, status, headers, config) {
             resultDeferred.resolve();
+            deal.followed = false;
         })
         .error(function(data, status, headers, config) {
             console.log('error code:' + status);
@@ -503,8 +519,10 @@ tgbApp.factory('dealDataService', ['$http', 'serviceBaseUrl', '$q', 'regionDataS
         return resultDeferred.promise;
     };
     
-    dealDataService.closeDeal = function(id) {
-        return $http.put(apiUrl + '/dealStatus/' + id + '?status=closed')
+    dealDataService.closeDeal = function(deal) {
+        return $http.put(apiUrl + '/dealStatus/' + deal.id + '?status=closed').then(function() {
+            deal.status = 'closed';
+        });
     }
     
     dealDataService.sendSpreadsheet = function(id) {
@@ -536,6 +554,10 @@ tgbApp.factory('orderDataService', ['$http', 'serviceBaseUrl', '$q', 'dealDataSe
         return groupByStatus;
     };
     
+    var dirtyCache = function() {
+        cachedOrdersPromise = null;    
+    };
+    
     var orderDataService = {};
     
     orderDataService.createOrder = function(order) {
@@ -544,6 +566,7 @@ tgbApp.factory('orderDataService', ['$http', 'serviceBaseUrl', '$q', 'dealDataSe
         $http.put(serviceBaseUrl + '/api/order', order)
         .success(function(data, status, headers, config) {
             resultDeferred.resolve();
+            dirtyCache();
         })
         .error(function(data, status, headers, config) {
             console.log('error code:' + status);
@@ -717,15 +740,9 @@ tgbApp.controller('dealDetailController', ['$scope', '$state', '$stateParams', '
     $scope.toggleFollowedStatus = function() {
         var resultPromise;
         if ($scope.deal.followed) {
-            dealDataService.unfollowDeal($scope.deal.id)
-            .then(function() {
-                $scope.deal.followed = false; 
-            });
+            dealDataService.unfollowDeal($scope.deal);
         } else {
-            dealDataService.followDeal($scope.deal.id)
-            .then(function() {
-                $scope.deal.followed = true;
-            });
+            dealDataService.followDeal($scope.deal)
         }
     };
     
@@ -935,9 +952,7 @@ tgbApp.controller('dealStatusController', ['$scope', '$state', '$stateParams', '
     };
     
     $scope.closeDeal = function() {
-        dealDataService.closeDeal($scope.deal.id).then(function() {
-            $scope.deal.status = 'closed';
-        });
+        dealDataService.closeDeal($scope.deal);
     };
     
     $scope.sendMessage = function() {
