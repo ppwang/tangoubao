@@ -64,7 +64,7 @@ tgbApp.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, 
             }
         })
         .state('orderDetail', {
-            url:'/orderDetail/:orderId',
+            url:'/orderDetail/:id',
             views: {
                 'content': {
                     templateUrl: 'views/orderDetail.html',
@@ -576,10 +576,10 @@ tgbApp.factory('orderDataService', ['$http', 'serviceBaseUrl', '$q', 'dealDataSe
         return resultDeferred.promise;
     };
     
-    orderDataService.getOrder = function(orderId) {
+    orderDataService.getOrder = function(id) {
         var resultDeferred = $q.defer();
         
-        $http.get(serviceBaseUrl + '/api/order/' + orderId)
+        $http.get(serviceBaseUrl + '/api/order/' + id)
         .success(function(data, status, headers, config) {
             dealDataService.patchDealFromServer(data.deal);
             resultDeferred.resolve(data);
@@ -835,8 +835,8 @@ tgbApp.controller('createDealController', ['$scope', '$state', 'dealDataService'
 tgbApp.controller('orderDetailController', ['$scope', '$stateParams', 'userService', 'orderDataService', 'regionDataService', function($scope, $stateParams, userService, orderDataService, regionDataService) {
     userService.ensureUserLoggedIn();
 
-    var orderId = $stateParams.orderId;
-    orderDataService.getOrder(orderId).then(function(order) {
+    var id = $stateParams.id;
+    orderDataService.getOrder(id).then(function(order) {
         $scope.order = order;
         $scope.pickupOption = _.find($scope.order.deal.pickupOptions, function(o){
             return o.id === order.pickupOptionId;
