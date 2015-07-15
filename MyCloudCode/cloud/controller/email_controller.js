@@ -55,7 +55,7 @@ module.exports.sendDealReport = function(req, res) {
 				return deal;
 			}
 			// return buyers list as well
-			return orderModel.getOrders(deal, dealId)
+			return orderModel.getOrders(deal)
 				.then(function(orders) {
 					deal.orders = orders;
 					return deal;

@@ -14,6 +14,29 @@ module.exports.getNewGUID = function() {
 		+ s4() + s4() + s4();
 };
 
+module.exports.getArrayLength = function(someArray) {
+    var len = 0;
+    for (var key in someArray) {
+        if (someArray.hasOwnProperty(key)) {
+            len++;
+        }
+    };
+    return len;
+};
+
+module.exports.getArraySum = function(someArray) {
+    var sum = 0;
+    for (var key in someArray) {
+        if (someArray.hasOwnProperty(key)) {
+            var val = someArray[key];
+            if (typeof val === 'number') {
+                sum += val;
+            }
+        }
+    }
+    return sum;
+};
+
 var s4 = function() {
     return Math.floor((1 + Math.random()) * 0x10000)
     	.toString(16)

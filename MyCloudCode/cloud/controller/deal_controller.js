@@ -97,9 +97,9 @@ module.exports.getDeal = function(req, res) {
 		return res.send('no dealId');
 	}
 	else {
-		var deal = new ParseDeal();
-		deal.id = dealId;
-		return deal.fetch()
+		var parseDealPromise = new ParseDeal();
+		parseDealPromise.id = dealId;
+		return parseDealPromise.fetch()
 			.then(function(parseDeal) {
 				var creator = parseDeal.get('createdBy');
 				var deal = dealModel.convertToDealModel(parseDeal);
@@ -111,9 +111,11 @@ module.exports.getDeal = function(req, res) {
 				}
 
 				// return buyers list as well
-				return orderModel.getOrders(deal, dealId)
-					.then(function(orders) {
-						deal.orders = orders;
+				return orderModel.getOrdersByPickupOption(deal)
+					.then(function(ordersByPickupOption) {
+						console.log('ordersByPickupOption: ' + JSON.stringify(ordersByPickupOption));
+						deal.summary = ordersByPickupOption.summary;
+						deal.pickupOptions = ordersByPickupOption.pickupOptions;
 						return deal;
 					});
 			})
