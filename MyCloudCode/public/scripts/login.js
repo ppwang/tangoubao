@@ -503,6 +503,14 @@ tgbApp.factory('dealDataService', ['$http', 'serviceBaseUrl', '$q', 'regionDataS
         return resultDeferred.promise;
     };
     
+    dealDataService.closeDeal = function(id) {
+        return $http.put(apiUrl + '/dealStatus/' + id + '?status=closed')
+    }
+    
+    dealDataService.sendSpreadsheet = function(id) {
+        return $http.get(apiUrl + '/dealReport/' + id);    
+    };
+    
     dealDataService.deleteDeal = function(id) {
         // TODO:
     };
@@ -912,7 +920,7 @@ tgbApp.controller('followedDealsController', ['$scope', 'dealDataService', funct
     };
 }]);
 
-tgbApp.controller('dealStatusController', ['$scope', '$state', '$stateParams', 'userService', 'dealDataService', function($scope, $state, $stateParams, userService, dealDataService) {
+tgbApp.controller('dealStatusController', ['$scope', '$state', '$stateParams', 'userService', 'dealDataService', 'modalDialogService', function($scope, $state, $stateParams, userService, dealDataService, modalDialogService) {
     userService.ensureUserLoggedIn();
 
     if (!$stateParams.deal) {
@@ -921,11 +929,40 @@ tgbApp.controller('dealStatusController', ['$scope', '$state', '$stateParams', '
     }
     
     $scope.deal = $stateParams.deal;
+    
+    $scope.modifyDeal = function() {
+        
+    };
+    
+    $scope.closeDeal = function() {
+        dealDataService.closeDeal($scope.deal.id).then(function() {
+            $scope.deal.status = 'closed';
+        });
+    };
+    
+    $scope.sendMessage = function() {
+    };
+    
+    $scope.sendSpreadsheet = function() {
+        dealDataService.sendSpreadsheet($scope.deal.id).then(function() {
+            var message = '买家信息已生成Excel表格并发送到您的邮箱: ' + $scope.deal.email + '. 谢谢您使用团购宝!';
+
+            modalDialogService.show({
+                message: message,
+                showCancelButton: false,
+            });
+        }, function() {
+            var failedMessage = '没能将买家信息发送到您的邮箱, 请稍后再试试.';
+            modalDialogService.show({
+                message: failedMessage,
+                showCancelButton: false,
+            });
+        });
+    };
 }]);
 
 tgbApp.controller('modalDialogController', ['$scope', '$modalInstance', 'settings', function($scope, $modalInstance, settings) {
     $scope.settings = settings;
-    
     
     $scope.ok = function () {
         $modalInstance.close(null);

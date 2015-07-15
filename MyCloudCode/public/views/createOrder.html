@@ -8,6 +8,9 @@
 <br>
 <span>数量: </span>
 <input type="number" ng-model="order.quantity" ng-pattern="/^\d*$/"  ng-required="true"/>
+<span>件 * {{deal.unitPrice | currency:'$'}}/{{deal.unitName}} * {{deal.unitsPerPackage}}{{deal.unitName}}/件</span>
+<br>
+<span>共计{{ order.quantity * deal.unitsPerPackage * deal.unitPrice | currency:'$'}}</span>
 <br>
 <span>发货方式: </span>
 <div ng-repeat="pickupOption in deal.pickupOptions">
