@@ -1,60 +1,124 @@
-<span>商品名称</span>
-<input ng-model="deal.name" />
-<br>
-<span>发起日期</span>
-<input type="date" ng-model="deal.beginDate" />
-<br>
-<span>结束日期</span>
-<input type="date" ng-model="deal.endDate" />
-<br>
-<span>发售地区</span>
-<select ng-model="deal.regionId" ng-options="region.id as region.name for region in regions"></select>
-<br>
-<span>商品描述</span>
-<textarea ng-model="deal.description" placeholder="请指明包装规格(例如每磅,每件), 产品特点,注意事项等。"></textarea>
-<br>
-<div>
-    <button
-        input-image
-        append-data-uri
-        resize
-        resize-max-height="300"
-        resize-max-width="250"
-        resize-quality="1.0"
-        ng-model="productImageUpload">
-        选择图片
-    </button>
-    <!-- TODO: clicking the clear button will trigger form validation -->
-    <button ng-click="clearproductImageUpload()">删除图片</button>
-    <br>
-    <img ng-show="productImageUpload" ng-src="{{productImageUpload.resized.dataURL}}" />
-    <br>
+<div class="container-fluid">
+    <div class="row tgb-input-group">
+        <div class="col-md-2 col-xs-3 tgb-input-label">商品名称</div>
+        <div class="col-md-10 col-xs-9 input-box">
+            <input class="input-box-shadow" ng-model="deal.name" />
+        </div>
+    </div>
+
+    <div class="row tgb-input-group">
+        <div class="col-md-2 col-xs-3 input-label">发起日期</div>
+        <div class="col-md-10 col-xs-9 input-box">
+            <input type="date" class="input-box-shadow" ng-model="deal.beginDate" />
+        </div>
+    </div>
+
+    <div class="row tgb-input-group">
+        <div class="col-md-2 col-xs-3 input-label">结束日期</div>
+        <div class="col-md-10 col-xs-9 input-box">
+            <input type="date" class="input-box-shadow" ng-model="deal.endDate" />
+        </div>
+    </div>
+
+    <div class="row tgb-input-group">
+        <div class="col-md-2 col-xs-3 input-label">发售地区</div>
+        <div class="col-md-10 col-xs-9 input-box">
+            <select class="input-box-shadow" ng-model="deal.regionId" ng-options="region.id as region.name for region in regions"></select>
+        </div>
+    </div>
+    
+    <div class="row tgb-input-group">
+        <div class="col-md-2 col-xs-3 input-label">商品描述</div>
+        <div class="col-md-10 col-xs-9 input-box">
+            <textarea class="input-box-shadow" ng-model="deal.description" placeholder="请指明包装规格(例如每磅,每件), 产品特点,注意事项等。"></textarea>
+        </div>
+    </div>
+    
+    <div class="row tgb-input-group">
+        <div class="col-md-2 col-xs-3 input-label"></div>
+        <img class="col-md-5 col-xs-5 deal-img" ng-src="{{productImageUpload.resized.dataURL? productImageUpload.resized.dataURL : '//placehold.it/350x150'}}" onerror="this.src = 'http://placehold.it/350x150'"/>
+
+        <div class="col-md-5 col-xs-4">
+            <div class="col-md-12 col-xs-12 img-upload-button-container">
+                <button 
+                    class="img-upload-button button-box-shadow" 
+                    input-image
+                    append-data-uri
+                    resize
+                    resize-max-height="300"
+                    resize-max-width="250"
+                    resize-quality="1.0"
+                    ng-model="productImageUpload">
+                    选择图片
+                </button>
+            </div>
+            <div class="col-md-12 col-xs-12 img-upload-button-container">
+                <!-- TODO: clicking the clear button will trigger form validation -->
+                <button class="img-upload-button button-box-shadow" ng-click="clearproductImageUpload()">删除图片</button>
+            </div>
+        </div>
+        <br>
+    </div>
+
+    <div class="row tgb-input-group">
+        <div class="col-md-2 col-xs-3 input-label">商品价格</div>
+        <div class="col-md-4 col-xs-4 input-box">
+            <input type="number" class="input-box-shadow" ng-model="deal.unitPrice" />
+        </div>
+        <div class="col-md-2 col-xs-2 input-label">单位</div>
+        <div class="col-md-4 col-xs-3 input-box">
+            <input class="input-box-shadow" ng-model="deal.unitName" />
+        </div>
+    </div>
+
+    <div class="row tgb-input-group">
+        <div class="col-md-2 col-xs-3 input-label">包装规格</div>
+        <div class="col-md-4 col-xs-4 input-box">
+            <input type="number" class="input-box-shadow" ng-model="deal.unitsPerPackage" />
+        </div>
+        <div class="col-md-4 col-xs-3 input-box">
+            <input class="input-box-shadow" ng-model="deal.unitName"/>
+        </div>
+        <div class="col-md-2 col-xs-2 input-label">/ 件</div>
+    </div>
+
+    <div class="row tgb-input-group">
+        <div class="col-md-2 col-xs-3 input-label">卖家信息</div>
+        <div class="col-md-4 col-xs-4 input-box">
+            <input type="email" class="input-box-shadow" ng-model="deal.email" placeholder="电子邮件" />    
+        </div>
+        <div class="col-md-5 col-xs-5 input-box">
+            <input class="input-box-shadow" ng-model="deal.phoneNumber" placeholder="电话" />    
+        </div>
+    </div>
+
+     <div class="row tgb-input-group">
+        <div class="col-md-2 col-xs-3 input-label">发货方式</div>
+
+        <div class="col-md-10 col-xs-9 deal-pickup-right-group" ng-repeat="option in deal.pickupOptions">
+            <div class="col-md-12 col-xs-12 input-box deal-pickup-options">
+                <input class="input-box-shadow deal-pickup-address" ng-model="option.address" placeholder="地址"/>
+            </div>
+            <div class="col-md-5 col-xs-5 input-box">
+                <input class="input-box-shadow" ng-model="option.contactName" placeholder="联系人"/>
+            </div>
+            <div class="col-md-5 col-xs-5 input-box-no-padding">
+                <!-- TODO: validate phone number. -->
+                <input class="input-box-shadow" ng-model="option.phoneNumber" placeholder="电话"/>
+            </div>
+            <div class="col-md-2 col-xs-2">
+                <button ng-click="removePickupOption(option)">删</button>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-2 col-xs-3">
+        </div>
+        <div class="col-md-2 col-xs-2 add-pickup-button-container">
+            <button ng-click="addPickupOption()">加</button>
+        </div>
+    </div>
+    <div class="row deal-submit-button-container">
+        <button ng-click="saveDeal()">提交</button>
+    </div>
 </div>
-<span>商品价格</span>
-<input type="number" ng-model="deal.unitPrice" />
-<span>单位</span>
-<input ng-model="deal.unitName">
-<br>
-<span>包装规格</span>
-<input type="number" ng-model="deal.unitsPerPackage" />
-<input ng-model="deal.unitName" />
-<span> / 件</span>
-<br>
-<span>卖家信息</span>
-<input type="email" ng-model="deal.email" placeholder="Email"/>
-<!-- TODO: validate phone number. -->
-<input ng-model="deal.phoneNumber" placeholder="电话" />
-<br>
-<span>发货方式</span>
-<div ng-repeat="option in deal.pickupOptions">
-    <input ng-model="option.address" placeholder="地址"/>
-    <br>
-    <input ng-model="option.contactName" placeholder="联系人"/>
-    <!-- TODO: validate phone number. -->
-    <input ng-model="option.phoneNumber" placeholder="电话"/>
-    <br>
-    <button ng-click="removePickupOption(option)">删除</button>
-</div>
-<button ng-click="addPickupOption()">添加</button>
-<br>
-<button ng-click="saveDeal()">提交</button>

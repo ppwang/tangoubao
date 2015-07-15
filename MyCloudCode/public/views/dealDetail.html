@@ -1,33 +1,81 @@
-<img ng-src="{{deal.dealImageUrl}}">
-<br>
-<span style="font-weight: bold">{{deal.name}}</span>
-<br>
-<span>地区: {{deal.region}}</span>
-<span>价格: {{deal.unitPrice | currency:'$'}}/{{deal.unitName}} (每件{{deal.unitsPerPackage}}{{deal.unitName}})</span>
-<br>
-<span>开始日期: {{deal.beginDate | date:'yyyy年MM月dd日'}}</span>
-<span>截止: {{deal.endDate | date:'yyyy年MM月dd日'}}</span>
-<br>
-<span>团购进度: 还剩{{deal.endDate | daysRemainingFilter}}天</span>
-<br>
-<span>发起人: {{deal.creatorName}}</span>
-<br>
-<span>发货方式: 自取</span>
-<br>
-<span>发货方式</span>
-<div ng-repeat="option in deal.pickupOptions">
-    <span>{{option.address}}</span>
-    <br>
-    <span>联系人: {{option.contactName}}</span>
-    <span>电话: {{option.phoneNumber}}</span>
-    <br>
+<div class="container deal-detail-box-shadow">
+    <div class="row">
+        <div class="col-md-12 col-xs-12">
+            <img ng-src="{{deal.dealImageUrl}}">
+        </div>
+    </div>
+    
+    <div class="row deal-detail-row">
+        <div class="col-md-12 col-xs-12">
+            <span style="font-weight: bold">{{deal.name}}</span>
+        </div>
+    </div>
+
+    <div class="row deal-detail-row">
+        <div class="col-md-4 col-xs-5">
+            地区: {{deal.region}}
+        </div>
+        <div class="col-md-8 col-xs-7">
+            价格: {{deal.unitPrice | currency:'$'}}/{{deal.unitName}} (每件{{deal.unitsPerPackage}}{{deal.unitName}})
+        </div>
+    </div>
+
+    <div class="row deal-detail-row">
+        <div class="col-md-6 col-xs-6">
+            开始: {{deal.beginDate | date:'yyyy年MM月dd日'}}
+        </div>
+        <div class="col-md-6 col-xs-6">
+            截止: {{deal.endDate | date:'yyyy年MM月dd日'}}
+        </div>
+    </div>
+
+    <div class="row deal-detail-row">
+        <div class="col-md-12 col-xs-12">
+            团购进度: 还剩{{deal.endDate | daysRemainingFilter}}
+        </div>
+    </div>
+
+    <div class="row deal-detail-row">
+        <div class="col-md-12 col-xs-12">
+            发起人: {{deal.creatorName}}
+        </div>
+    </div>
+
+    <div class="row deal-detail-row">
+        <div class="col-md-12 col-xs-12">
+            发货方式: 自取
+        </div>
+    </div>
+
+    <div class="row deal-detail-row">
+        <div class="col-md-12 col-xs-12">
+            发起人: {{deal.creatorName}}
+        </div>
+    </div>
+
+    <div class="row" ng-repeat="option in deal.pickupOptions">
+       <div class="col-md-4 col-xs-4 deal-pickup-options">
+            取货地址: {{option.address}}
+        </div>
+        <div class="col-md-4 col-xs-4">
+            联系人: {{option.contactName}}
+        </div>
+        <div class="col-md-4 col-xs-4">
+            电话: {{option.phoneNumber}}
+        </div>
+    </div>
+
+    <div class="row deal-detail-row">
+        <div class="col-md-12 col-xs-12">
+            货品描述: {{deal.description}}
+        </div>
+    </div>
+
+    <span>
+        <button>微信分享</button>
+        <button>脸书分享</button>
+        <button ng-show="!deal.owned" ng-click="toggleFollowedStatus()">{{deal.followed ? '取消关注' : '关注'}}</button>
+        <button ng-show="!deal.owned" ng-click="purchaseDeal()">购买</button>
+        <button ng-show="deal.owned" ng-click="manageDeal()">订单状况</button>
+    </span>
 </div>
-<span>货品描述: {{deal.description}}</span>
-<br>
-<span>
-    <button>微信分享</button>
-    <button>脸书分享</button>
-    <button ng-show="!deal.owned" ng-click="toggleFollowedStatus()">{{deal.followed ? '取消关注' : '关注'}}</button>
-    <button ng-show="!deal.owned" ng-click="purchaseDeal()">购买</button>
-    <button ng-show="deal.owned" ng-click="manageDeal()">订单状况</button>
-</span>
