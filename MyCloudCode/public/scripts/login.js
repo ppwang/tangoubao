@@ -53,6 +53,16 @@ tgbApp.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, 
                 }
             }
         })
+        .state('dealStatus', {
+            url:'/dealStatus/:id',
+            params: { deal: null },
+            views: {
+                'content': {
+                    templateUrl: 'views/dealStatus.html',
+                    controller: 'dealStatusController',
+                }
+            }
+        })
         .state('orderDetail', {
             url:'/orderDetail/:orderId',
             views: {
@@ -478,6 +488,21 @@ tgbApp.factory('dealDataService', ['$http', 'serviceBaseUrl', '$q', 'regionDataS
         return resultDeferred.promise;
     };
 
+    dealDataService.getDealStatus = function(id) {
+        var resultDeferred = $q.defer();
+        
+        $http.get(apiUrl + '/dealStatus/' + id)
+        .success(function(data, status, headers, config) {
+            resultDeferred.resolve(data);
+        })
+        .error(function(data, status, headers, config) {
+            console.log('error code:' + status);
+            resultDeferred.reject(status);
+        });
+        
+        return resultDeferred.promise;
+    };
+    
     dealDataService.deleteDeal = function(id) {
         // TODO:
     };
@@ -706,7 +731,12 @@ tgbApp.controller('dealDetailController', ['$scope', '$state', '$stateParams', '
     };
     
     $scope.manageDeal = function() {
-        
+        $state.go(
+            'dealStatus',
+            {
+                id: $scope.deal.id,
+                deal: $scope.deal,
+            });
     };
 }]);
 
@@ -880,6 +910,17 @@ tgbApp.controller('followedDealsController', ['$scope', 'dealDataService', funct
             return deals.follow.active;
         }),
     };
+}]);
+
+tgbApp.controller('dealStatusController', ['$scope', '$state', '$stateParams', 'userService', 'dealDataService', function($scope, $state, $stateParams, userService, dealDataService) {
+    userService.ensureUserLoggedIn();
+
+    if (!$stateParams.deal) {
+        $state.go('dealDetail', { id: $stateParams.id });
+        return;
+    }
+    
+    $scope.deal = $stateParams.deal;
 }]);
 
 tgbApp.controller('modalDialogController', ['$scope', '$modalInstance', 'settings', function($scope, $modalInstance, settings) {

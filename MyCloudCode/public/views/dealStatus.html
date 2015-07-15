@@ -1,0 +1,19 @@
+<deal-card deal="deal"></deal-card>
+<br>
+<button>修改团购</button>
+<button>终止团购</button>
+<br>
+<textarea placeholder="写给买家的信息"></textarea>
+<br>
+<button>发送</button>
+<br>
+<span>共{{deal.summary.buyerCount}}人购买{{deal.summary.quantity}}件</span>
+<button>生成表格</button>
+<br>
+<div ng-repeat="option in deal.pickupOptions">
+    <span>{{option.contactName}}取货 - {{option.summary.buyerCount}}人{{option.summary.quantity}}件</span>
+    <br>
+    <ul>
+        <li ng-repeat="order in option.orders">{{order.creatorName}}</li>
+    </ul>
+</div>
