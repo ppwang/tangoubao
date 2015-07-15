@@ -254,6 +254,8 @@ var saveDeal = function(parseDeal, req) {
 		parseDeal.set('regionId', regionId);
 	}
 
+	parseDeal.set('status', 'active');
+
 	var imageData = req.body.imageBase64;
 	var imageType = req.body.imageType;
 	if (imageData && imageType) {

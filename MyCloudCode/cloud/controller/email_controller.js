@@ -63,6 +63,7 @@ module.exports.sendDealReport = function(req, res) {
 		})
 		.then(function(deal) {
 			console.log('deal data: ' + JSON.stringify(deal));
+			console.log('deal order data: ' + JSON.stringify(deal.orders));
 			dealName = deal.name;
 			var excelData = excelHelper.exportDealToExcel(deal);
 

@@ -15,6 +15,7 @@ Parse.Cloud.beforeSave(Parse.User, function(request, response) {
 
 	if (bypassClaim) {
 		currentUser.set('bypassClaim', undefined);
+		return response.success();
 	}
 
 	if (!currentUser) {
@@ -38,7 +39,9 @@ Parse.Cloud.beforeSave(Parse.User, function(request, response) {
 	console.log('claimtoken: ' + currentUser.claimtoken);
 	console.log('wechatId:' + currentUser.wechatId);
     query.equalTo('wechatId', currentUser.wechatId);
-    query.equalTo('claimtoken', currentUser.claimtoken);
+    if (currentUser.claimtoken) {
+	    query.equalTo('claimtoken', currentUser.claimtoken);
+	}
     return query.first()
     .then( function(wechatUser) {
     	console.log('Current user is: ' + JSON.stringify(currentUser)); 
@@ -52,6 +55,7 @@ Parse.Cloud.beforeSave(Parse.User, function(request, response) {
 	        wechatUser.set('status', 'active');
 	        // It is weird: parse only change the field if you set it to be 'null'
 	        wechatUser.set('claimtoken', null);
+	        currentUser.set('claimtoken', null);
 	        // Add wechatUser image to user image
 	        var headimgurl = wechatUser.get('headimgurl');
 	        if (headimgurl) {

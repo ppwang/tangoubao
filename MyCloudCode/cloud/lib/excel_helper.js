@@ -21,7 +21,9 @@ module.exports.exportDealToExcel = function (dealData) {
 	result += '\n';
 	result += '\n';
 
-	if (dealData.orders && dealData.orders.constructor === Array) {
+	console.log('order constructor: ' + dealData.orders.forEach);
+	console.log('orders: ' + JSON.stringify(dealData.orders));
+	if (dealData.orders && dealData.orders.forEach) {
 		// Orders section
 		result += 'Orders Summary: \n';
 		result += 'Name,PhoneNumber,Email,Pickup contact,Pickup address,Pickup phone\n';

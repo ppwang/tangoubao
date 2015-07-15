@@ -29,7 +29,10 @@ module.exports.generateReplyMessage = function(wechatId, publicAccountId, create
     return str;
 };
 
-var wechatIdWhiteList = ['oy2t5t4i9QvA4NerKGZEbFnFqCeE', 'oy2t5ty4wthpZ-Yne912a0I94KV4', 'oy2t5t8JaHH6rv0Fr7VG86fSONJc'];
+var wechatIdWhiteList = ['oy2t5t4i9QvA4NerKGZEbFnFqCeE', 
+    'oy2t5ty4wthpZ-Yne912a0I94KV4', 
+    'oy2t5t8JaHH6rv0Fr7VG86fSONJc',
+    'oy2t5t--FEKOgK4GKstCpgreQ0uQ'];
 
 var createInvitationCard = function (wechatId, nickname, headimgurl, claimtoken) {
     var message;
