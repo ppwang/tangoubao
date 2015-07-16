@@ -1,5 +1,15 @@
-<div>{{settings.message}}</div>
-<div class="modal-footer">
-    <button class="btn btn-primary" ng-click="ok()">OK</button>
-    <button class="btn btn-warning" ng-show="settings.showCancelButton" ng-click="cancel()">Cancel</button>
+<div class="row">
+	<div class="col-md-12 col-xs-12 modal-message">
+		{{settings.message}}
+	</div>
+</div>
+<div class="row modal-button-group">
+	<div class="col-md-12 col-xs-12">
+    	<button class="btn btn-default col-md-6 col-xs-6" ng-click="ok()">
+    		确认
+    	</button>
+		<button class="btn btn-default col-md-6 col-xs-6" ng-show="settings.showCancelButton" ng-click="cancel()">
+			取消
+		</button>
+	</div>
 </div>

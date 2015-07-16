@@ -23,27 +23,43 @@
     <div class="row tgb-input-group">
         <div class="col-md-2 col-xs-3 tgb-input-label">数量: </div>
         <div class="col-md-10 col-xs-9 input-box">
-        	<input class="input-box-shadow" ng-model="order.email" ng-required="true"/>
+        	<input class="input-box-shadow-small" type="number" ng-model="order.quantity" ng-pattern="/^\d*$/"  ng-required="true"/>
+			<span>件 * {{deal.unitPrice | currency:'$'}}/{{deal.unitName}} * {{deal.unitsPerPackage}}{{deal.unitName}}/件</span>
         </div>
 	</div>
-</div>
 
-<span>数量: </span>
-<input type="number" ng-model="order.quantity" ng-pattern="/^\d*$/"  ng-required="true"/>
-<span>件 * {{deal.unitPrice | currency:'$'}}/{{deal.unitName}} * {{deal.unitsPerPackage}}{{deal.unitName}}/件</span>
-<br>
-<span>共计{{ order.quantity * deal.unitsPerPackage * deal.unitPrice | currency:'$'}}</span>
-<br>
-<span>发货方式: </span>
-<div ng-repeat="pickupOption in deal.pickupOptions">
-    <label>
-        <input type="radio" ng-model="order.pickupOptionId" ng-value="pickupOption.id"/>
-        <span>地址: {{pickupOption.address}}</span>
-        <br>
-        <span>发货人: {{pickupOption.contactName}}</span>
-        <br>
-        <span>电话: {{pickupOption.phoneNumber}}</span>
-    </label>
+	<div class="row tgb-input-group">
+        <div class="col-md-2 col-xs-3 tgb-input-label">共计: </div>
+        <div class="col-md-10 col-xs-9 input-box">
+        	{{ order.quantity * deal.unitsPerPackage * deal.unitPrice | currency:'$'}}
+        </div>
+	</div>
+
+	<div class="row tgb-input-group">
+        <div class="col-md-12 col-xs-12 tgb-input-label">发货方式: </div>
+	</div>
+
+	<div class="row tgb-input-group" ng-repeat="pickupOption in deal.pickupOptions">
+        <div class="col-md-2 col-xs-3 input-label-radio">
+        	<input type="radio" ng-model="order.pickupOptionId" ng-value="pickupOption.id"/>
+        </div>
+
+        <div class="col-md-10 col-xs-9 order-pickup-right-group-container">
+        	<div class="col-md-12 col-xs-12 order-pickup-right-group">
+	            <div class="col-md-12 col-xs-12 input-box deal-pickup-options">
+	                发货地址: {{pickupOption.address}}
+	            </div>
+	            <div class="col-md-12 col-xs-12 input-box">
+	                发货人员: {{pickupOption.contactName}}
+	            </div>
+	            <div class="col-md-12 col-xs-12 input-box-no-padding">
+	                联系电话: {{pickupOption.phoneNumber}}
+	            </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row deal-submit-button-container">
+    	<button ng-click="createOrder()">立即购买</button>
+	</div>
 </div>
-<br>
-<button ng-click="createOrder()">立即购买</button>
