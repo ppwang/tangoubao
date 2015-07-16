@@ -1,7 +1,7 @@
 <div class="container deal-detail-box-shadow">
     <div class="row">
         <div class="col-md-12 col-xs-12">
-            <img ng-src="{{deal.dealImageUrl}}">
+            <img ng-src="{{deal.dealImageUrl? deal.dealImageUrl : 'resources/placeholder.svg'}}" onerror="this.src = 'resources/placeholder.svg'"/>
         </div>
     </div>
     

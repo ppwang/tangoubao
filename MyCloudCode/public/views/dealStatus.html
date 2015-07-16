@@ -1,20 +1,68 @@
-<deal-card deal="deal"></deal-card>
-<br>
-<button ng-click="modifyDeal()">修改团购</button>
-<button ng-show="deal.status === 'active'" ng-click="closeDeal()">终止团购</button>
-<span ng-show="deal.status === 'closed'">已结束</span>
-<br>
-<textarea ng-model="message" placeholder="写给买家的信息"></textarea>
-<br>
-<button ng-click="sendMessage()">发送</button>
-<br>
-<span>共{{deal.summary.buyerCount}}人购买{{deal.summary.quantity}}件</span>
-<button ng-click="sendSpreadsheet()">生成表格</button>
-<br>
-<div ng-repeat="option in deal.pickupOptions">
-    <span>{{option.contactName}}发货 - {{option.summary.buyerCount}}人{{option.summary.quantity}}件</span>
-    <br>
-    <ul>
-        <li ng-repeat="order in option.orders">{{order.creatorName}}</li>
-    </ul>
+<div class="container-fluid deal-status-card">
+	<div class="row">
+		<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+			<img class="img-responsive pull-left col-lg-6 col-md-6 col-sm-6 col-xs-6" ng-src="{{deal.dealImageUrl? deal.dealImageUrl : 'resources/placeholder.svg'}}" onerror="this.src = 'resources/placeholder.svg'"/>
+			<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+		        <span style="font-weight: bold">{{deal.name}}</span>
+		        <br>
+		        <span>地区: {{deal.region}}</span>
+		        <br>
+		        <span>价格: {{deal.unitPrice | currency:'$'}}/{{deal.unitName}}</span>
+		        <br>
+		        <span>团购进度: {{deal.endDate | daysRemainingFilter}}</span>
+		        <br>
+		        <!-- TODO: show owner name or id -->
+		        <span>发起人: {{deal.creatorName}}</span>
+		        <br>
+		        <span>热度</span>
+		    </div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 deal-modify-buttons">
+			<div class="col-lg-1 col-md-1 col-sm-1 col-xs-1"></div>
+			<div class="col-lg-5 col-md-5 col-sm-5 col-xs-5">
+				<button ng-click="modifyDeal()">修改团购</button>
+			</div>
+			<div class="col-lg-5 col-md-5 col-sm-5 col-xs-5">
+				<button ng-show="deal.status === 'active'" ng-click="closeDeal()">终止团购</button>
+			</div>
+			<div class="col-lg-1 col-md-1 col-sm-1 col-xs-"></div>
+			<span ng-show="deal.status === 'closed'">已结束</span>	
+		</div>
+	</div>
+	
+	<div class="row">
+		<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+			<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+				<textarea class="message-text-area" ng-model="message" placeholder="写给买家的信息"></textarea>
+			</div>
+			<div class="send-message-button-container">
+				<button ng-click="sendMessage()">发送</button>
+			</div>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+			<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 deal-status-order-summary">
+				共{{deal.summary.buyerCount}}人购买{{deal.summary.quantity}}件
+			</div>
+		</div>
+	</div>
+	
+	<div class="row">
+		<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+			<button class="excel-button" ng-click="sendSpreadsheet()">生成表格</button>
+		</div>
+	</div>
+	<br>
+	<div ng-repeat="option in deal.pickupOptions">
+	    <span>{{option.contactName}}发货 - {{option.summary.buyerCount}}人{{option.summary.quantity}}件</span>
+	    <br>
+	    <ul>
+	        <li ng-repeat="order in option.orders">{{order.creatorName}}</li>
+	    </ul>
+	</div>	
 </div>
+

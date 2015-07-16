@@ -7,16 +7,23 @@
 //     order = {orderAmount, orderTime, orderAmount, pickupOption, buyer}
 //	   pickupOption = {id, address, contactName, phoneNumber}
 //	   buyer = {id, username, nickname, email, phoneNumber, headimgurl}
+
+var separator = '\t';
 module.exports.exportDealToExcel = function (dealData) {
 	// TODO: convert to xlsx later. For now, use csv for simplicity
 	var result = '';
 	
 	// Header section
 	result += 'Deal Summary: \n';
-	result += 'Name,Description,Price,Package (' + dealData.unitName + ')\n';
-	result +=  dealData.name + ',' + dealData.description + ',' 
-		+ dealData.unitPrice + '/' + dealData.unitName + ',' 
-		+ dealData.unitsPerPackage + ' ' + dealData.unitName + '\n';
+	result += 'Name' + separator 
+		+ 'Description' + separator
+		+ 'Price' + separator
+		+ 'Package (' + dealData.unitName + ')\n';
+	result +=  escapeStr(dealData.name) + separator 
+		+ escapeStr(dealData.description) + separator 
+		+ escapeStr(dealData.unitPrice) + separator 
+		+ escapeStr(dealData.unitName) + separator 
+		+ escapeStr(dealData.unitsPerPackage) + ' ' + escapeStr(dealData.unitName) + '\n';
 
 	result += '\n';
 	result += '\n';
@@ -26,12 +33,21 @@ module.exports.exportDealToExcel = function (dealData) {
 	if (dealData.orders && dealData.orders.forEach) {
 		// Orders section
 		result += 'Orders Summary: \n';
-		result += 'Name,PhoneNumber,Email,Pickup contact,Pickup address,Pickup phone\n';
+		result += 'Name' + separator 
+			+ 'PhoneNumber' + separator
+			+ 'Email' + separator
+			+ 'Pickup contact=' + separator
+			+ 'Pickup address' + separator
+			+ 'Pickup phone\n';
 		dealData.orders.forEach(function(order) {
 			var buyer = order.buyer;
 			var pickupOption = order.pickupOption;
-			result += buyer.nickname + ',' + buyer.phoneNumber + ',' + buyer.email + ',' 
-				+ pickupOption.contactName + ',' + pickupOption.address + ',' + pickupOption.phoneNumber + '\n';
+			result += escapeStr(buyer.nickname) + separator 
+				+ escapeStr(buyer.phoneNumber) + separator
+				+ escapeStr(buyer.email) + separator
+				+ escapeStr(pickupOption.contactName) + separator
+				+ escapeStr(pickupOption.address) + separator
+				+ escapeStr(pickupOption.phoneNumber) + '\n';
 		});
 	}
 	else {
@@ -39,4 +55,11 @@ module.exports.exportDealToExcel = function (dealData) {
 	}
 
 	return result;
+}
+
+var escapeStr = function(value) {
+	if (!value) {
+		return value;
+	}
+	return value.replace('/\t/g', '    ');
 }

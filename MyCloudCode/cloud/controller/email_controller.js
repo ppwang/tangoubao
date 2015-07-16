@@ -92,7 +92,7 @@ module.exports.sendDealReport = function(req, res) {
 			      	"attachments": [
 			            {
 			                "type": "text/plain",
-			                "name": "deal_summary.csv",
+			                "name": "deal_summary.tsv",
 			                "content": emailData
 			            }
 			        ],
