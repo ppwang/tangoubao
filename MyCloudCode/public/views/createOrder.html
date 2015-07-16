@@ -1,11 +1,33 @@
-<span>订货人: {{user.nickname}}</span>
-<br>
-<span>电话: </span>
-<input ng-model="order.phoneNumber" ng-required="true"/>
-<br>
-<span>Email: </span>
-<input ng-model="order.email" ng-required="true"/>
-<br>
+<div class="container-fluid">
+    <div class="row tgb-input-group">
+        <div class="col-md-2 col-xs-3 tgb-input-label">订货人:</div>
+        <div class="col-md-10 col-xs-9">
+            {{user.nickname}}
+        </div>
+    </div>
+
+    <div class="row tgb-input-group">
+        <div class="col-md-2 col-xs-3 tgb-input-label">电话: </div>
+        <div class="col-md-10 col-xs-9 input-box">
+        	<input class="input-box-shadow" ng-model="order.phoneNumber" ng-required="true"/>
+        </div>
+	</div>
+
+    <div class="row tgb-input-group">
+        <div class="col-md-2 col-xs-3 tgb-input-label">电子邮件: </div>
+        <div class="col-md-10 col-xs-9 input-box">
+        	<input class="input-box-shadow" ng-model="order.email" ng-required="true"/>
+        </div>
+	</div>
+
+    <div class="row tgb-input-group">
+        <div class="col-md-2 col-xs-3 tgb-input-label">数量: </div>
+        <div class="col-md-10 col-xs-9 input-box">
+        	<input class="input-box-shadow" ng-model="order.email" ng-required="true"/>
+        </div>
+	</div>
+</div>
+
 <span>数量: </span>
 <input type="number" ng-model="order.quantity" ng-pattern="/^\d*$/"  ng-required="true"/>
 <span>件 * {{deal.unitPrice | currency:'$'}}/{{deal.unitName}} * {{deal.unitsPerPackage}}{{deal.unitName}}/件</span>

@@ -15,6 +15,7 @@ module.exports.signUp = function(req, res) {
     parseUser.set("email", email);
     
     if (wechatId && claimtoken) {
+    	parseUser.set('action', 'signUp');
         parseUser.set("wechatId", wechatId);
         parseUser.set("claimtoken", claimtoken);
     }
@@ -25,6 +26,7 @@ module.exports.signUp = function(req, res) {
     		return res.status(401).end('Email not verified!');
     	}, function(error) {
 			console.log('error: ' + JSON.stringify(error));
+			Parse.User.logOut();
 			return res.status(500).end();
 		});
 };
@@ -57,6 +59,7 @@ module.exports.logIn = function(req, res) {
     		return 'Email not verified';			
 		}
 		if (wechatId && claimtoken) {
+			parseUser.set('action', 'logIn');
         	parseUser.set("wechatId", wechatId);
         	parseUser.set("claimtoken", claimtoken);
         	return parseUser.save();

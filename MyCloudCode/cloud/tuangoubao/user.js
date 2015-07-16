@@ -39,9 +39,7 @@ Parse.Cloud.beforeSave(Parse.User, function(request, response) {
 	console.log('claimtoken: ' + currentUser.claimtoken);
 	console.log('wechatId:' + currentUser.wechatId);
     query.equalTo('wechatId', currentUser.wechatId);
-    if (currentUser.claimtoken) {
-	    query.equalTo('claimtoken', currentUser.claimtoken);
-	}
+    
     return query.first()
     .then( function(wechatUser) {
     	console.log('Current user is: ' + JSON.stringify(currentUser)); 
@@ -51,11 +49,21 @@ Parse.Cloud.beforeSave(Parse.User, function(request, response) {
         		+ currentUser.wechatId + '; request claimtoken: ' + currentUser.claimtoken);
     	}
     	else {
+			var wechatUserClaimtoken = wechatUser.get('claimtoken');
+			if (wechatUserClaimtoken != currentUser.claimtoken) {
+				throw new Error('User ' + currentUserName + ' is using wrong claimtoken. Request claimtoken: ' 
+        		+ currentUser.claimtoken + '; wechatUser claimtoken: ' + wechatUserClaimtoken);
+			}
+
 	    	console.log('wechatUser is: ' + JSON.stringify(wechatUser)); 
 	        wechatUser.set('status', 'active');
+	        // Check the action this change is coming from. If for signup, we do not remove the claim token 
+	        //  since we are still waiting for login after email verified.
 	        // It is weird: parse only change the field if you set it to be 'null'
-	        wechatUser.set('claimtoken', null);
-	        currentUser.set('claimtoken', null);
+	        var action = currentUser.get('action');
+	        if (action != 'signUp') {
+		        wechatUser.set('claimtoken', null);
+		    }
 	        // Add wechatUser image to user image
 	        var headimgurl = wechatUser.get('headimgurl');
 	        if (headimgurl) {
