@@ -765,7 +765,7 @@ tgbApp.controller('dealDetailController', ['$scope', '$state', '$stateParams', '
     };
 }]);
 
-tgbApp.controller('createDealController', ['$scope', '$state', 'dealDataService', 'regionDataService', 'userService', function($scope, $state, dealDataService, regionDataService, userService) {
+tgbApp.controller('createDealController', ['$scope', '$state', 'dealDataService', 'regionDataService', 'userService', 'modalDialogService',  function($scope, $state, dealDataService, regionDataService, userService, modalDialogService) {
     userService.ensureUserLoggedIn();
     
     var addNewPickupOption = function() {
@@ -828,7 +828,26 @@ tgbApp.controller('createDealController', ['$scope', '$state', 'dealDataService'
             $scope.deal.imageBase64 = $scope.productImageUpload.resized.dataURL.split(',')[1];
         }
 
-        dealDataService.saveDeal($scope.deal);
+        dealDataService.saveDeal($scope.deal).then(function() {
+            var message = '您成功发布了' + $scope.deal.name + '团购,'
+            if ($scope.deal.endDate) {
+                message += ' 截止日期为' + $scope.deal.endDate.getYear() + '年' + $scope.deal.endDate.getMonth() + '月' + $scope.deal.endDate.getDay() + '日,'
+            }
+            message += ' 谢谢您的参与!';
+            
+            modalDialogService.show({
+                message: message,
+                showCancelButton: false,
+            });
+            
+            $state.go('sellerAccount.deals', { status: 'active' });
+        }, function() {
+            var message = '对不起, 刚才您发布' + $scope.deal.name + '团购不成功, 请稍后再试试.';
+            modalDialogService.show({
+                message: message,
+                showCancelButton: false,
+            });            
+        });
     };
 }]);
 
@@ -893,6 +912,7 @@ tgbApp.controller('createOrderController', ['$scope', '$state', '$stateParams', 
         }).then(function() {
             orderDataService.createOrder($scope.order).then(function() {
                 // TODO: show order details.
+                $state.go('buyerAccount.orders', { status: 'active' });
             }, function(error) {
                 var orderFailedMessage = '您的订单提交不成功,　请稍后再试试.';
                 modalDialogService.show({
