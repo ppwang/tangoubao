@@ -18,32 +18,34 @@ module.exports.exportDealToExcel = function (dealData) {
 	result += 'Name' + separator 
 		+ 'Description' + separator
 		+ 'Price' + separator
-		+ 'Package (' + dealData.unitName + ')\n';
+		+ 'Package\n';
 	result +=  escapeStr(dealData.name) + separator 
 		+ escapeStr(dealData.description) + separator 
-		+ escapeStr(dealData.unitPrice) + separator 
-		+ escapeStr(dealData.unitName) + separator 
-		+ escapeStr(dealData.unitsPerPackage) + ' ' + escapeStr(dealData.unitName) + '\n';
+		+ dealData.unitPrice + '$' + separator
+		+ dealData.unitsPerPackage + ' ' + escapeStr(dealData.unitName) + '\n';
+
+	console.log('unitPrice: ' + dealData.unitPrice + ' escapeStr: ' + escapeStr(dealData.unitPrice));
 
 	result += '\n';
 	result += '\n';
 
 	console.log('order constructor: ' + dealData.orders.forEach);
 	console.log('orders: ' + JSON.stringify(dealData.orders));
-	if (dealData.orders && dealData.orders.forEach) {
+	if (dealData.orders && dealData.orders.forEach && dealData.length > 0) {
 		// Orders section
 		result += 'Orders Summary: \n';
 		result += 'Name' + separator 
 			+ 'PhoneNumber' + separator
 			+ 'Email' + separator
-			+ 'Pickup contact=' + separator
+			+ 'Pickup contact' + separator
 			+ 'Pickup address' + separator
 			+ 'Pickup phone\n';
+
 		dealData.orders.forEach(function(order) {
 			var buyer = order.buyer;
 			var pickupOption = order.pickupOption;
 			result += escapeStr(buyer.nickname) + separator 
-				+ escapeStr(buyer.phoneNumber) + separator
+				+ buyer.phoneNumber + separator
 				+ escapeStr(buyer.email) + separator
 				+ escapeStr(pickupOption.contactName) + separator
 				+ escapeStr(pickupOption.address) + separator
@@ -58,7 +60,11 @@ module.exports.exportDealToExcel = function (dealData) {
 }
 
 var escapeStr = function(value) {
-	if (!value || !value.replace) {
+
+	if (!value) {
+		return '';
+	}
+	if (!value.replace) {
 		return value;
 	}
 	return value.replace('/\t/g', '    ');

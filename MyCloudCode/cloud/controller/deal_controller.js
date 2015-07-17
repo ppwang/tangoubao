@@ -198,50 +198,80 @@ var saveDeal = function(parseDeal, req) {
 	if (name) {
 		parseDeal.set('name', name);
 	}
+	else {
+		parseDeal.set('name', null);
+	}
 
 	var description = req.body.description;
 	if (description) {
 		parseDeal.set('description', description);
+	}
+	else {
+		parseDeal.set('description', null);
 	}
 
 	var beginDate = req.body.beginDate;
 	if (beginDate) {
 		parseDeal.set('beginDate', new Date(beginDate));
 	}
+	else {
+		parseDeal.set('beginDate', null);
+	}
 
 	var endDate = req.body.endDate;
 	if (endDate) {
 		parseDeal.set('endDate', new Date(endDate));
+	}
+	else {
+		parseDeal.set('endDate', null);
 	}
 
 	var email = req.body.email;
 	if (email) {
 		parseDeal.set('email', email);
 	}
+	else {
+		parseDeal.set('email', null);
+	}
 
 	var phoneNumber = req.body.phoneNumber;
 	if (phoneNumber) {
 		parseDeal.set('phoneNumber', phoneNumber);
+	}
+	else {
+		parseDeal.set('phoneNumber', null);
 	}
 
 	var unitName = req.body.unitName;
 	if (unitName) {
 		parseDeal.set('unitName', unitName);
 	}
+	else {
+		parseDeal.set('unitName', null);
+	}
 
 	var unitPrice = req.body.unitPrice;
 	if (unitPrice) {
 		parseDeal.set('unitPrice', parseFloat(unitPrice));
+	}
+	else {
+		parseDeal.set('unitPrice', null);
 	}
 
 	var unitsPerPackage = req.body.unitsPerPackage;
 	if (unitsPerPackage) {
 		parseDeal.set('unitsPerPackage', unitsPerPackage);
 	}
+	else {
+		parseDeal.set('unitsPerPackage', null);
+	}
 
 	var remarks = req.body.remarks;
 	if (remarks) {
 		parseDeal.set('remarks', remarks);
+	}
+	else {
+		parseDeal.set('remarks', null);
 	}
 
 	// Pickup options are generated from frontend client and will have id's already setup
@@ -250,10 +280,16 @@ var saveDeal = function(parseDeal, req) {
 	if (pickupOptions) {
 		parseDeal.set('pickupOptions', JSON.stringify(pickupOptions));
 	}
+	else {
+		parseDeal.set('pickupOptions', null);
+	}
 
 	var regionId = req.body.regionId;
 	if (regionId) {
 		parseDeal.set('regionId', regionId);
+	}
+	else {
+		parseDeal.set('regionId', null);
 	}
 
 	parseDeal.set('status', 'active');
@@ -283,5 +319,6 @@ var saveDeal = function(parseDeal, req) {
 	}
 
 	console.log('save deal without image: ' + JSON.stringify(parseDeal));
+	parseDeal.set('dealImage', null);
 	return parseDeal.save();
 };

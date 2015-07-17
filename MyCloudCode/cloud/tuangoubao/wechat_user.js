@@ -107,6 +107,10 @@ var initWechatUser = function(wechatUser, wechatId, wechatUserRawData, refreshCl
         wechatUser.set('headimgurl', wechatUserData.headimgurl);
         wechatUser.headimgurl = wechatUserData.headimgurl;
     }
+    else {
+        wechatUser.set('headimgurl', null);
+        wechatUser.headimgurl = null;
+    }
     if (wechatUserData.subscribe_time) {
         wechatUser.set('subscribe_time', wechatUserData.subscribe_time);
     }
