@@ -26,24 +26,34 @@ module.exports.getOrders = function(deal) {
 	return query.find()
 		.then(function(parseOrders) {
 			var promises = [];
+			var userPromises = new Array();
 			parseOrders.forEach(function(parseOrder) {
 				var order = convertToOrderModel(parseOrder);
 				console.log('order: ' + JSON.stringify(order));
 				order.pickupOption = pickupOptionsDictionary[order.pickupOptionId];
 				orders.push(order);
-				var buyer = new Parse.User();
-				buyer.id = order.creatorId;
-				promises.push(buyer.fetch());
+				if (!userPromises[order.creatorId]) {
+					var userQuery = new Parse.Query(Parse.User);
+					userQuery.equalTo('objectId', order.creatorId);
+					userPromises[order.creatorId] = userQuery.first();
+				}
 			});
+			for (var creatorId in userPromises) {
+				if (userPromises.hasOwnProperty(creatorId)) {
+					promises.push(userPromises[creatorId]);
+				}
+			};
 			return Parse.Promise.when(promises);
 		})
 		.then(function() {
 			var buyerDictionary = new Array();
 			for(var i=0; i<arguments.length; i++) {
 				var parseBuyer = arguments[i];
-				var creatorId = parseBuyer.id;
-				if (!buyerDictionary[creatorId]) {
-					buyerDictionary[creatorId] = tgbUser.convertToUserModel(parseBuyer);
+				if (parseBuyer) {
+					var creatorId = parseBuyer.id;
+					if (!buyerDictionary[creatorId]) {
+						buyerDictionary[creatorId] = tgbUser.convertToUserModel(parseBuyer);
+					}
 				}
 			}
 
@@ -88,15 +98,19 @@ module.exports.getOrdersByPickupOption = function(deal) {
 	var buyerOrderDictionary = new Array();
 	return query.find()
 		.then(function(parseOrders) {
+			var userPromises = new Array();
 			var promises = [];
 			parseOrders.forEach(function(parseOrder) {
 				var order = convertToOrderModel(parseOrder);
 				console.log('order: ' + JSON.stringify(order));
 				order.pickupOption = pickupOptionsDictionary[order.pickupOptionId];
 				orders.push(order);
-				var buyer = new Parse.User();
-				buyer.id = order.creatorId;
-				promises.push(buyer.fetch());
+
+				if (!userPromises[order.creatorId]) {
+					var userQuery = new Parse.Query(Parse.User);
+					userQuery.equalTo('objectId', order.creatorId);
+					userPromises[order.creatorId] = userQuery.first();
+				}
 
 				// stats
 				if (!buyerOrderQuantity[order.creatorId]) {
@@ -115,15 +129,24 @@ module.exports.getOrdersByPickupOption = function(deal) {
 					pickupOptionBuyerOrderQuantity[order.pickupOptionId][order.creatorId] += order.quantity;
 				}
 			});
+			
+			for (var creatorId in userPromises) {
+				if (userPromises.hasOwnProperty(creatorId)) {
+					promises.push(userPromises[creatorId]);
+				}
+			};
+
 			return Parse.Promise.when(promises);
 		})
 		.then(function() {
 			var buyerDictionary = new Array();
 			for(var i=0; i<arguments.length; i++) {
 				var parseBuyer = arguments[i];
-				var creatorId = parseBuyer.id;
-				if (!buyerDictionary[creatorId]) {
-					buyerDictionary[creatorId] = tgbUser.convertToUserModel(parseBuyer);
+				if (parseBuyer) {
+					var creatorId = parseBuyer.id;
+					if (!buyerDictionary[creatorId]) {
+						buyerDictionary[creatorId] = tgbUser.convertToUserModel(parseBuyer);
+					}
 				}
 			}
 

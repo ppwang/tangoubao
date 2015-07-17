@@ -58,7 +58,7 @@ module.exports.exportDealToExcel = function (dealData) {
 }
 
 var escapeStr = function(value) {
-	if (!value) {
+	if (!value || !value.replace) {
 		return value;
 	}
 	return value.replace('/\t/g', '    ');
