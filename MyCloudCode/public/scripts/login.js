@@ -46,6 +46,7 @@ tgbApp.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, 
         })
         .state('createDeal', {
             url:'/createDeal',
+            params: { deal: null },
             views: {
                 'content': {
                     templateUrl: 'views/createDeal.html',
@@ -730,11 +731,11 @@ tgbApp.controller('orderCardListController', ['$scope', function($scope) {
 }]);
 
 tgbApp.controller('dealDetailController', ['$scope', '$state', '$stateParams', 'userService', 'dealDataService', function($scope, $state, $stateParams, userService, dealDataService) {
-    userService.ensureUserLoggedIn();
-    
-    dealDataService.getDeal($stateParams.id)
-    .then(function(d) {
-        $scope.deal = d;
+    userService.ensureUserLoggedIn().then(function() {
+        dealDataService.getDeal($stateParams.id)
+        .then(function(d) {
+            $scope.deal = d;
+        })
     });
     
     $scope.toggleFollowedStatus = function() {
@@ -765,9 +766,7 @@ tgbApp.controller('dealDetailController', ['$scope', '$state', '$stateParams', '
     };
 }]);
 
-tgbApp.controller('createDealController', ['$scope', '$state', 'dealDataService', 'regionDataService', 'userService', 'modalDialogService',  function($scope, $state, dealDataService, regionDataService, userService, modalDialogService) {
-    userService.ensureUserLoggedIn();
-    
+tgbApp.controller('createDealController', ['$scope', '$state', '$stateParams', 'dealDataService', 'regionDataService', 'userService', 'modalDialogService',  function($scope, $state, $stateParams, dealDataService, regionDataService, userService, modalDialogService) {
     var addNewPickupOption = function() {
         var nextId;
         if ($scope.deal.pickupOptions.length === 0) {
@@ -775,24 +774,31 @@ tgbApp.controller('createDealController', ['$scope', '$state', 'dealDataService'
         } else {
             nextId = _.max($scope.deal.pickupOptions, 'id').id + 1;
         }
-        
+
         $scope.deal.pickupOptions.push({
             id: nextId,
         });
     };
 
-    $scope.regions = [];
-    regionDataService.populateRegions($scope.regions);
-    
-    // Populate the new deal with initial parameters.
-    $scope.deal = {};
-    $scope.deal.unitName = '磅';
-    if (userService.currentUser) {
-        $scope.deal.email = userService.email;
-        $scope.deal.phoneNumber = userService.phoneNumber;
-    }
-    $scope.deal.pickupOptions = [];
-    addNewPickupOption();
+    userService.ensureUserLoggedIn().then(function() {
+        $scope.regions = [];
+        regionDataService.populateRegions($scope.regions);
+
+        if ($stateParams.deal) {
+            $scope.deal = $stateParams.deal;
+        } else {
+            // Populate the new deal with initial parameters.
+            $scope.deal = {};
+            $scope.deal.unitName = '磅';
+            if (userService.currentUser) {
+                $scope.deal.email = userService.email;
+                $scope.deal.phoneNumber = userService.phoneNumber;
+            }
+            $scope.deal.pickupOptions = [];
+        }
+        
+        addNewPickupOption();
+    });
     
     $scope.clearproductImageUpload = function() {
         if ($scope.productImageUpload) {
@@ -803,6 +809,8 @@ tgbApp.controller('createDealController', ['$scope', '$state', 'dealDataService'
             }
         }
         $scope.productImageUpload = undefined;
+        
+        $scope.deal.dealImageUrl = null;
     };
 
     $scope.addPickupOption = function() {
@@ -968,7 +976,7 @@ tgbApp.controller('dealStatusController', ['$scope', '$state', '$stateParams', '
     $scope.deal = $stateParams.deal;
     
     $scope.modifyDeal = function() {
-        
+        $state.go('createDeal', { deal: $scope.deal });
     };
     
     $scope.closeDeal = function() {
