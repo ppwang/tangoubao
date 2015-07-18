@@ -21,7 +21,7 @@ module.exports.exportDealToExcel = function (dealData) {
 		+ 'Package\n';
 	result +=  escapeStr(dealData.name) + separator 
 		+ escapeStr(dealData.description) + separator 
-		+ dealData.unitPrice + '$' + separator
+		+ '$' + dealData.unitPrice + separator
 		+ dealData.unitsPerPackage + ' ' + escapeStr(dealData.unitName) + '\n';
 
 	console.log('unitPrice: ' + dealData.unitPrice + ' escapeStr: ' + escapeStr(dealData.unitPrice));
