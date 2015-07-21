@@ -767,6 +767,19 @@ tgbApp.controller('dealDetailController', ['$scope', '$state', '$stateParams', '
                 deal: $scope.deal,
             });
     };
+    
+    $scope.hoveringOver = function(value) {
+        $scope.overStar = value;
+        $scope.percent = 100 * (value / 5);
+    };
+
+    $scope.ratingStates = [
+        {stateOn: 'glyphicon-ok-sign', stateOff: 'glyphicon-ok-circle'},
+        {stateOn: 'glyphicon-star', stateOff: 'glyphicon-star-empty'},
+        {stateOn: 'glyphicon-heart', stateOff: 'glyphicon-ban-circle'},
+        {stateOn: 'glyphicon-heart'},
+        {stateOff: 'glyphicon-off'}
+    ];
 }]);
 
 tgbApp.controller('createDealController', ['$scope', '$state', '$stateParams', 'dealDataService', 'regionDataService', 'userService', 'modalDialogService',  function($scope, $state, $stateParams, dealDataService, regionDataService, userService, modalDialogService) {
