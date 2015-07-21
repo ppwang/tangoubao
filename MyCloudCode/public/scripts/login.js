@@ -939,7 +939,32 @@ tgbApp.controller('createOrderController', ['$scope', '$state', '$stateParams', 
         });
     });
 
+    // TODO: implement better tooltips for form validation.
+    var validateOrder = function() {
+        if (!$scope.order.phoneNumber) {
+            return "请您填写您的联系电话.";
+        }
+        
+        if (!$scope.order.email) {
+            return "请您填写您的邮件信箱.";            
+        }
+        
+        var quantity = $scope.order.quantity;
+        if (!quantity || Number(quantity) !== quantity || quantity % 1 !== 0) {
+            return "请您填写正确的购买件数.";
+        };
+    };
+    
     $scope.createOrder = function() {
+        var errorMessage = validateOrder();
+        if (errorMessage) {
+            modalDialogService.show({
+                message: errorMessage,
+                showCancelButton: false,
+            });
+            return;
+        }
+        
         var deal = $scope.deal;
         var order = $scope.order;
         var units = order.quantity * deal.unitsPerPackage;
