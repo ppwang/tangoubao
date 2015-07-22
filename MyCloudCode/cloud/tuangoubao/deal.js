@@ -26,6 +26,8 @@ module.exports.convertToDealModel = function(parseDeal, type) {
 	deal.pickupOptions = parseDeal.get('pickupOptions');
 	deal.regionId = parseDeal.get('regionId');
 	deal.unitsPerPackage = parseDeal.get('unitsPerPackage');
+	deal.orderCount = parseDeal.get('orderCount');
+	deal.followCount = parseDeal.get('followCount');
 	deal.status = parseDeal.get('status');
 	var creator = parseDeal.get('createdBy');
 	deal.creatorId = creator.id;
@@ -44,6 +46,13 @@ module.exports.isValidOrder = function(dealModel, orderDate) {
 	var endDate = dealModel.endDate;
 	if (endDate) {
 		// TBD: Only date (no time) compare?
+		console.log('orderDate: ' + orderDate.getFullYear() + '/' + orderDate.getMonth() + '/' + orderDate.getDate());
+		console.log('endDate: ' + endDate.getFullYear() + '/' + endDate.getMonth() + '/' + endDate.getDate());
+		if (orderDate.getFullYear() == endDate.getFullYear() 
+			&& orderDate.getMonth() == endDate.getMonth()
+			&& orderDate.getDate() == endDate.getDate()) {
+			return true;
+		}
 		return orderDate <= endDate;
 	}
 	return true;

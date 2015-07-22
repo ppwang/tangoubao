@@ -21,6 +21,8 @@ module.exports.notifyUser = function (req, res) {
 		return res.status(404).end();
 	}
 
+	var postData = req.body; 
+
 	var query = new Parse.Query(Parse.User);
 	query.equalTo('objectId', userId);
 	return query.first()
@@ -56,6 +58,10 @@ module.exports.notifyUser = function (req, res) {
 			res.status(500).end();
 		});
 };
+
+module.exports.notifyBuyers = function (req, res) {
+	// TODO: add functionalities
+}
 
 var sendNotification = function (accessToken, wechatId) {
     var url = 'https://api.weixin.qq.com/cgi-bin/message/template/send?'

@@ -4,14 +4,6 @@ var ParseFollowDeal = Parse.Object.extend('FollowDeal');
 var ParseOrder = Parse.Object.extend('Order');
 
 module.exports.getPublicDeals = function(req, res) {
-	var currentUser = Parse.User.current();
-	console.log('currentUser: ' + JSON.stringify(currentUser));
-	if (!currentUser) {
-		// require user to log in
-		// TODO: client side code asks user to sign in
-		return res.status(401).send();
-	}
-
 	var query = new Parse.Query(ParseDeal);
 	// we are sorting the results by creation date
 	query.addDescending('createdAt');

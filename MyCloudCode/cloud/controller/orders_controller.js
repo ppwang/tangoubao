@@ -40,12 +40,6 @@ module.exports.getMyOrders = function(req, res) {
 };
 
 module.exports.getOrders = function(req, res) {
-	var currentUser = Parse.User.current();
-	if (!currentUser) {
-		// require user to log in
-		return res.status(401).send();
-	}
-
 	var dealId = req.params.dealId;
 	if (!dealId) {
 		// create a new deal
@@ -59,9 +53,6 @@ module.exports.getOrders = function(req, res) {
 		.then(function(parseDeal) {
 			console.log('got ParseDeal: ' + JSON.stringify(parseDeal));
 			var deal = dealModel.convertToDealModel(parseDeal);
-			if (deal.creatorId != currentUser.id) {
-				return 'Not authorized';
-			}
 			console.log('got deal: ' + JSON.stringify(deal));
 			var query = new Parse.Query(ParseOrder);
 			query.equalTo('dealId', dealId);
@@ -69,9 +60,6 @@ module.exports.getOrders = function(req, res) {
 			return query.find();
 		})
 		.then(function(parseOrders) {
-			if (parseOrders === 'Not authorized') {
-				return 'Not authorized';
-			}
 			console.log('parseOrders: ' + JSON.stringify(parseOrders));
     		var orders = [];
 
@@ -84,9 +72,6 @@ module.exports.getOrders = function(req, res) {
 			return orders;
 		})
 		.then(function(orders) {
-			if (orders === 'Not authorized') {
-				return res.status(401).end();
-			}
 			var responseData = {};
 			responseData.orders = orders;
 			return res.status(200).send(JSON.stringify(responseData));

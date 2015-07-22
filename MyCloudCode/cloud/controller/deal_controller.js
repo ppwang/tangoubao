@@ -86,10 +86,6 @@ module.exports.putStatus = function(req, res) {
 
 module.exports.getDeal = function(req, res) {
 	var currentUser = Parse.User.current();
-	if (!currentUser) {
-		// require user to log in
-		return res.status(401).send();
-	}
 
 	var dealId = req.params.dealId;
 	if (!dealId) {
@@ -104,7 +100,7 @@ module.exports.getDeal = function(req, res) {
 				var creator = parseDeal.get('createdBy');
 				var deal = dealModel.convertToDealModel(parseDeal);
 				deal.owned = true;
-				if (creator.id != currentUser.id) {
+				if (!currentUser || creator.id != currentUser.id) {
 					console.log('send deal: ' + JSON.stringify(deal));
 					deal.owned = false;
 					return deal;
@@ -120,6 +116,10 @@ module.exports.getDeal = function(req, res) {
 					});
 			})
 			.then(function(deal) {
+				if (!currentUser) {
+					return deal;
+				}
+
 				// Adding followed information below.
 				var query = new Parse.Query(ParseFollowDeal);
 				console.log('query follow dealId:' + dealId + ' by userId: ' + currentUser.id);
@@ -132,6 +132,10 @@ module.exports.getDeal = function(req, res) {
 			    	});
 			})
 			.then(function(deal) {
+				if (!currentUser) {
+					return deal;
+				}
+				
 				// Adding ordered information below.
 				var query = new Parse.Query(ParseOrder);
 				console.log('query order dealId:' + dealId + ' by userId: ' + currentUser.id);
