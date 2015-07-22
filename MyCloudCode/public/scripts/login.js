@@ -768,17 +768,17 @@ tgbApp.controller('dealDetailController', ['$scope', '$state', '$stateParams', '
             });
     };
     
-    $scope.hoveringOver = function(value) {
+    $scope.ratingHoveringOver = function(value) {
         $scope.overStar = value;
         $scope.percent = 100 * (value / 5);
     };
 
     $scope.ratingStates = [
-        {stateOn: 'glyphicon-ok-sign', stateOff: 'glyphicon-ok-circle'},
-        {stateOn: 'glyphicon-star', stateOff: 'glyphicon-star-empty'},
-        {stateOn: 'glyphicon-heart', stateOff: 'glyphicon-ban-circle'},
-        {stateOn: 'glyphicon-heart'},
-        {stateOff: 'glyphicon-off'}
+        {stateOn: 'glyphicon-star icon-star-selected', stateOff: 'glyphicon-star-empty'},
+        {stateOn: 'glyphicon-star icon-star-selected', stateOff: 'glyphicon-star-empty'},
+        {stateOn: 'glyphicon-star icon-star-selected', stateOff: 'glyphicon-star-empty'},
+        {stateOn: 'glyphicon-star icon-star-selected', stateOff: 'glyphicon-star-empty'},
+        {stateOn: 'glyphicon-star icon-star-selected', stateOff: 'glyphicon-star-empty'},
     ];
 }]);
 

@@ -82,14 +82,14 @@
     
     <div>
         <span>您的评论: </span>
-        <rating ng-model="rating" max="5" readonly="false" on-hover="hoveringOver(value)" on-leave="overStar=null" rating-states="ratingStates"></rating>
+        <rating ng-model="rating" max="5" readonly="false" on-hover="ratingHoveringOver(value)" on-leave="overStar=null" rating-states="ratingStates"></rating>
         <br></br>
         <textarea ng-model="comment"></textarea>
     </div>
     
     <div ng-repeat="comment in deal.comments">
         <span>{{comment.creatorName}}</span>
-        <rating ng-model="comment.rating" max="5" readonly="true"></rating>
+        <rating ng-model="comment.rating" max="5" readonly="true" rating-states="ratingStates"></rating>
         <br>
         <span>{{comment.content}}</span>
     </div>
