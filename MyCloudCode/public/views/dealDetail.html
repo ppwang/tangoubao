@@ -12,6 +12,12 @@
     </div>
 
     <div class="row deal-detail-row">
+        <div class="col-md-12 col-xs-12">
+            购买 {{deal.numberBought || 0}} 关注 {{deal.numberFollowed || 0}}
+        </div>
+    </div>
+
+    <div class="row deal-detail-row">
         <div class="col-md-4 col-xs-5">
             地区: {{deal.region}}
         </div>
@@ -66,11 +72,25 @@
     </div>
 
     <span>
-        <button>微信分享</button>
+        <button ng-click="wechatShare()">微信分享</button>
         <button>脸书分享</button>
         <button ng-show="!deal.owned" ng-click="toggleFollowedStatus()">{{deal.followed ? '取消关注' : '关注'}}</button>
         <button ng-show="!deal.owned && deal.status === 'active'" ng-click="purchaseDeal()">购买</button>
         <button ng-show="deal.owned" ng-click="manageDeal()">订单状况</button>
         <span ng-show="deal.status === 'closed'">已结束</span>
     </span>
+    
+    <div>
+        <span>您的评论: </span>
+        <rating ng-model="rating" max="5" readonly="false" on-hover="hoveringOver(value)" on-leave="overStar=null" rating-states="ratingStates"></rating>
+        <br></br>
+        <textarea ng-model="comment"></textarea>
+    </div>
+    
+    <div ng-repeat="comment in deal.comments">
+        <span>{{comment.creatorName}}</span>
+        <rating ng-model="comment.rating" max="5" readonly="true"></rating>
+        <br>
+        <span>{{comment.content}}</span>
+    </div>
 </div>

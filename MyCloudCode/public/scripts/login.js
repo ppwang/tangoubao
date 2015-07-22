@@ -75,8 +75,11 @@ tgbApp.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, 
         })
         .state('createOrder', {
             //　dealId is extra. It is used to redirect user when deal is not passed. Usually this happens when page is refreshed.
-            url:'/createOrder?dealId',
-            params: { deal: null },
+            url:'/createOrder?dealId&orderId',
+            params: { 
+                deal: null,
+                order: null,
+            },
             views: {
                 'content': {
                     templateUrl: 'views/createOrder.html',
@@ -764,6 +767,19 @@ tgbApp.controller('dealDetailController', ['$scope', '$state', '$stateParams', '
                 deal: $scope.deal,
             });
     };
+    
+    $scope.hoveringOver = function(value) {
+        $scope.overStar = value;
+        $scope.percent = 100 * (value / 5);
+    };
+
+    $scope.ratingStates = [
+        {stateOn: 'glyphicon-ok-sign', stateOff: 'glyphicon-ok-circle'},
+        {stateOn: 'glyphicon-star', stateOff: 'glyphicon-star-empty'},
+        {stateOn: 'glyphicon-heart', stateOff: 'glyphicon-ban-circle'},
+        {stateOn: 'glyphicon-heart'},
+        {stateOff: 'glyphicon-off'}
+    ];
 }]);
 
 tgbApp.controller('createDealController', ['$scope', '$state', '$stateParams', 'dealDataService', 'regionDataService', 'userService', 'modalDialogService',  function($scope, $state, $stateParams, dealDataService, regionDataService, userService, modalDialogService) {
@@ -859,51 +875,109 @@ tgbApp.controller('createDealController', ['$scope', '$state', '$stateParams', '
     };
 }]);
 
-tgbApp.controller('orderDetailController', ['$scope', '$stateParams', 'userService', 'orderDataService', 'regionDataService', function($scope, $stateParams, userService, orderDataService, regionDataService) {
-    userService.ensureUserLoggedIn();
-
-    var id = $stateParams.id;
-    orderDataService.getOrder(id).then(function(order) {
-        $scope.order = order;
-        $scope.pickupOption = _.find($scope.order.deal.pickupOptions, function(o){
-            return o.id === order.pickupOptionId;
+tgbApp.controller('orderDetailController', ['$scope', '$state', '$stateParams', 'userService', 'orderDataService', 'regionDataService', function($scope, $state, $stateParams, userService, orderDataService, regionDataService) {
+    userService.ensureUserLoggedIn().then(function() {
+        var id = $stateParams.id;
+        orderDataService.getOrder(id).then(function(order) {
+            $scope.order = order;
+            $scope.pickupOption = _.find($scope.order.deal.pickupOptions, function(o){
+                return o.id === order.pickupOptionId;
+            });
         });
     });
+                                                      
+    $scope.modifyOrder = function() {
+          $state.go(
+              'createOrder',
+              {
+                  dealId: $scope.order.deal.id,
+                  deal: $scope.order.deal,
+                  orderId: $scope.order.id,
+                  order: $scope.order,
+              });
+    };
 }]);
 
-tgbApp.controller('createOrderController', ['$scope', '$state', '$stateParams', 'userService', 'orderDataService', 'modalDialogService', function($scope, $state, $stateParams, userService, orderDataService, modalDialogService) {
-    $scope.order = {
-        dealId: $stateParams.dealId,
-    };
+tgbApp.controller('createOrderController', ['$scope', '$state', '$stateParams', '$q', 'userService', 'dealDataService', 'orderDataService', 'modalDialogService', function($scope, $state, $stateParams, $q, userService, dealDataService, orderDataService, modalDialogService) {
     
     userService.ensureUserLoggedIn().then(function(user) {
         $scope.user = user;
-        $scope.order.email = user.email;
-        $scope.order.phoneNumber = user.phoneNumber;
-        $scope.order.creatorName = user.nickname;
-        // TODO: verify that imageUrl is the correct property.
-        $scope.order.creatorImageUrl = user.headimgurl;
+        
+        // TODO: optimization: no need to get deal if also need to get order, since order contains the deal object.
+        var dealPromise;
+        if ($stateParams.deal) {
+            var dealDeferred = $q.defer();
+            dealDeferred.resolve($stateParams.deal);
+            dealPromise = dealDeferred.promise;
+        } else {
+            dealPromise = dealDataService.getDeal($stateParams.dealId)
+        }
+
+        var orderPromise;
+        if ($stateParams.order) {
+            var orderDeferred = $q.defer();
+            orderDeferred.resolve($stateParams.order);
+            orderPromise = orderDeferred.promise;
+        } else if ($stateParams.orderId) {
+            orderPromise = orderDataService.getOrder($stateParams.orderId);
+        } else {
+            var orderDeferred = $q.defer();
+            orderDeferred.resolve(null);
+            orderPromise = orderDeferred.promise;
+        }
+        
+        $q.all([dealPromise, orderPromise]).then(function(results) {
+            var deal = results[0];
+            var order = results[1];
+            
+            $scope.deal = deal;
+            var pickupOptions = $scope.deal.pickupOptions;
+            
+            if (order) {
+                $scope.order = order;
+            } else {
+                $scope.order = {
+                    dealId: $stateParams.dealId,
+                    email: user.email,
+                    phoneNumber: user.phoneNumber,
+                    creatorName: user.nickname,
+                    // TODO: verify that imageUrl is the correct property.
+                    creatorImageUrl: user.headimgurl,
+                };
+
+                if (pickupOptions && pickupOptions.length > 0) {
+                    $scope.order.pickupOptionId = pickupOptions[0].id;  
+                }
+            }            
+        });
     });
 
-    if (!$stateParams.deal) {
-        // deal parameter can be null if browser is refreshed (since the entire deal object is not in the url).
-        $state.go(
-            'dealDetail',
-            {
-                id: $stateParams.dealId,
-            }
-        );
-        return;
-    }
+    // TODO: implement better tooltips for form validation.
+    var validateOrder = function() {
+        if (!$scope.order.phoneNumber) {
+            return "请您填写您的联系电话.";
+        }
         
-    $scope.deal = $stateParams.deal;
-
-    var pickupOptions = $scope.deal.pickupOptions;
-    if (pickupOptions && pickupOptions.length > 0) {
-        $scope.order.pickupOptionId = pickupOptions[0].id;  
-    }
+        if (!$scope.order.email) {
+            return "请您填写您的邮件信箱.";            
+        }
+        
+        var quantity = $scope.order.quantity;
+        if (!quantity || Number(quantity) !== quantity || quantity % 1 !== 0) {
+            return "请您填写正确的购买件数.";
+        };
+    };
     
     $scope.createOrder = function() {
+        var errorMessage = validateOrder();
+        if (errorMessage) {
+            modalDialogService.show({
+                message: errorMessage,
+                showCancelButton: false,
+            });
+            return;
+        }
+        
         var deal = $scope.deal;
         var order = $scope.order;
         var units = order.quantity * deal.unitsPerPackage;
