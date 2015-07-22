@@ -176,6 +176,34 @@ tgbApp.filter('daysRemainingFilter', function() {
     };
 });
 
+tgbApp.factory('userAgentDetectionService', [function() {
+    var userAgent = navigator.userAgent;
+
+    var service = {};
+
+    service.getUserAgent = function() {
+        return userAgent;
+    };
+
+    service.isiOS = function() {
+        return (/(iPad|iPhone|iPod)/gi).test(userAgent);
+    };
+
+    service.isAndroid = function() {
+        return (/(Android)/gi).test(userAgent);
+    };
+
+    service.isWindowsPhone = function() {
+        return (/(IEMobile)/gi).test(userAgent);
+    };
+
+    service.isBB10 = function() {
+        return (/(BB10)/gi).test(userAgent);
+    };
+
+    return sevice;
+}]);
+
 tgbApp.factory('serviceBaseUrl', ['$window', function($window) {
     if ($window.location.hostname === '127.0.0.1') {
         serviceBaseUrl = 'https://tuangoubao.parseapp.com';
@@ -774,7 +802,7 @@ tgbApp.controller('orderCardListController', ['$scope', function($scope) {
     });
 }]);
 
-tgbApp.controller('dealDetailController', ['$scope', '$state', '$stateParams', 'userService', 'dealDataService', 'commentDataService', 'modalDialogService', function($scope, $state, $stateParams, userService, dealDataService, commentDataService, modalDialogService) {
+tgbApp.controller('dealDetailController', ['$scope', '$state', '$stateParams', '$modal', 'userService', 'dealDataService', 'commentDataService', 'modalDialogService', function($scope, $state, $stateParams, $modal, userService, dealDataService, commentDataService, modalDialogService) {
     userService.ensureUserLoggedIn().then(function() {
         dealDataService.getDeal($stateParams.id).then(function(deal) {
             $scope.deal = deal;
@@ -810,6 +838,21 @@ tgbApp.controller('dealDetailController', ['$scope', '$state', '$stateParams', '
                 id: $scope.deal.id,
                 deal: $scope.deal,
             });
+    };
+    
+    $scope.weixinShare = function() {
+        var modalInstance = $modal.open({
+            templateUrl: 'views/weixinShare.html',
+//            controller: 'modalDialogController',
+            size: 'sm',
+            backdrop: 'static',
+//            resolve: {
+//                settings: function () {
+//                    return settings;
+//                }
+//            }
+        });
+        
     };
     
     $scope.ratingHoveringOver = function(value) {
