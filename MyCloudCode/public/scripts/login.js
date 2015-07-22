@@ -621,6 +621,47 @@ tgbApp.factory('orderDataService', ['$http', 'serviceBaseUrl', '$q', 'dealDataSe
     return orderDataService;
 }]);
 
+tgbApp.factory('commentDataService', ['$http', 'serviceBaseUrl', '$q', function($http, serviceBaseUrl, $q) {
+    var commentDataService = {};
+    
+    commentDataService.getComments = function(dealId) {
+        var resultDeferred = $q.defer();
+        
+         $http.get(serviceBaseUrl + '/api/comments/' + dealId)
+         .success(function(data, status, headers, config) {
+             resultDeferred.resolve(data);
+         })
+         .error(function(data, status, headers, config) {
+             console.log('error code:' + status);
+             resultDeferred.reject(status);
+         });
+
+        return resultDeferred.promise;        
+    };
+    
+    commentDataService.addComment = function(dealId, rating, comment) {
+        var commentWrapper = {
+            rating: rating,
+            commentText: comment,
+        };
+        
+        var resultDeferred = $q.defer();
+        
+         $http.put(serviceBaseUrl + '/api/comment/' + dealId, commentWrapper)
+         .success(function(data, status, headers, config) {
+             resultDeferred.resolve(data);
+         })
+         .error(function(data, status, headers, config) {
+             console.log('error code:' + status);
+             resultDeferred.reject(status);
+         });
+
+        return resultDeferred.promise;        
+    };
+
+    return commentDataService;
+}]);
+
 tgbApp.factory('modalDialogService', ['$modal', function($modal) {
     var modalDialogService = {};
     
@@ -733,12 +774,15 @@ tgbApp.controller('orderCardListController', ['$scope', function($scope) {
     });
 }]);
 
-tgbApp.controller('dealDetailController', ['$scope', '$state', '$stateParams', 'userService', 'dealDataService', function($scope, $state, $stateParams, userService, dealDataService) {
+tgbApp.controller('dealDetailController', ['$scope', '$state', '$stateParams', 'userService', 'dealDataService', 'commentDataService', 'modalDialogService', function($scope, $state, $stateParams, userService, dealDataService, commentDataService, modalDialogService) {
     userService.ensureUserLoggedIn().then(function() {
-        dealDataService.getDeal($stateParams.id)
-        .then(function(d) {
-            $scope.deal = d;
-        })
+        dealDataService.getDeal($stateParams.id).then(function(deal) {
+            $scope.deal = deal;
+        });
+        
+        commentDataService.getComments($stateParams.id).then(function(comments) {
+            $scope.comments = comments;
+        });
     });
     
     $scope.toggleFollowedStatus = function() {
@@ -780,6 +824,21 @@ tgbApp.controller('dealDetailController', ['$scope', '$state', '$stateParams', '
         {stateOn: 'glyphicon-star icon-star-selected', stateOff: 'glyphicon-star-empty'},
         {stateOn: 'glyphicon-star icon-star-selected', stateOff: 'glyphicon-star-empty'},
     ];
+    
+    $scope.addComment = function() {
+        commentDataService.addComment($scope.deal.id, $scope.rating, $scope.comment).then(function(comment) {
+            if ($scope.comments) {
+                $scope.comments.unshift(comment);
+                $scope.rating = undefined;
+                $scope.comment = undefined;
+            } 
+        }, function(reason) {
+            modalDialogService.show({
+                message: "对不起, 刚才没能发布您的评论，请稍后再试试.",
+                showCancelButton: false,
+            });
+        });
+    };
 }]);
 
 tgbApp.controller('createDealController', ['$scope', '$state', '$stateParams', 'dealDataService', 'regionDataService', 'userService', 'modalDialogService',  function($scope, $state, $stateParams, dealDataService, regionDataService, userService, modalDialogService) {

@@ -84,13 +84,21 @@
         <span>您的评论: </span>
         <rating ng-model="rating" max="5" readonly="false" on-hover="ratingHoveringOver(value)" on-leave="overStar=null" rating-states="ratingStates"></rating>
         <br></br>
-        <textarea ng-model="comment"></textarea>
+        <textarea ng-model="comment" maxlength="500" placeholder="限500字"></textarea>
+        <br>
+        <!-- TODO: disabled button does not grey out. -->
+        <button ng-click="addComment()" ng-disabled="!rating && !comment">提交</button>
     </div>
     
-    <div ng-repeat="comment in deal.comments">
-        <span>{{comment.creatorName}}</span>
+    <div ng-repeat="comment in comments">
+        <img ng-src="{{comment.creatorHeadimgurl}}" class="col-md-1 col-xs-1"/>
+        <span>{{comment.nickname}}</span>
         <rating ng-model="comment.rating" max="5" readonly="true" rating-states="ratingStates"></rating>
+        <span>{{comment.createdAt | date:'yyyy年MM月dd日'}}</span>
         <br>
-        <span>{{comment.content}}</span>
+        <span>{{comment.commentText}}</span>
+        <br>
+        <br>
+        <br>
     </div>
 </div>
