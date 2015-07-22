@@ -24,6 +24,9 @@ module.exports.putComment = function (req, res) {
 		rating = parseFloat(rating);
 	}
 	var commentText = req.body.commentText;
+	if (commentText && commentText.length > 500) {
+		commentText = commentText.substring(0, 500);
+	}
 
 	return currentUser.fetch()
 		.then(function(parseUser) {
