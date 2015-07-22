@@ -1062,7 +1062,7 @@ tgbApp.controller('dealStatusController', ['$scope', '$state', '$stateParams', '
     
     $scope.sendSpreadsheet = function() {
         dealDataService.sendSpreadsheet($scope.deal.id).then(function() {
-            var message = '买家信息已生成Excel表格并发送到您的邮箱: ' + $scope.deal.email + '. 谢谢您使用团购宝!';
+            var message = '买家信息已生成Excel表格并发送到您注册账号的邮箱. 谢谢您使用团购宝!';
 
             modalDialogService.show({
                 message: message,

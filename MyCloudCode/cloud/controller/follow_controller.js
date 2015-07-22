@@ -1,6 +1,6 @@
 var ParseFollowDeal = Parse.Object.extend('FollowDeal');
 var ParseFollowUser = Parse.Object.extend('FollowUser');
-var ParseBuyDeal = Parse.Object.extend('BuyDeal');
+var ParseDeal = Parse.Object.extend('Deal');
 
 module.exports.followDeal = function(req, res) {
 	var currentUser = Parse.User.current();
@@ -37,7 +37,31 @@ module.exports.followDeal = function(req, res) {
     		}
     		return;
     	})
-    	.then(function() {
+    	.then(function(parseFollowDeal) {
+    		if (parseFollowDeal) {
+    			var parseDealPromise = new ParseDeal();
+    			parseDealPromise.id = dealId;
+    			return parseDealPromise.fetch();
+    		}
+    		return;
+    	})
+    	.then(function(parseDeal) {
+    		if (!parseDeal) {
+    			return;
+    		}
+
+    		var followCount = parseDeal.get('followCount');
+			if (followCount || followCount == 0) {
+				followCount++;
+			}
+			else {
+				followCount = 0;
+			}
+			parseDeal.set('followCount', followCount);
+			console.log('set followCount: ' + followCount);
+			return parseDeal.save(null, {useMasterKey: true});
+    	})
+    	.then(function(savedDeal) {
     		return res.status(200).end();
     	}, function(error) {
     		console.log('Follow deal error: ' + JSON.stringify(error));
@@ -70,7 +94,31 @@ module.exports.unfollowDeal = function(req, res) {
     		}
     		return;
     	})
-    	.then(function() {
+    	.then(function(deletedFollowDeal) {
+    		if (deletedFollowDeal) {
+    			var parseDealPromise = new ParseDeal();
+    			parseDealPromise.id = dealId;
+    			return parseDealPromise.fetch();
+    		}
+    		return;
+    	})
+    	.then(function(parseDeal) {
+    		if (!parseDeal) {
+    			return;
+    		}
+    		var followCount = parseDeal.get('followCount');
+			if (followCount) {
+				followCount = 0;
+			}
+			else {
+				followCount--;
+			}
+			parseDeal.set('followCount', followCount);
+			console.log('set followCount: ' + followCount);
+			return parseDeal.save(null, {useMasterKey: true});
+    		
+    	})
+    	.then(function(savedDeal) {
     		return res.status(200).end();
     	}, function(error) {
     		console.log('Delete followDeal error: ' + JSON.stringify(error));

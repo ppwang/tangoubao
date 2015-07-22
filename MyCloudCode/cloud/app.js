@@ -94,7 +94,17 @@ app.get('/api/orders/:dealId?', ordersController.getOrders);
 
 // Entry points for notification
 var notificationController = require('cloud/controller/notification_controller');
-app.get('/api/notifyUser/:userId?', notificationController.notifyUser);
+app.post('/api/notifyUser/:userId?', express.bodyParser(), notificationController.notifyUser);
+app.post('/api/notifyBuyers', express.bodyParser(), notificationController.notifyBuyers);
+
+// Entry points for comment
+var commentController = require('cloud/controller/comment_controller');
+app.put('/api/comment/:dealId?', express.bodyParser(), commentController.putComment);
+app.delete('/api/comment/:commentId?', commentController.deleteComment);
+
+// Entry points for comments
+var commentsController = require('cloud/controller/comments_controller');
+app.get('/api/comments/:dealId?', commentsController.getComments);
 
 // Regions
 var regionsController = require('cloud/controller/regions_controller');

@@ -23,6 +23,7 @@ module.exports.putOrder = function(req, res) {
 	if (!orderId) {
 		return createOrder(dealId, currentUser, req)
 			.then(function(parseOrder) {
+				console.log('after create order');
 				if (parseOrder == 'Invalid order') {
 					return 'Invalid order';
 				}
@@ -39,7 +40,7 @@ module.exports.putOrder = function(req, res) {
 				}
 				return res.status(200).send(responseData);
 			}, function(error) {
-				console.log('order: ' + JSON.stringify(error));
+				console.log('create order: ' + JSON.stringify(error));
 				return res.status(500).end();
 			});
 	}
@@ -61,7 +62,7 @@ module.exports.putOrder = function(req, res) {
 			}
 			return res.status(200).send(responseData);
 		}, function(error) {
-			console.log('order: ' + JSON.stringify(error));
+			console.log('modify order: ' + JSON.stringify(error));
 			return res.status(500).end();
 		});
 };
@@ -109,11 +110,12 @@ module.exports.putStatus = function(req, res) {
 };
 
 module.exports.getOrder = function(req, res) {
-	var currentUser = Parse.User.current();
-	if (!currentUser) {
-		// require user to log in
-		return res.status(401).send();
-	}
+	// TBD: do we need the user to log in?
+	// var currentUser = Parse.User.current();
+	// if (!currentUser) {
+	// 	// require user to log in
+	// 	return res.status(401).send();
+	// }
 
 	var orderId = req.params.orderId;
 	if (!orderId) {
@@ -195,20 +197,27 @@ var createOrder = function(dealId, currentUser, req) {
 	promises.push(parseDealPromise.fetch());
 	var deal;
 
+	var parseUser;
+	var parseDeal;
+	var savedOrder;
+
 	return Parse.Promise.when(promises)
 		.then(function(instantiatedUser, instantiatedDeal) {
-			deal = tgbDeal.convertToDealModel(instantiatedDeal);
+			parseUser = instantiatedUser;
+			parseDeal = instantiatedDeal;
+
+			deal = tgbDeal.convertToDealModel(parseDeal);
 			if (!tgbDeal.isValidOrder(deal, new Date())) {
 				console.log('Invalid order');
 				return 'Invalid order';
 			}
 			
-			var userPhone = instantiatedUser.get('phoneNumber');
+			var userPhone = parseUser.get('phoneNumber');
 			if (!userPhone) {
 				console.log('set phoneNumber:' + phoneNumber);
-				instantiatedUser.set('bypassClaim', 'true');
-				instantiatedUser.set('phoneNumber', phoneNumber);
-				return instantiatedUser.save();
+				parseUser.set('bypassClaim', 'true');
+				parseUser.set('phoneNumber', phoneNumber);
+				return parseUser.save();
 			}
 			return;
 		})
@@ -216,7 +225,7 @@ var createOrder = function(dealId, currentUser, req) {
 			if (savedUser == 'Invalid order') {
 				return 'Invalid order';
 			}
-			console.log('create new deal');
+			console.log('create new order');
 			var parseOrder = new ParseOrder();
 			parseOrder.set('dealId', dealId);
 			parseOrder.set('creatorId', currentUser.id);
@@ -231,6 +240,24 @@ var createOrder = function(dealId, currentUser, req) {
 			var totalPrice = deal.unitPrice * quantity;
 			parseOrder.set('price', totalPrice);
 			return parseOrder.save();
+		})
+		.then(function(savedParseOrder) {
+			console.log('save order');
+			savedOrder = savedParseOrder;
+			var orderCount = parseDeal.get('orderCount');
+			if (orderCount || orderCount == 0) {
+				orderCount++;
+			}
+			else {
+				orderCount = 0;
+			}
+			parseDealPromise.set('orderCount', orderCount);
+			console.log('set orderCount: ' + orderCount);
+			return parseDealPromise.save(null, { useMasterKey: true });
+		})
+		.then(function(savedDeal) {
+			console.log('parseDealPromise save');
+			return savedOrder;
 		});
 };
 
@@ -312,16 +339,44 @@ module.exports.deleteOrder = function(req, res) {
 
 	var existingParseOrder = new ParseOrder();
    	existingParseOrder.id = orderId;
+   	var dealId;
    	return existingParseOrder.fetch()
 		.then( function(parseOrder) {
-			if (parseOrder) {
+			if (parseOrder && parseOrder.creatorId == currentUser.id) {
 				console.log('Delete orderId:' + orderId + ' by userId: ' + currentUser.id);
+				dealId = parseOrder.get('dealId');
 				return existingParseOrder.destroy({});
 			}
-			return;
+			return 'Not authorized';
 		})
-		.then(function() {
-    		return res.status(200).end();
+		.then(function(message) {
+			if (message == 'Not authorized') {
+				return message;
+			}
+			var parseDealPromise = new ParseDeal();
+			parseDealPromise.id = dealId;
+			return parseDealPromise.fetch();
+    	})
+    	.then(function(parseDeal) {
+    		if (message == 'Not authorized') {
+				return message;
+			}
+
+    		var orderCount = parseDeal.get('orderCount');
+			if (orderCount) {
+				orderCount--;
+			}
+			else {
+				orderCount = 0;
+			}
+			parseDeal.set('orderCount', orderCount);
+			return parseDeal.save(null, {useMasterKey: true});
+    	})
+    	then(function(savedDeal) {
+    		if (message == 'Not authorized') {
+				return res.status(401).end();
+			}
+			return res.status(200).end();
     	}, function(error) {
     		console.log('Delete order error: ' + JSON.stringify(error));
     		return res.status(500).end();
