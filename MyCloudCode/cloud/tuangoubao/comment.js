@@ -9,6 +9,7 @@ module.exports.convertToCommentModel = function(parseComment) {
 	comment.creatorHeadimgurl = parseComment.get('creatorHeadimgurl');
 	comment.commentText = parseComment.get('commentText');
 	comment.rating = parseComment.get('rating');
+	comment.createdAt = parseComment.createdAt;
 
 	return comment;
 }
