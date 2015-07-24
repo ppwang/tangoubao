@@ -178,7 +178,12 @@ tgbApp.filter('daysRemainingFilter', function() {
 
 tgbApp.factory('userAgentDetectionService', [function() {
     var userAgent = navigator.userAgent;
-
+    var isiOS = (/(iPad|iPhone|iPod)/gi).test(userAgent);
+    var isAndroid = (/(Android)/gi).test(userAgent);
+    var isWindowsPhone = (/(IEMobile)/gi).test(userAgent);
+    var isBB10 = (/(BB10)/gi).test(userAgent);
+    var isWeixin = (/(MicroMessenger)/gi).test(userAgent);
+    
     var service = {};
 
     service.getUserAgent = function() {
@@ -186,22 +191,26 @@ tgbApp.factory('userAgentDetectionService', [function() {
     };
 
     service.isiOS = function() {
-        return (/(iPad|iPhone|iPod)/gi).test(userAgent);
+        return isiOS;
     };
 
     service.isAndroid = function() {
-        return (/(Android)/gi).test(userAgent);
+        return isAndroid;
     };
 
     service.isWindowsPhone = function() {
-        return (/(IEMobile)/gi).test(userAgent);
+        return isWindowsPhone;
     };
 
     service.isBB10 = function() {
-        return (/(BB10)/gi).test(userAgent);
+        return isBB10;
     };
 
-    return sevice;
+    service.isWeixin = function() {
+        return isWeixin;
+    };
+    
+    return service;
 }]);
 
 tgbApp.factory('serviceBaseUrl', ['$window', function($window) {
@@ -761,12 +770,19 @@ tgbApp.directive('backgroundImage', function() {
     };
 });
 
+tgbApp.controller('topNavController', ['$scope', '$modal', function($scope, $modal) {
+    $scope.showCreateDealInfo = function() {
+        $modal.open({
+            templateUrl: 'views/createOrderDisabledNotice.html',
+            size: 'sm',
+            backdrop: 'static',
+        });
+    };
+}]);
+
 tgbApp.controller('welcomeController', ['$scope', 'userService', function($scope, userService) {
     userService.ensureUserLoggedIn();
 }]);
-//tgbApp.controller('$scope', 'topNavController', ['$scope', 'userService', function(userService) {
-//    $scope.currentUser = userService.currentUser;
-//}]);
 
 tgbApp.controller('publicDealsController', ['$scope', 'dealDataService', 'userService', function($scope, dealDataService, userService) {
     userService.ensureUserLoggedIn();
@@ -802,8 +818,10 @@ tgbApp.controller('orderCardListController', ['$scope', function($scope) {
     });
 }]);
 
-tgbApp.controller('dealDetailController', ['$scope', '$state', '$stateParams', '$modal', 'userService', 'dealDataService', 'commentDataService', 'modalDialogService', function($scope, $state, $stateParams, $modal, userService, dealDataService, commentDataService, modalDialogService) {
+tgbApp.controller('dealDetailController', ['$scope', '$state', '$stateParams', '$modal', 'userService', 'userAgentDetectionService', 'dealDataService', 'commentDataService', 'modalDialogService', function($scope, $state, $stateParams, $modal, userService, userAgentDetectionService, dealDataService, commentDataService, modalDialogService) {
     userService.ensureUserLoggedIn().then(function() {
+        $scope.weixinShareVisible = userAgentDetectionService.isWeixin() && userAgentDetectionService.isiOS();
+        
         dealDataService.getDeal($stateParams.id).then(function(deal) {
             $scope.deal = deal;
         });
@@ -843,14 +861,8 @@ tgbApp.controller('dealDetailController', ['$scope', '$state', '$stateParams', '
     $scope.weixinShare = function() {
         var modalInstance = $modal.open({
             templateUrl: 'views/weixinShare.html',
-//            controller: 'modalDialogController',
             size: 'sm',
-            backdrop: 'static',
-//            resolve: {
-//                settings: function () {
-//                    return settings;
-//                }
-//            }
+            backdrop: 'true',
         });
         
     };
