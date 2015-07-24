@@ -223,7 +223,7 @@ tgbApp.factory('serviceBaseUrl', ['$window', function($window) {
     return serviceBaseUrl;
 }]);
 
-tgbApp.factory('userService', ['$http', '$q', 'serviceBaseUrl', '$rootScope', '$state', function($http, $q, serviceBaseUrl, $rootScope, $state) {
+tgbApp.factory('userService', ['$http', '$q', 'serviceBaseUrl', '$rootScope', '$state', '$interval', 'modalDialogService', function($http, $q, serviceBaseUrl, $rootScope, $state, $interval, modalDialogService) {
     var currentUser;
     
     var setCurrentUser = function(user) {
@@ -308,7 +308,18 @@ tgbApp.factory('userService', ['$http', '$q', 'serviceBaseUrl', '$rootScope', '$
                         return user;
                     },
                     function(error) {
-                        $state.go('login');            
+                        var modalDialog = modalDialogService.show({
+                            message: '您想要使用的功能需要登录, 现在将自动跳转到登录/注册页面...',
+                            showCancelButton: false,
+                        });
+                        
+                        closeModalDialog = $interval(function() {
+                            modalDialog.close(null);
+                        }, 3000, 1);
+                        
+                        modalDialog.result.then(function() {
+                            $state.go('login');            
+                        });
                     })
             } else {
                 var resultDeferred = $q.defer();
@@ -715,7 +726,7 @@ tgbApp.factory('modalDialogService', ['$modal', function($modal) {
             }
         });
         
-        return modalInstance.result;
+        return modalInstance;
     };
     
     return modalDialogService;
@@ -785,7 +796,7 @@ tgbApp.controller('welcomeController', ['$scope', 'userService', function($scope
 }]);
 
 tgbApp.controller('publicDealsController', ['$scope', 'dealDataService', 'userService', function($scope, dealDataService, userService) {
-    userService.ensureUserLoggedIn();
+//    userService.ensureUserLoggedIn();
     
     // Wrap the promise in an object before passing into child directive.
     // http://stackoverflow.com/questions/17159614/how-do-i-pass-promises-as-directive-attributes-in-angular
@@ -819,16 +830,14 @@ tgbApp.controller('orderCardListController', ['$scope', function($scope) {
 }]);
 
 tgbApp.controller('dealDetailController', ['$scope', '$state', '$stateParams', '$modal', 'userService', 'userAgentDetectionService', 'dealDataService', 'commentDataService', 'modalDialogService', function($scope, $state, $stateParams, $modal, userService, userAgentDetectionService, dealDataService, commentDataService, modalDialogService) {
-    userService.ensureUserLoggedIn().then(function() {
-        $scope.weixinShareVisible = userAgentDetectionService.isWeixin() && userAgentDetectionService.isiOS();
-        
-        dealDataService.getDeal($stateParams.id).then(function(deal) {
-            $scope.deal = deal;
-        });
-        
-        commentDataService.getComments($stateParams.id).then(function(comments) {
-            $scope.comments = comments;
-        });
+    $scope.weixinShareVisible = userAgentDetectionService.isWeixin() && userAgentDetectionService.isiOS();
+
+    dealDataService.getDeal($stateParams.id).then(function(deal) {
+        $scope.deal = deal;
+    });
+
+    commentDataService.getComments($stateParams.id).then(function(comments) {
+        $scope.comments = comments;
     });
     
     $scope.toggleFollowedStatus = function() {
@@ -1105,7 +1114,7 @@ tgbApp.controller('createOrderController', ['$scope', '$state', '$stateParams', 
         modalDialogService.show({
             message: message,
             showCancelButton: true,
-        }).then(function() {
+        }).result.then(function() {
             orderDataService.createOrder($scope.order).then(function() {
                 // TODO: show order details.
                 $state.go('buyerAccount.orders', { status: 'active' });
@@ -1239,6 +1248,9 @@ tgbApp.controller('loginController', function($scope, $location, $state, userSer
         user.claimtoken = $scope.user.claimtoken;
         userService.signUp(user).then(
             function() {
+                if ($state.previousState) {
+                    $state.go($state.previousState, $state.previousParams);
+                }
             },
             function(response) {
                 if (response.data == "Email not verified!") {
@@ -1258,7 +1270,11 @@ tgbApp.controller('loginController', function($scope, $location, $state, userSer
         user.claimtoken = $scope.user.claimtoken;
         userService.logIn(user).then(
             function(user) {
-                $state.go('welcome');
+                if ($state.previousState) {
+                    $state.go($state.previousState, $state.previousParams);
+                } else {
+                    $state.go('welcome');
+                }
             },
             function(response) {
                 if (response.data == "Email not verified!") {
@@ -1283,6 +1299,11 @@ tgbApp.controller('loginController', function($scope, $location, $state, userSer
     };
 });
 
-tgbApp.run(['$rootScope', function($rootScope) {
+tgbApp.run(['$rootScope', '$state', function($rootScope, $state) {
     $rootScope.scenario = 'Sign up';
+    
+    $rootScope.$on('$stateChangeSuccess', function (event, toState, toParams, fromState, fromParams) {
+        $state.previousState = fromState;
+        $state.previousParams = fromParams;
+    });
 }]);

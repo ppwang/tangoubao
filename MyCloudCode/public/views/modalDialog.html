@@ -1,15 +1,13 @@
-<div class="row">
-	<div class="col-md-12 col-xs-12 modal-message">
+<div class="modal-content">
+    <div class="modal-body">
 		{{settings.message}}
-	</div>
-</div>
-<div class="row modal-button-group">
-	<div class="col-md-12 col-xs-12">
-    	<button class="btn btn-default col-md-6 col-xs-6" ng-click="ok()">
-    		确认
-    	</button>
-		<button class="btn btn-default col-md-6 col-xs-6" ng-show="settings.showCancelButton" ng-click="cancel()">
-			取消
-		</button>
-	</div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-default" ng-click="ok()">
+            确认
+        </button>
+        <button class="btn" ng-show="settings.showCancelButton" ng-click="cancel()">
+            取消
+        </button>
+    </div>
 </div>

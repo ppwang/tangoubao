@@ -32,7 +32,7 @@
     <base href="/" />
 </head>
 <body ng-app="tuanGouBao">
-    <nav class="navbar navbar-default" ng-controller="topNavController" ng-show="currentUser != null">
+    <nav class="navbar navbar-default" ng-controller="topNavController">
         <div class="container">
             <!-- Brand and toggle get grouped for better mobile display -->
             <div class="navbar-header">
@@ -56,13 +56,13 @@
                     </li>
                     <li><a ui-sref="about" data-toggle="collapse" data-target=".navbar-collapse">About</a></li>
                     <li><a ui-sref="contact" data-toggle="collapse" data-target=".navbar-collapse">Contact</a></li>
-                    <li><a ui-sref="login" data-toggle="collapse" data-target=".navbar-collapse">{{currentUser ? 'Logout' : 'Login'}}</a></li>
                 </ul>
             </div>
         </div>
     </nav>
-    <div class="site-brand" ng-show="currentUser != null">
-        北美团购宝
+    <div class="site-brand">
+        <span>北美团购宝</span>
+        <a ui-sref="login" style="float: right;">{{currentUser ? '退出' : '登录/注册'}}</a>
     </div>
 <!--     <div class="user-img" ng-show="currentUser != null">
         <img class="user-icon" ng-src="{{currentUser.headimgurl}}"/>
