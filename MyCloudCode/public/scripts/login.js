@@ -132,21 +132,21 @@ tgbApp.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, 
                 }
             }
         })
-        .state('about', {
-            url:'/about',
-            views: {
-                'content': {
-                    templateUrl: 'views/about.html',
-                    controller: 'aboutController',
-                }
-            }
-        })
         .state('contact', {
             url:'/contact',
             views: {
                 'content': {
                     templateUrl: 'views/contact.html',
                     controller: 'contactController',
+                }
+            }
+        })
+        .state('login', {
+            url:'/login',
+            views: {
+                'content': {
+                    templateUrl: 'views/login.html',
+                    controller: 'loginController',
                 }
             }
         })
