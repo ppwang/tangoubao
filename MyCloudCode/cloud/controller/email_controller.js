@@ -1,6 +1,7 @@
 var ParseDeal = Parse.Object.extend('Deal');
 var dealModel = require('cloud/tuangoubao/deal');
 var orderModel = require('cloud/tuangoubao/order');
+var messageModel = require('cloud/tuangoubao/message');
 var excelHelper = require('cloud/lib/excel_helper');
 var Buffer = require('buffer').Buffer;
 
@@ -8,11 +9,15 @@ var mandrillSetting = require('cloud/app.config.js').settings.mandrill;
 var mandrill = require('mandrill');
 mandrill.initialize(mandrillSetting.apiKey);
 
-module.exports.sendEmail = function(emailAddress, sendeeName) {
+module.exports.sendEmail = function(emailAddress, sendeeName, order, messageType, messageText) {
+	var messageTitle = messageModel.constructMessageTitle(order, messageType, messageText);
+	var messageBody = messageModel.constructMessageBody(order, messageType, messageText);
+	console.log('messageTitle: ' + messageTitle);
+	console.log('messageBody: ' + messageBody);
 	return mandrill.sendEmail({
 		message: {
-			text: "Your order is ready!",
-			subject: "Your tuangoubao order is ready!",
+			text: messageBody,
+			subject: messageTitle,
 			from_email: "info@tuangoubao.parseapps.com",
 			from_name: "Your friend at Tuan Gou Bao",
 			to: [

@@ -63,6 +63,7 @@ Parse.Cloud.beforeSave(Parse.User, function(request, response) {
 	        var action = currentUser.get('action');
 	        if (action != 'signUp') {
 		        wechatUser.set('claimtoken', null);
+		        currentUser.set('claimtoken', null);
 		    }
 	        // Add wechatUser image to user image
 	        var headimgurl = wechatUser.get('headimgurl');
