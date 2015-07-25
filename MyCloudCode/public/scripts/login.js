@@ -132,6 +132,15 @@ tgbApp.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, 
                 }
             }
         })
+        .state('messageCenter', {
+            url: '/messageCenter',
+            views: {
+                'content': {
+                    templateUrl: 'views/messageCenter.html',
+                    controller: 'messageCenterController',
+                },
+            },
+        })
         .state('contact', {
             url:'/contact',
             views: {
@@ -216,6 +225,7 @@ tgbApp.factory('serviceBaseUrl', ['$window', function($window) {
 
 tgbApp.factory('userService', ['$http', '$q', 'serviceBaseUrl', '$rootScope', '$state', '$interval', 'modalDialogService', function($http, $q, serviceBaseUrl, $rootScope, $state, $interval, modalDialogService) {
     var currentUser;
+    var shouldTryLogin = true;
     
     var setCurrentUser = function(user) {
         currentUser = user;
@@ -314,6 +324,22 @@ tgbApp.factory('userService', ['$http', '$q', 'serviceBaseUrl', '$rootScope', '$
                         
                         return $q.reject(error);
                     })
+            } else {
+                var resultDeferred = $q.defer();
+                resultDeferred.resolve(currentUser);
+                return resultDeferred.promise;
+            }
+        },
+        
+        tryUserLogIn: function() {
+            if (shouldTryLogin && !currentUser) {
+                return this.logIn(null).then(function(user) {
+                    return user;
+                }, function(error) {
+                    // If cannot log in, no need to try again, and don't treat this as a failure.
+                    shouldTryLogin = false;
+                    return null;
+                });
             } else {
                 var resultDeferred = $q.defer();
                 resultDeferred.resolve(currentUser);
@@ -703,6 +729,65 @@ tgbApp.factory('commentDataService', ['$http', 'serviceBaseUrl', '$q', function(
     return commentDataService;
 }]);
 
+tgbApp.factory('messageDataService', ['$http', 'serviceBaseUrl', '$q', function($http, serviceBaseUrl, $q) {
+    // Cached data
+    var cachedMessagesPromise;
+
+    var dirtyCache = function() {
+        cachedOrdersPromise = null;    
+    };
+
+    var sortMessages = function(messages) {
+        return _.sortByAll(messages, ['status', 'createdAt']);
+    };
+    
+    var messageDataService = {};
+    
+    messageDataService.getMessages = function() {
+        if (cachedMessagesPromise) {
+            return cachedMessagesPromise;
+        }
+        
+        var resultDeferred = $q.defer();
+        
+         $http.get(serviceBaseUrl + '/api/messages')
+         .success(function(data, status, headers, config) {
+             var groupedMessages = sortMessages(data);
+             resultDeferred.resolve(groupedMessages);
+             cachedMessagesPromise = resultDeferred.promise; 
+         })
+         .error(function(data, status, headers, config) {
+             console.log('error code:' + status);
+             resultDeferred.reject(status);
+             cachedMessagesPromise = null;
+         });
+
+        return resultDeferred.promise;
+    };
+
+    messageDataService.notifyBuyers = function(dealId, messageType, messageText) {
+        var messageWrapper = {
+            dealId: dealId,
+            messageType: messageType,
+            messageText: messageText
+        };
+        var resultDeferred = $q.defer();
+        
+         $http.put(serviceBaseUrl + '/api/notifyBuyers', messageWrapper)
+         .success(function(data, status, headers, config) {
+             resultDeferred.resolve(data);
+         })
+         .error(function(data, status, headers, config) {
+             console.log('error code:' + status);
+             resultDeferred.reject(status);
+         });
+
+        return resultDeferred.promise;        
+    };
+    
+    return messageDataService;
+}]);
+
 tgbApp.factory('modalDialogService', ['$modal', function($modal) {
     var modalDialogService = {};
     
@@ -789,13 +874,14 @@ tgbApp.controller('welcomeController', ['$scope', 'userService', function($scope
 }]);
 
 tgbApp.controller('publicDealsController', ['$scope', 'dealDataService', 'userService', function($scope, dealDataService, userService) {
-//    userService.ensureUserLoggedIn();
-    
+    userService.tryUserLogIn();
+
     // Wrap the promise in an object before passing into child directive.
     // http://stackoverflow.com/questions/17159614/how-do-i-pass-promises-as-directive-attributes-in-angular
+    // No need to wait for logon for public deals.
     $scope.dealsPromiseWrapper = {
         promise: dealDataService.getPublicDeals(),
-    };
+    };        
 }]);
 
 tgbApp.controller('dealCardController', ['$scope', '$state', function($scope, $state) {
@@ -823,14 +909,16 @@ tgbApp.controller('orderCardListController', ['$scope', function($scope) {
 }]);
 
 tgbApp.controller('dealDetailController', ['$scope', '$state', '$stateParams', '$modal', 'userService', 'userAgentDetectionService', 'dealDataService', 'commentDataService', 'modalDialogService', function($scope, $state, $stateParams, $modal, userService, userAgentDetectionService, dealDataService, commentDataService, modalDialogService) {
-    $scope.weixinShareVisible = userAgentDetectionService.isWeixin() && userAgentDetectionService.isiOS();
+    userService.tryUserLogIn().then(function(user){
+        $scope.weixinShareVisible = userAgentDetectionService.isWeixin() && userAgentDetectionService.isiOS();
 
-    dealDataService.getDeal($stateParams.id).then(function(deal) {
-        $scope.deal = deal;
-    });
+        dealDataService.getDeal($stateParams.id).then(function(deal) {
+            $scope.deal = deal;
+        });
 
-    commentDataService.getComments($stateParams.id).then(function(comments) {
-        $scope.comments = comments;
+        commentDataService.getComments($stateParams.id).then(function(comments) {
+            $scope.comments = comments;
+        });        
     });
     
     $scope.toggleFollowedStatus = function() {
@@ -1210,8 +1298,16 @@ tgbApp.controller('modalDialogController', ['$scope', '$modalInstance', 'setting
     };
 }]);
 
+tgbApp.controller('messageCenterController', ['$scope', 'userService', 'messageDataService', function($scope, userService, messageDataService) {
+    userService.ensureUserLoggedIn().then(function(user) {
+        messageDataService.getMessages().then(function(messages) {
+            $scope.messages = messages;
+        });
+    });
+}]);
+
 tgbApp.controller('contactController', function($scope) {
-    $scope.message = 'Contact us! JK. This is just a demo.';
+    
 });
 
 tgbApp.controller('loginController', function($scope, $location, $state, userService) {

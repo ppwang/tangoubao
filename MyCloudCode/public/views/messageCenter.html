@@ -1,0 +1,7 @@
+<div ng-repeat="message in messages"  ng-click="showContent = !showContent">
+    <span>{{message.createdAt | date:'yyyy年MM月dd日'}}来自{{message.creatorName}}的信息:</span>
+    <br>
+    <span>{{message.messageTitle}}</span>
+    <br>
+    <span ng-show="showContent">{{message.messageBody}}</span>
+</div>
