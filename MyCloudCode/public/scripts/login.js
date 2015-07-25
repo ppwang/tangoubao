@@ -843,21 +843,23 @@ tgbApp.controller('dealDetailController', ['$scope', '$state', '$stateParams', '
     });
     
     $scope.toggleFollowedStatus = function() {
-        var resultPromise;
-        if ($scope.deal.followed) {
-            dealDataService.unfollowDeal($scope.deal);
-        } else {
-            dealDataService.followDeal($scope.deal)
-        }
+        userService.ensureUserLoggedIn().then(function() {
+            var resultPromise;
+            if ($scope.deal.followed) {
+                dealDataService.unfollowDeal($scope.deal);
+            } else {
+                dealDataService.followDeal($scope.deal)
+            }
+        });
     };
     
     $scope.purchaseDeal = function() {
-        $state.go(
-            'createOrder', 
-            { 
-                deal: $scope.deal,
-                dealId: $scope.deal.id,
+        userService.ensureUserLoggedIn().then(function() {
+            $state.go('createOrder', { 
+                    deal: $scope.deal,
+                    dealId: $scope.deal.id,
             });
+        });
     };
     
     $scope.manageDeal = function() {
@@ -892,16 +894,18 @@ tgbApp.controller('dealDetailController', ['$scope', '$state', '$stateParams', '
     ];
     
     $scope.addComment = function() {
-        commentDataService.addComment($scope.deal.id, $scope.rating, $scope.comment).then(function(comment) {
-            if ($scope.comments) {
-                $scope.comments.unshift(comment);
-                $scope.rating = undefined;
-                $scope.comment = undefined;
-            } 
-        }, function(reason) {
-            modalDialogService.show({
-                message: "对不起, 刚才没能发布您的评论，请稍后再试试.",
-                showCancelButton: false,
+        userService.ensureUserLoggedIn().then(function() {
+            commentDataService.addComment($scope.deal.id, $scope.rating, $scope.comment).then(function(comment) {
+                if ($scope.comments) {
+                    $scope.comments.unshift(comment);
+                    $scope.rating = undefined;
+                    $scope.comment = undefined;
+                } 
+            }, function(reason) {
+                modalDialogService.show({
+                    message: "对不起, 刚才没能发布您的评论，请稍后再试试.",
+                    showCancelButton: false,
+                });
             });
         });
     };
