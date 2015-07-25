@@ -52,6 +52,7 @@
                         <ul class="dropdown-menu">
                             <li><a ui-sref="buyerAccount.orders({status: 'active'})" data-toggle="collapse" data-target=".navbar-collapse">我是买家</a></li>
                             <li><a ui-sref="sellerAccount.deals({status: 'active'})" data-toggle="collapse" data-target=".navbar-collapse">我是卖家</a></li>
+                            <li><a ui-sref="messageCenter" data-toggle="collapse" data-target=".navbar-collapse">信息中心</a></li>
                         </ul>
                     </li>
                     <li><a ui-sref="contact" data-toggle="collapse" data-target=".navbar-collapse">联系我们</a></li>
@@ -61,6 +62,11 @@
     </nav>
     <div class="site-brand">
         <span>北美团购宝</span>
+        <a ui-sref="messageCenter">
+            <button ng-show="currentUser" type="button" class="glyphicon glyphicon-envelope tgb-envelope">
+                <span ng-show="currentUser && currentUser.unreadMessageCount > 0" class="badge tgb-new-message-count-badge">{{currentUser.unreadMessageCount}}</span>
+            </button>
+        </a>
         <a ui-sref="login" style="float: right;">{{currentUser ? '退出' : '登录/注册'}}</a>
     </div>
 <!--     <div class="user-img" ng-show="currentUser != null">
