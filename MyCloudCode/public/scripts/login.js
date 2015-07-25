@@ -320,6 +320,8 @@ tgbApp.factory('userService', ['$http', '$q', 'serviceBaseUrl', '$rootScope', '$
                         modalDialog.result.then(function() {
                             $state.go('login');            
                         });
+                        
+                        return $q.reject(error);
                     })
             } else {
                 var resultDeferred = $q.defer();
