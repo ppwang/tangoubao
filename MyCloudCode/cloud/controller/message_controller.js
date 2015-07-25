@@ -28,7 +28,8 @@ module.exports.putStatus = function(req, res) {
 			if (message.receiverId != currentUser.id) {
 				return 'Not authorized';
 			}
-			parseMessage.set('status', status);
+			console.log('set status: ' + (status == 'read'));
+			parseMessage.set('isRead', status=='read');
 			return parseMessage.save();
 		})
 		.then(function(savedParseMessage) {

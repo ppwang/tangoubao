@@ -107,7 +107,7 @@ app.get('/api/comments/:dealId?', commentsController.getComments);
 
 // Entry points for message
 var messageController = require('cloud/controller/message_controller');
-app.put('/api/messagesStatus/:messageId?', messageController.putStatus);
+app.put('/api/messageStatus/:messageId?', messageController.putStatus);
 
 // Entry points for messages
 var messagesController = require('cloud/controller/messages_controller');

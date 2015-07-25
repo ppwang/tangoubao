@@ -107,6 +107,7 @@ var convertToUserResponseData = function(parseUser) {
 	
 	var query = new Parse.Query(ParseMessage);
 	query.equalTo('receiverId', parseUser.id);
+	query.equalTo('isRead', false);
 	promises.push(query.count());
 	
 	return Parse.Promise.when(promises)

@@ -1,7 +1,9 @@
+var serviceSetting = require('cloud/app.config.js').settings.webservice;
 var ParseMessage = Parse.Object.extend('Message');
 
 module.exports.convertToMessageModel = function(parseMessage) {
 	var message = {};
+	message.id = parseMessage.id;
 	message.creatorId = parseMessage.get('creatorId');
 	message.receiverId = parseMessage.get('receiverId');
 	message.creatorName = parseMessage.get('creatorName');
@@ -33,6 +35,29 @@ module.exports.constructMessageTitle = function(order, messageType, messageText)
 
 module.exports.constructMessageBody = function(order, messageType, messageText) {
 	return constructMessageBody(order, messageType, messageText);
+};
+
+module.exports.constructHtmlMessageBody = function(order, messageType, messageText) {
+	var orderUrl = serviceSetting.baseUrl + '/#/orderDetail/' + order.id;
+	if (messageType == 'productArrived') {
+		return 'Your order for ' 
+			+ '<a href="' + orderUrl + '">'
+			+      order.dealName 
+			+ '</a>'
+			+ ' is ready to pick up.\n'
+			+ 'Message from seller:\n' 
+			+ messageText;
+	}
+	if (messageType == 'dealClosed') {
+		return 'The deal you ordered, ' 
+			+ '<a href="' + orderUrl + '">'
+			+      order.dealName 
+			+ '</a>'
+			+ ', is closed.\n';
+			+ 'Message from seller:\n'
+			+ messageText;
+	}
+	return null; 
 };
 
 var constructMessageBody = function(order, messageType, messageText) {

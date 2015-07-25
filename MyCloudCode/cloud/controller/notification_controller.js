@@ -7,6 +7,7 @@ var serviceSetting = require('cloud/app.config.js').settings.webservice;
 var orderModel = require('cloud/tuangoubao/order');
 var messageModel = require('cloud/tuangoubao/message');
 var dealModel = require('cloud/tuangoubao/deal');
+var utils = require('cloud/lib/utils');
 
 module.exports.notifyBuyers = function (req, res) {
 	var currentUser = Parse.User.current();
@@ -143,6 +144,9 @@ var getWechatNotificationPostBody = function(wechatId, order, messageType, messa
 	    };
 	}
 	else if (messageType == 'dealClosed') {
+		console.log('orderTime: ' + order.orderTime);
+		var creationDateString = utils.formatDateString(order.orderTime);
+		console.log('creationDateString: ' + creationDateString);
 		postData = {
 	    	"touser": wechatId,
 	    	"template_id": "YtP8hgjKBfiMdSfLhNnzg4Obj4DLsrt2yz50amnpWqg",
@@ -158,7 +162,7 @@ var getWechatNotificationPostBody = function(wechatId, order, messageType, messa
 	               "color":"#173177"
 	           },
 	           "keyword2":{
-	               "value":order.createdAt, 
+	               "value":creationDateString, 
 	               "color":"#173177"
 	           },
 	           "keyword3":{
@@ -166,7 +170,7 @@ var getWechatNotificationPostBody = function(wechatId, order, messageType, messa
 	               "color":"#173177"
 	           },
 	           "keyword4":{
-	               "value":"",
+	               "value":"Deal closed",
 	               "color":"#173177"
 	           },
 	           "keyword5":{
