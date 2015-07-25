@@ -150,15 +150,6 @@ tgbApp.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, 
                 }
             }
         })
-        .state('login', {
-            url:'/login',
-            views: {
-                'content': {
-                    templateUrl: 'views/login.html',
-                    controller: 'loginController',
-                }
-            }
-        })
 }]);
 
 tgbApp.filter('daysRemainingFilter', function() {
@@ -1218,10 +1209,6 @@ tgbApp.controller('modalDialogController', ['$scope', '$modalInstance', 'setting
         $modalInstance.dismiss(null);
     };
 }]);
-
-tgbApp.controller('aboutController', function($scope) {
-    $scope.message = 'Look! I am an about page.';
-});
 
 tgbApp.controller('contactController', function($scope) {
     $scope.message = 'Contact us! JK. This is just a demo.';
