@@ -1,7 +1,6 @@
 var orderModel = require('cloud/tuangoubao/order');
 var dealModel = require('cloud/tuangoubao/deal');
 var ParseOrder = Parse.Object.extend('Order');
-var ParseDeal = Parse.Object.extend('Deal');
 
 module.exports.getMyOrders = function(req, res) {
 	var currentUser = Parse.User.current();
@@ -42,23 +41,17 @@ module.exports.getMyOrders = function(req, res) {
 module.exports.getOrders = function(req, res) {
 	var dealId = req.params.dealId;
 	if (!dealId) {
-		// create a new deal
 		return res.send('no dealId');
 	}
 
 	var parseDealPromise = new ParseDeal();
 	console.log('get orders call: ' + dealId);
 	parseDealPromise.id = dealId;
-	return parseDealPromise.fetch()
-		.then(function(parseDeal) {
-			console.log('got ParseDeal: ' + JSON.stringify(parseDeal));
-			var deal = dealModel.convertToDealModel(parseDeal);
-			console.log('got deal: ' + JSON.stringify(deal));
-			var query = new Parse.Query(ParseOrder);
-			query.equalTo('dealId', dealId);
-			query.addDescending('createdAt');
-			return query.find();
-		})
+	var query = new Parse.Query(ParseOrder);
+	query.equalTo('dealId', dealId);
+	query.addDescending('createdAt');
+
+	return query.find()
 		.then(function(parseOrders) {
 			console.log('parseOrders: ' + JSON.stringify(parseOrders));
     		var orders = [];

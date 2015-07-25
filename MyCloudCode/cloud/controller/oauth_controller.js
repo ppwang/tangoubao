@@ -6,6 +6,7 @@ var tgbWechatUser = require('cloud/tuangoubao/wechat_user');
 module.exports.oauthConnect = function(req, res) {
 	var authProvider = req.params.authProvider;
 	console.log('oauthConnect request: ' + req.url);
+	console.log('req query: ' + JSON.stringify(req.query));
 
 	// We are supporting only wechat for now
 	if (authProvider != 'wechat' || !req.query.code) {

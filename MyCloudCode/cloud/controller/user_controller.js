@@ -1,6 +1,7 @@
 var wechatSetting = require('cloud/app.config.js').settings.wechat;
 var tgbWechatUser = require('cloud/tuangoubao/wechat_user');
 var tgbUser = require('cloud/tuangoubao/user');
+var ParseMessage = Parse.Object.extend('Message');
 
 module.exports.signUp = function(req, res) {
 	var parseUser = new Parse.User();
@@ -13,6 +14,9 @@ module.exports.signUp = function(req, res) {
     parseUser.set("username", username);
     parseUser.set("password", password);
     parseUser.set("email", email);
+
+    // set default user preference of getting notified to be all
+    parseUser.set('')
     
     if (wechatId && claimtoken) {
     	parseUser.set('action', 'signUp');
@@ -97,10 +101,20 @@ module.exports.logOut = function(req, res) {
 };
 
 var convertToUserResponseData = function(parseUser) {
-	return parseUser.fetch()
-		.then(function(instantiatedUser) {
+	var promises = [];
+
+	promises.push(parseUser.fetch());
+	
+	var query = new Parse.Query(ParseMessage);
+	query.equalTo('receiverId', parseUser.id);
+	promises.push(query.count());
+	
+	return Parse.Promise.when(promises)
+		.then(function(instantiatedUser, unreadMessageCount) {
+			console.log('unreadMessageCount: ' + unreadMessageCount);
 			var responseData = {};
 		    responseData.user = tgbUser.convertToUserModel(instantiatedUser);
+		    responseData.user.unreadMessageCount = unreadMessageCount;
 		    console.log('convertToUserResponseData: ' + JSON.stringify(responseData));
 		    return JSON.stringify(responseData);
 		});
