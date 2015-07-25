@@ -738,7 +738,7 @@ tgbApp.factory('messageDataService', ['$http', 'serviceBaseUrl', '$q', function(
     };
 
     var sortMessages = function(messages) {
-        return _.sortByAll(messages, ['status', 'createdAt']);
+        return _.sortByOrder(messages, ['isRead', 'createdAt'], [true, false]);
     };
     
     var messageDataService = {};
@@ -752,8 +752,8 @@ tgbApp.factory('messageDataService', ['$http', 'serviceBaseUrl', '$q', function(
         
          $http.get(serviceBaseUrl + '/api/messages')
          .success(function(data, status, headers, config) {
-             var groupedMessages = sortMessages(data);
-             resultDeferred.resolve(groupedMessages);
+             var sortedMessages = sortMessages(data);
+             resultDeferred.resolve(sortedMessages);
              cachedMessagesPromise = resultDeferred.promise; 
          })
          .error(function(data, status, headers, config) {
@@ -764,6 +764,12 @@ tgbApp.factory('messageDataService', ['$http', 'serviceBaseUrl', '$q', function(
 
         return resultDeferred.promise;
     };
+
+    messageDataService.markRead = function(message) {
+        return $http.put(serviceBaseUrl + '/api/messageStatus/' + message.id + '?status=read').then(function() {
+            message.isRead = true;
+        });
+    }
 
     messageDataService.notifyBuyers = function(dealId, messageType, messageText) {
         var messageWrapper = {
@@ -1304,6 +1310,20 @@ tgbApp.controller('messageCenterController', ['$scope', 'userService', 'messageD
             $scope.messages = messages;
         });
     });
+    
+    $scope.markRead = function(message) {
+        if (!message.isRead) {
+            messageDataService.markRead(message).then(function() {
+                // TODO: modifying variable at root scope is not ideal.
+                var countByIsRead = _.countBy($scope.messages, 'isRead');
+                if (countByIsRead.false) {
+                    $scope.currentUser.unreadMessageCount = countByIsRead.false;
+                } else {
+                    $scope.currentUser.unreadMessageCount = 0;
+                }                
+            });
+        }
+    };
 }]);
 
 tgbApp.controller('contactController', function($scope) {

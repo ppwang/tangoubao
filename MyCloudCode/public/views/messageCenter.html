@@ -1,5 +1,7 @@
-<div ng-repeat="message in messages"  ng-click="showContent = !showContent">
-    <span>{{message.createdAt | date:'yyyy年MM月dd日'}}来自{{message.creatorName}}的信息:</span>
+<div ng-repeat="message in messages"  ng-click="showContent = !showContent; markRead(message)">
+    <span ng-class="'glyphicon glyphicon-envelope ' + (message.isRead ? 'tgb-message-read-color' : 'tgb-primary-color')"></span>
+    <span>来自<span class="tgb-primary-color">{{message.creatorName}}</span>的消息</span>
+    <span>{{message.createdAt | date:'yyyy年MM月dd日'}}</span>
     <br>
     <span>{{message.messageTitle}}</span>
     <br>
