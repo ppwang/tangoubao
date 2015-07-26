@@ -779,7 +779,7 @@ tgbApp.factory('messageDataService', ['$http', 'serviceBaseUrl', '$q', function(
         };
         var resultDeferred = $q.defer();
         
-         $http.put(serviceBaseUrl + '/api/notifyBuyers', messageWrapper)
+         $http.post(serviceBaseUrl + '/api/notifyBuyers', messageWrapper)
          .success(function(data, status, headers, config) {
              resultDeferred.resolve(data);
          })
@@ -1253,16 +1253,22 @@ tgbApp.controller('followedDealsController', ['$scope', 'dealDataService', funct
     };
 }]);
 
-tgbApp.controller('dealStatusController', ['$scope', '$state', '$stateParams', 'userService', 'dealDataService', 'modalDialogService', function($scope, $state, $stateParams, userService, dealDataService, modalDialogService) {
-    userService.ensureUserLoggedIn();
+tgbApp.controller('dealStatusController', ['$scope', '$state', '$stateParams', '$q', 'userService', 'dealDataService', 'modalDialogService', '$modal', function($scope, $state, $stateParams, $q, userService, dealDataService, modalDialogService, $modal) {
+    userService.ensureUserLoggedIn().then(function(user) {
+        var dealPromise;
+        if ($stateParams.deal) {
+            var dealDeferred = $q.defer();
+            dealDeferred.resolve($stateParams.deal);
+            dealPromise = dealDeferred.promise;
+        } else {
+            dealPromise = dealDataService.getDeal($stateParams.id);
+        }
 
-    if (!$stateParams.deal) {
-        $state.go('dealDetail', { id: $stateParams.id });
-        return;
-    }
-    
-    $scope.deal = $stateParams.deal;
-    
+        dealPromise.then(function(deal) {
+            $scope.deal = deal;
+        });
+    });
+
     $scope.modifyDeal = function() {
         $state.go('createDeal', { deal: $scope.deal });
     };
@@ -1271,7 +1277,24 @@ tgbApp.controller('dealStatusController', ['$scope', '$state', '$stateParams', '
         dealDataService.closeDeal($scope.deal);
     };
     
-    $scope.sendMessage = function() {
+    $scope.sendProductArrivedMessage = function() {
+        
+    };
+    
+    $scope.sendMessage = function(messageType) {
+        var modalInstance = $modal.open({
+            templateUrl: 'views/messageSendForm.html',
+            controller: 'messageSendFormController',
+            backdrop: 'static',
+            resolve: {
+                deal: function() {
+                    return $scope.deal;    
+                },
+                messageType: function() {
+                    return messageType;  
+                },
+            },
+        });
     };
     
     $scope.sendSpreadsheet = function() {
@@ -1289,6 +1312,28 @@ tgbApp.controller('dealStatusController', ['$scope', '$state', '$stateParams', '
                 showCancelButton: false,
             });
         });
+    };
+}]);
+
+tgbApp.controller('messageSendFormController', ['$scope', 'messageDataService', 'deal', 'messageType', function($scope, messageDataService, deal, messageType) {
+    $scope.deal = deal;
+    $scope.messageType = messageType;
+    $scope.mode = 'input';
+    $scope.messageOptional = ($scope.messageType === 'productArrived');
+    
+    if (messageType === 'productArrived') {
+        $scope.title = '您即将通知买家到货. 如果要发送附加信息, 请在下面填写:';
+    } else {
+        $scope.title = '写给买家的信息:';
+    }
+    
+    $scope.sendMessage = function() {
+          $scope.sendError = false;
+          messageDataService.notifyBuyers($scope.deal.id, $scope.messageType, $scope.content).then(function() {
+              $scope.mode = 'success';
+          }, function() {
+              $scope.sendError = true;
+          });
     };
 }]);
 

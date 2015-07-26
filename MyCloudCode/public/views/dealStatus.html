@@ -34,12 +34,8 @@
 	
 	<div class="row">
 		<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-			<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-				<textarea class="message-text-area" ng-model="message" placeholder="写给买家的信息"></textarea>
-			</div>
-			<div class="send-message-button-container">
-				<button ng-click="sendMessage()">发送</button>
-			</div>
+            <button ng-click="sendMessage('productArrived')">发送到货信息</button>
+            <button ng-click="sendMessage('general')">发送其他通知</button>
 		</div>
 	</div>
 

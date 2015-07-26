@@ -1,0 +1,22 @@
+<div ng-show="mode==='input'">
+    <div class="modal-header">
+        <span class="modal-title">{{title}}</span>
+    </div>
+    <div class="modal-body">
+        <textarea ng-model="content" maxlength="200" placeholder="限200字"></textarea>
+    </div>
+    <div class="modal-footer">
+        <button ng-click="sendMessage()" ng-disabled="!messageOptional && !content">发送</button>
+        <button ng-click="$dismiss(null)">取消</button>
+        <br>
+        <span ng-show="sendError">对不起, 您的消息没能成功发送, 请您稍后再试试.</span>
+    </div>
+</div>
+<div ng-show="mode==='success'">
+    <div class="modal-body">
+        <span>信息发送成功</span>
+    </div>
+    <div class="modal-footer">
+        <button ng-click="$close(null)">确认</button>
+    </div>
+</div>
