@@ -43,7 +43,7 @@ var userController = require('cloud/controller/user_controller');
 app.post('/signup', express.bodyParser(), userController.signUp);
 app.post('/login', express.bodyParser(), userController.logIn);
 app.get('/logout', userController.logOut);
-app.get('/api/user/:authProvider?', userController.getUserInfo);
+app.get('/api/user/:authProvider?', userController.obtainUserInfo);
 
 // OAuth connection endpoints
 var oauthController = require('cloud/controller/oauth_controller');
@@ -120,6 +120,10 @@ app.get('/api/messages', messagesController.getMessages);
 // Regions
 var regionsController = require('cloud/controller/regions_controller');
 app.get('/api/regions', regionsController.getRegions);
+
+var userProfileController = require('cloud/controller/user_profile_controller');
+app.get('/api/userProfile', userProfileController.getCurrentUserProfile);
+app.put('/api/userProfile', express.bodyParser(), userProfileController.putCurrentUserProfile);
 
 // Custom menus
 app.get('/wechat/create_menus', wechatServices.createMenus);

@@ -70,10 +70,15 @@ Parse.Cloud.beforeSave(Parse.User, function(request, response) {
 	        if (headimgurl) {
 		        currentUser.set('headimgurl', headimgurl);
 		    }
-		    var nickname = wechatUser.get('nickname');
-		    if (nickname) {
-		    	currentUser.set('nickname', nickname);
-		    }
+		    var currentNickname = currentUser.get('nickname');
+		    // We do not update nickname from wechat nickname if there is already a nickname
+		    if (!currentNickname) 
+		    {
+			    var nickname = wechatUser.get('nickname');
+			    if (nickname) {
+			    	currentUser.set('nickname', nickname);
+			    }
+			}
 	        return wechatUser.save();
 	    }
     })

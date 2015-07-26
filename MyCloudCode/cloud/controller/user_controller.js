@@ -121,7 +121,7 @@ var convertToUserResponseData = function(parseUser) {
 		});
 }
 
-module.exports.getUserInfo = function(req, res) {
+module.exports.obtainUserInfo = function(req, res) {
 	var authProvider = req.params.authProvider;
 	
 	// We are supporting only wechat for now
