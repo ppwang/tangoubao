@@ -51,7 +51,7 @@ var createNonceStr = function () {
 };
 
 var createTimestamp = function () {
-	return parseInt(new Date().getTime() / 1000) + '';
+	return parseInt(new Date().getTime() / 1000);
 };
 
 var raw = function (args) {
