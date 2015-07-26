@@ -55,6 +55,10 @@ app.get('/wechat', wechatServices.requestValidate);
 // This is the entry point for web messages
 app.post('/wechat', wechatServices.reply);
 
+// Entry points for getting wechat js sdk config's
+var wechatJsConfigController = require('cloud/controller/wechat_jsconfig_controller');
+app.post('/api/wechatJsConfig', express.bodyParser(), wechatJsConfigController.getConfigs);
+
 // Entry points for deal/deals
 var dealController = require('cloud/controller/deal_controller');
 app.get('/api/deal/:dealId?', dealController.getDeal);
