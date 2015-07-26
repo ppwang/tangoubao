@@ -794,6 +794,90 @@ tgbApp.factory('messageDataService', ['$http', 'serviceBaseUrl', '$q', function(
     return messageDataService;
 }]);
 
+tgbApp.factory('weixinService', ['$http', '$q', '$location', 'serviceBaseUrl', 'weixinAppId', function($http, $q, $location, weixinAppId) {
+    var weixinService = {};
+    var currentUrl = $location.absUrl();
+    var hashIndex = currentUrl.indexOf("#");
+    var currentUrlWithoutHash;
+    if (hashIndex > 0) {
+         currentUrlWithoutHash = currentUrl.substring(0, hashIndex);
+    } else {
+         currentUrlWithoutHash = currentUrl;
+    }
+    
+    weixinService.configCurrentUrl = function() {
+        var body = {
+            url: currentUrlWithoutHash,
+        };
+        
+        var resultDeferred = $q.defer();
+        
+        $http.post(serviceBaseUrl + '/api/wechatJsConfig', body).success(function(data, status, headers, config) {
+            wx.ready(function() {
+                resultDeferred.resolve();
+                alert("Ready!")
+            });
+            
+            wx.error(function(res){
+                resultDeferred.reject(res);
+                alert("Error " + JSON.stringify(res));
+            });
+
+            var r = wx.config({
+                debug: true,
+                appId: weixinAppId,
+                timestamp: data.timestamp,
+                nonceStr: data.nonceStr,
+                signature: data.signature,
+                jsApiList: [
+            //        'checkJsApi',
+                'onMenuShareTimeline',
+                'onMenuShareAppMessage',
+            //        'onMenuShareQQ',
+            //        'onMenuShareWeibo',
+            //        'hideMenuItems',
+            //        'showMenuItems',
+            //        'hideAllNonBaseMenuItem',
+            //        'showAllNonBaseMenuItem',
+            //        'translateVoice',
+            //        'startRecord',
+            //        'stopRecord',
+            //        'onRecordEnd',
+            //        'playVoice',
+            //        'pauseVoice',
+            //        'stopVoice',
+            //        'uploadVoice',
+            //        'downloadVoice',
+            //        'chooseImage',
+            //        'previewImage',
+            //        'uploadImage',
+            //        'downloadImage',
+            //        'getNetworkType',
+            //        'openLocation',
+            //        'getLocation',
+            //        'hideOptionMenu',
+            //        'showOptionMenu',
+            //        'closeWindow',
+            //        'scanQRCode',
+            //        'chooseWXPay',
+            //        'openProductSpecificView',
+            //        'addCard',
+            //        'chooseCard',
+            //        'openCard'
+                ],
+            });
+         })
+         .error(function(data, status, headers, config) {
+             console.log('error code:' + status);
+             resultDeferred.reject(status);
+         });
+
+        return resultDeferred.promise;                
+    };
+    
+    return weixinService;
+}]);
+
 tgbApp.factory('modalDialogService', ['$modal', function($modal) {
     var modalDialogService = {};
     
@@ -914,18 +998,30 @@ tgbApp.controller('orderCardListController', ['$scope', function($scope) {
     });
 }]);
 
-tgbApp.controller('dealDetailController', ['$scope', '$state', '$stateParams', '$modal', 'userService', 'userAgentDetectionService', 'dealDataService', 'commentDataService', 'modalDialogService', function($scope, $state, $stateParams, $modal, userService, userAgentDetectionService, dealDataService, commentDataService, modalDialogService) {
-    userService.tryUserLogIn().then(function(user){
-        $scope.weixinShareVisible = userAgentDetectionService.isWeixin() && userAgentDetectionService.isiOS();
+tgbApp.controller('dealDetailController', ['$scope', '$state', '$stateParams', '$modal', '$location', 'userService', 'userAgentDetectionService', 'dealDataService', 'commentDataService', 'modalDialogService', 'weixinService', function($scope, $state, $stateParams, $modal, $location, userService, userAgentDetectionService, dealDataService, commentDataService, modalDialogService, weixinService) {
+    userService.tryUserLogIn();
 
-        dealDataService.getDeal($stateParams.id).then(function(deal) {
-            $scope.deal = deal;
-        });
-
-        commentDataService.getComments($stateParams.id).then(function(comments) {
-            $scope.comments = comments;
-        });        
+    var dealPromise = dealDataService.getDeal($stateParams.id).then(function(deal) {
+        $scope.deal = deal;
     });
+
+    commentDataService.getComments($stateParams.id).then(function(comments) {
+        $scope.comments = comments;
+    });        
+
+    $scope.weixinShareVisible = userAgentDetectionService.isWeixin() && userAgentDetectionService.isiOS();
+    if ($scope.weixinShareVisible) {
+        weixinService.configCurrentUrl().then(function() {
+            dealPromise.then(function(deal) {
+                wx.onMenuShareAppMessage({
+                    title: deal.name,
+                    desc: deal.description,
+                    link: $location.absUrl(),
+                    imgUrl: deal.dealImageUrl || $location.protocol() + '://' + $location.host() + ':' + $location.port() + '/resources/placeholder.png',
+                });
+            });
+        });
+    }
     
     $scope.toggleFollowedStatus = function() {
         userService.ensureUserLoggedIn().then(function() {
@@ -1453,11 +1549,13 @@ tgbApp.controller('loginController', function($scope, $location, $state, userSer
     };
 });
 
-tgbApp.run(['$rootScope', '$state', function($rootScope, $state) {
+tgbApp.run(['$rootScope', '$state', 'weixinService', function($rootScope, $state, weixinService) {
     $rootScope.scenario = 'Sign up';
     
     $rootScope.$on('$stateChangeSuccess', function (event, toState, toParams, fromState, fromParams) {
         $state.previousState = fromState;
         $state.previousParams = fromParams;
     });
+    
+    weixinService.configCurrentUrl();
 }]);
