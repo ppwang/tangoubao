@@ -37,6 +37,13 @@ module.exports.getArraySum = function(someArray) {
     return sum;
 };
 
+module.exports.formatDateString = function(date) {
+    var year = date.getFullYear();
+    var month = date.getMonth() + 1;
+    var day = date.getDate();
+    return year + '年' + month + '月' + day + '日';
+};
+
 var s4 = function() {
     return Math.floor((1 + Math.random()) * 0x10000)
     	.toString(16)

@@ -30,22 +30,20 @@ module.exports.getAccessToken = function() {
 }
 
 var fetchFreshToken = function (accessToken, now) {
-        console.log('request token');
-        var url = 'https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential'
-            + '&appid=' + wechatSetting.wechatAppId 
-            + '&secret=' + wechatSetting.wechatAppSecret;
-        console.log('token request: ' + url);
-        return Parse.Cloud.httpRequest({
-            url: url
-    })
-    .then(function(httpResponse) {
-        console.log('got token: ' + httpResponse.text);
-        var tokenResult = JSON.parse(httpResponse.text);
-        accessToken.token = tokenResult.access_token;
-        accessToken.expiry = now;
-        accessToken.expiry.setSeconds(now.getSeconds() + tokenResult.expires_in);
-        accessToken.set('token', accessToken.token);
-        accessToken.set('expiry', accessToken.expiry);
-        return accessToken.save();
-    });
+    console.log('request token');
+    var url = 'https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential'
+        + '&appid=' + wechatSetting.wechatAppId 
+        + '&secret=' + wechatSetting.wechatAppSecret;
+    console.log('token request: ' + url);
+    return Parse.Cloud.httpRequest({ url: url })
+        .then(function(httpResponse) {
+            console.log('got token: ' + httpResponse.text);
+            var tokenResult = JSON.parse(httpResponse.text);
+            accessToken.token = tokenResult.access_token;
+            accessToken.expiry = now;
+            accessToken.expiry.setSeconds(now.getSeconds() + tokenResult.expires_in);
+            accessToken.set('token', accessToken.token);
+            accessToken.set('expiry', accessToken.expiry);
+            return accessToken.save();
+        });
 }

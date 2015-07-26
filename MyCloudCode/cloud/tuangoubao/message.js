@@ -1,7 +1,9 @@
+var serviceSetting = require('cloud/app.config.js').settings.webservice;
 var ParseMessage = Parse.Object.extend('Message');
 
 module.exports.convertToMessageModel = function(parseMessage) {
 	var message = {};
+	message.id = parseMessage.id;
 	message.creatorId = parseMessage.get('creatorId');
 	message.receiverId = parseMessage.get('receiverId');
 	message.creatorName = parseMessage.get('creatorName');
@@ -35,17 +37,35 @@ module.exports.constructMessageBody = function(order, messageType, messageText) 
 	return constructMessageBody(order, messageType, messageText);
 };
 
+module.exports.constructHtmlMessageBody = function(order, messageType, messageText) {
+	var orderUrl = serviceSetting.baseUrl + '/#/orderDetail/' + order.id;
+	var messageBody = messageText? 'Message from seller:\n' + messageText : '';
+	if (messageType == 'productArrived') {
+		return 'Your order for ' 
+			+ '<a href="' + orderUrl + '">'
+			+      order.dealName 
+			+ '</a>'
+			+ ' is ready to pick up.\n'
+			+ messageBody;
+	}
+	if (messageType == 'general') {
+		return 'We have a new message for the deal you ordered, ' 
+			+ '<a href="' + orderUrl + '">'
+			+      order.dealName 
+			+ '</a>\n';
+			+ messageBody;
+	}
+	return null; 
+};
+
 var constructMessageBody = function(order, messageType, messageText) {
 	// TBD: add message similar to what we show on UI for order
+	var messageBody = messageText? 'Message from seller:\n' + messageText : '';
 	if (messageType == 'productArrived') {
-		return 'Your order for ' + order.dealName + ' is ready to pick up.\n'
-			+ 'Message from seller:\n' 
-			+ messageText;
+		return messageBody;
 	}
-	if (messageType == 'dealClosed') {
-		return 'The deal you ordered, ' + order.dealName + ', is closed.\n';
-			+ 'Message from seller:\n'
-			+ messageText;
+	if (messageType == 'general') {
+		return messageBody;
 	}
 	return null; 
 
@@ -55,8 +75,8 @@ var constructMessageTitle = function(order, messageType, messageText) {
 	if (messageType == 'productArrived') {
 		return 'Your order for ' + order.dealName + ' is ready to pick up';
 	}
-	if (messageType == 'dealClosed') {
-		return 'The deal you ordered, ' + order.dealName + ', is closed';
+	if (messageType == 'general') {
+		return 'We have a new message for the deal you ordered, ' + order.dealName + '.';
 	}
 	return null;
 };

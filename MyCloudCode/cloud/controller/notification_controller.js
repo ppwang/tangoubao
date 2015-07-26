@@ -7,6 +7,7 @@ var serviceSetting = require('cloud/app.config.js').settings.webservice;
 var orderModel = require('cloud/tuangoubao/order');
 var messageModel = require('cloud/tuangoubao/message');
 var dealModel = require('cloud/tuangoubao/deal');
+var utils = require('cloud/lib/utils');
 
 module.exports.notifyBuyers = function (req, res) {
 	var currentUser = Parse.User.current();
@@ -25,7 +26,7 @@ module.exports.notifyBuyers = function (req, res) {
 
 	var messageType = postData.messageType;
 	var messageText = postData.messageText;
-	if (!messageType || (messageType != 'dealClosed' && messageType != 'productArrived')) {
+	if (!messageType || (messageType != 'general' && messageType != 'productArrived')) {
 		return res.status(404).send();
 	}
 
@@ -62,10 +63,14 @@ module.exports.notifyBuyers = function (req, res) {
 
 var notifyBuyer = function(creatorId, creatorName, order, messageType, messageText) {
 	var receiverId = order.creatorId;
-	var parseUserPromise = new Parse.User();
-	parseUserPromise.id = receiverId;
-	return parseUserPromise.fetch()
+	var parseUserPromise = new Parse.Query(Parse.User);
+	parseUserPromise.equalTo('objectId', receiverId);
+	return parseUserPromise.first()
 		.then(function(parseUser) {
+			if (!parseUser) {
+				return;
+			}
+			
 			var messageBody = messageModel.constructMessageBody(order, messageType, messageText);
 			var messageTitle = messageModel.constructMessageTitle(order, messageType, messageText);
 			
@@ -142,7 +147,10 @@ var getWechatNotificationPostBody = function(wechatId, order, messageType, messa
 	    	}
 	    };
 	}
-	else if (messageType == 'dealClosed') {
+	else if (messageType == 'general') {
+		console.log('orderTime: ' + order.orderTime);
+		var creationDateString = utils.formatDateString(order.orderTime);
+		console.log('creationDateString: ' + creationDateString);
 		postData = {
 	    	"touser": wechatId,
 	    	"template_id": "YtP8hgjKBfiMdSfLhNnzg4Obj4DLsrt2yz50amnpWqg",
@@ -150,7 +158,7 @@ var getWechatNotificationPostBody = function(wechatId, order, messageType, messa
 	    	"topcolor":"#FF0000",
 	    	"data":{
 	    		"first": {
-	               "value":"Deal closed",
+	               "value":"来自团主的信息",
 	               "color":"#173177"
 	           },
 	           "keyword1":{
@@ -158,7 +166,7 @@ var getWechatNotificationPostBody = function(wechatId, order, messageType, messa
 	               "color":"#173177"
 	           },
 	           "keyword2":{
-	               "value":order.createdAt, 
+	               "value":creationDateString, 
 	               "color":"#173177"
 	           },
 	           "keyword3":{
@@ -166,7 +174,7 @@ var getWechatNotificationPostBody = function(wechatId, order, messageType, messa
 	               "color":"#173177"
 	           },
 	           "keyword4":{
-	               "value":"",
+	               "value":"团主发布信息",
 	               "color":"#173177"
 	           },
 	           "keyword5":{
