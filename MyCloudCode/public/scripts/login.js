@@ -794,7 +794,7 @@ tgbApp.factory('messageDataService', ['$http', 'serviceBaseUrl', '$q', function(
     return messageDataService;
 }]);
 
-tgbApp.factory('weixinService', ['$http', '$q', '$location', 'serviceBaseUrl', 'weixinAppId', function($http, $q, $location, weixinAppId) {
+tgbApp.factory('weixinService', ['$http', '$q', '$location', 'serviceBaseUrl', 'weixinAppId', function($http, $q, $location, serviceBaseUrl, weixinAppId) {
     var cachedPromise;
     
     var weixinService = {};
