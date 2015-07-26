@@ -815,7 +815,7 @@ tgbApp.factory('weixinService', ['$http', '$q', '$location', 'serviceBaseUrl', '
             };
 
             var resultDeferred = $q.defer();
-            cachedPromise = result.promise;
+            cachedPromise = resultDeferred.promise;
 
             $http.post(serviceBaseUrl + '/api/wechatJsConfig', body).success(function(data, status, headers, config) {
                 wx.ready(function() {
