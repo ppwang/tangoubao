@@ -795,7 +795,10 @@ tgbApp.factory('messageDataService', ['$http', 'serviceBaseUrl', '$q', function(
 }]);
 
 tgbApp.factory('weixinService', ['$http', '$q', '$location', 'serviceBaseUrl', 'weixinAppId', function($http, $q, $location, weixinAppId) {
+    var cachedPromise;
+    
     var weixinService = {};
+
     var currentUrl = $location.absUrl();
     var hashIndex = currentUrl.indexOf("#");
     var currentUrlWithoutHash;
@@ -806,73 +809,76 @@ tgbApp.factory('weixinService', ['$http', '$q', '$location', 'serviceBaseUrl', '
     }
     
     weixinService.configCurrentUrl = function() {
-        var body = {
-            url: currentUrlWithoutHash,
-        };
-        
-        var resultDeferred = $q.defer();
-        
-        $http.post(serviceBaseUrl + '/api/wechatJsConfig', body).success(function(data, status, headers, config) {
-            wx.ready(function() {
-                resultDeferred.resolve();
-                alert("Ready!")
-            });
-            
-            wx.error(function(res){
-                resultDeferred.reject(res);
-                alert("Error " + JSON.stringify(res));
-            });
+        if (!cachedPromise) {
+            var body = {
+                url: currentUrlWithoutHash,
+            };
 
-            var r = wx.config({
-                debug: true,
-                appId: weixinAppId,
-                timestamp: data.timestamp,
-                nonceStr: data.nonceStr,
-                signature: data.signature,
-                jsApiList: [
-            //        'checkJsApi',
-                'onMenuShareTimeline',
-                'onMenuShareAppMessage',
-            //        'onMenuShareQQ',
-            //        'onMenuShareWeibo',
-            //        'hideMenuItems',
-            //        'showMenuItems',
-            //        'hideAllNonBaseMenuItem',
-            //        'showAllNonBaseMenuItem',
-            //        'translateVoice',
-            //        'startRecord',
-            //        'stopRecord',
-            //        'onRecordEnd',
-            //        'playVoice',
-            //        'pauseVoice',
-            //        'stopVoice',
-            //        'uploadVoice',
-            //        'downloadVoice',
-            //        'chooseImage',
-            //        'previewImage',
-            //        'uploadImage',
-            //        'downloadImage',
-            //        'getNetworkType',
-            //        'openLocation',
-            //        'getLocation',
-            //        'hideOptionMenu',
-            //        'showOptionMenu',
-            //        'closeWindow',
-            //        'scanQRCode',
-            //        'chooseWXPay',
-            //        'openProductSpecificView',
-            //        'addCard',
-            //        'chooseCard',
-            //        'openCard'
-                ],
-            });
-         })
-         .error(function(data, status, headers, config) {
-             console.log('error code:' + status);
-             resultDeferred.reject(status);
-         });
+            var resultDeferred = $q.defer();
+            cachedPromise = result.promise;
 
-        return resultDeferred.promise;                
+            $http.post(serviceBaseUrl + '/api/wechatJsConfig', body).success(function(data, status, headers, config) {
+                wx.ready(function() {
+                    resultDeferred.resolve();
+                    alert("Ready!")
+                });
+
+                wx.error(function(res){
+                    resultDeferred.reject(res);
+                    alert("Error " + JSON.stringify(res));
+                });
+
+                var r = wx.config({
+                    debug: false,
+                    appId: weixinAppId,
+                    timestamp: data.timestamp,
+                    nonceStr: data.nonceStr,
+                    signature: data.signature,
+                    jsApiList: [
+                //        'checkJsApi',
+                    'onMenuShareTimeline',
+                    'onMenuShareAppMessage',
+                //        'onMenuShareQQ',
+                //        'onMenuShareWeibo',
+                //        'hideMenuItems',
+                //        'showMenuItems',
+                //        'hideAllNonBaseMenuItem',
+                //        'showAllNonBaseMenuItem',
+                //        'translateVoice',
+                //        'startRecord',
+                //        'stopRecord',
+                //        'onRecordEnd',
+                //        'playVoice',
+                //        'pauseVoice',
+                //        'stopVoice',
+                //        'uploadVoice',
+                //        'downloadVoice',
+                //        'chooseImage',
+                //        'previewImage',
+                //        'uploadImage',
+                //        'downloadImage',
+                //        'getNetworkType',
+                //        'openLocation',
+                //        'getLocation',
+                //        'hideOptionMenu',
+                //        'showOptionMenu',
+                //        'closeWindow',
+                //        'scanQRCode',
+                //        'chooseWXPay',
+                //        'openProductSpecificView',
+                //        'addCard',
+                //        'chooseCard',
+                //        'openCard'
+                    ],
+                });
+             })
+             .error(function(data, status, headers, config) {
+                 console.log('error code:' + status);
+                 resultDeferred.reject(status);
+             });
+        }
+        
+        return cachedPromise;                
     };
     
     return weixinService;
