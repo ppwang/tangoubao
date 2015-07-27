@@ -42,10 +42,10 @@ var fetchFreshJsTicket = function (jsTicket, now) {
         .then(function(httpResponse) {
             console.log('got ticket: ' + httpResponse.text);
             var ticketResult = JSON.parse(httpResponse.text);
-            jsTicket.token = ticketResult.ticket;
+            jsTicket.ticket = ticketResult.ticket;
             jsTicket.expiry = now;
             jsTicket.expiry.setSeconds(now.getSeconds() + ticketResult.expires_in);
-            jsTicket.set('token', jsTicket.token);
+            jsTicket.set('ticket', jsTicket.ticket);
             jsTicket.set('expiry', jsTicket.expiry);
             return jsTicket.save();
         });

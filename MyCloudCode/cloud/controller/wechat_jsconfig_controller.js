@@ -1,4 +1,4 @@
-var wechatJsTiket = require('cloud/wechat/utils/wechat_js_ticket');
+var wechatJsTicket = require('cloud/wechat/utils/wechat_js_ticket');
 var jsSHA = require('cloud/lib/sha');
 
 module.exports.getConfigs = function(req, res) {
@@ -9,7 +9,7 @@ module.exports.getConfigs = function(req, res) {
 		// not found
 		return res.status(404).end();
 	}
-	return wechatJsTiket.getJsTicket()
+	return wechatJsTicket.getJsTicket()
 		.then(function(jsTicket) {
 			var config = sign(jsTicket, url);
 			var jsConfig = {};
@@ -34,7 +34,7 @@ module.exports.getConfigs = function(req, res) {
 */
 var sign = function (jsapi_ticket, url) {
 	var ret = {
-	    jsapi_ticket: jsapi_ticket,
+	    jsapi_ticket: jsapi_ticket.ticket,
 	    nonceStr: createNonceStr(),
 	    timestamp: createTimestamp(),
 	    url: url
@@ -67,5 +67,6 @@ var raw = function (args) {
 		string += '&' + k + '=' + newArgs[k];
 	}
 	string = string.substr(1);
+	console.log('string to sign: ' + string);
 	return string;
 };
