@@ -141,6 +141,15 @@ tgbApp.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, 
                 },
             },
         })
+        .state('userProfile', {
+            url: '/userProfile',
+            views: {
+                'content': {
+                    templateUrl: 'views/userProfile.html',
+                    controller: 'userProfileController',
+                },
+            },
+        })
         .state('contact', {
             url:'/contact',
             views: {
@@ -345,6 +354,32 @@ tgbApp.factory('userService', ['$http', '$q', 'serviceBaseUrl', '$rootScope', '$
                 resultDeferred.resolve(currentUser);
                 return resultDeferred.promise;
             }
+        },
+        
+        getUserProfile: function() {
+            var resultDeferred = $q.defer();
+            $http.get(serviceBaseUrl + '/api/userProfile')
+                .success(function(data, status, headers, config) {
+                      resultDeferred.resolve(data);
+                })
+                .error(function(data, status, headers, config) {
+                    resultDeferred.reject(status);
+                    console.log('error code:' + status);
+                });
+            return resultDeferred.promise;
+        },
+        
+        saveUserProfile: function(profile) {
+            var resultDeferred = $q.defer();
+            $http.put(serviceBaseUrl + '/api/userProfile', profile)
+                .success(function(data, status, headers, config) {
+                    resultDeferred.resolve(data);
+                })
+                .error(function(data, status, headers, config) {
+                    resultDeferred.reject(status);
+                    console.log('error code:' + status);
+                });
+            return resultDeferred.promise;            
         },
     };
 }]);
@@ -1016,18 +1051,18 @@ tgbApp.controller('dealDetailController', ['$scope', '$state', '$stateParams', '
     });        
 
     $scope.weixinShareVisible = userAgentDetectionService.isWeixin() && userAgentDetectionService.isiOS();
-    if ($scope.weixinShareVisible) {
-        weixinService.configCurrentUrl().then(function() {
-            dealPromise.then(function(deal) {
-                wx.onMenuShareAppMessage({
-                    title: deal.name,
-                    desc: deal.description,
-                    link: $location.absUrl(),
-                    imgUrl: deal.dealImageUrl || $location.protocol() + '://' + $location.host() + ':' + $location.port() + '/resources/placeholder.png',
-                });
-            });
-        });
-    }
+//    if ($scope.weixinShareVisible) {
+//        weixinService.configCurrentUrl().then(function() {
+//            dealPromise.then(function(deal) {
+//                wx.onMenuShareAppMessage({
+//                    title: deal.name,
+//                    desc: deal.description,
+//                    link: $location.absUrl(),
+//                    imgUrl: deal.dealImageUrl || $location.protocol() + '://' + $location.host() + ':' + $location.port() + '/resources/placeholder.png',
+//                });
+//            });
+//        });
+//    }
     
     $scope.toggleFollowedStatus = function() {
         userService.ensureUserLoggedIn().then(function() {
@@ -1473,6 +1508,33 @@ tgbApp.controller('messageCenterController', ['$scope', 'userService', 'messageD
     };
 }]);
 
+tgbApp.controller('userProfileController', ['$scope', '$rootScope', 'userService', 'modalDialogService', function($scope, $rootScope, userService, modalDialogService) {
+    userService.ensureUserLoggedIn().then(function(user) {
+        $scope.user = angular.copy($rootScope.currentUser);
+
+        userService.getUserProfile().then(function(profile) {
+            $scope.profile = profile;
+        });
+    });
+    
+    $scope.saveProfile = function() {
+        userService.saveUserProfile($scope.profile).then(function(profile) {
+            $rootScope.currentUser.nickname = profile.nickname;
+            $rootScope.currentUser.email = profile.email;
+            $rootScope.currentUser.phoneNumber = profile.phoneNumber;
+            $rootScope.currentUser.emailNotify = profile.emailNotify;
+            $rootScope.currentUser.wechatNotify = profile.wechatNotify;
+            
+            $scope.user = angular.copy($rootScope.currentUser);
+        }, function(error) {
+            modalDialogService.show({
+                message: '对不起, 刚才没能成功保存您的信息, 请稍后再试试.',
+                showCancelButton: false,
+            });
+        });
+    };
+}]);
+
 tgbApp.controller('contactController', function($scope) {
     
 });
@@ -1563,5 +1625,5 @@ tgbApp.run(['$rootScope', '$state', 'weixinService', function($rootScope, $state
         $state.previousParams = fromParams;
     });
     
-    weixinService.configCurrentUrl();
+//    weixinService.configCurrentUrl();
 }]);
