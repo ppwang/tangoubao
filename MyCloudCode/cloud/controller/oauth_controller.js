@@ -17,6 +17,7 @@ module.exports.oauthConnect = function(req, res) {
 	if (authProvider != 'wechat' || !req.query.code) {
 		return res.status(401).end();
 	}
+	var redirUrl = req.query.redir;
 
 	var wechatOAuthCode = req.query.code;
 	var wechatTokenRequestUrl = 
@@ -51,7 +52,10 @@ module.exports.oauthConnect = function(req, res) {
 					.then(function(parseWechatUser) {
 						if (!parseWechatUser) {
 							console.log('no parseWechatUser. We need to request oauth based user info');
-							var userInfoUrl = serviceSetting.baseUrl + '/api/user/wechat'; 
+							var userInfoUrl = serviceSetting.baseUrl + '/api/user/wechat';
+							if (redirUrl) {
+								userInfoUrl += '?redir=' + redirUrl;
+							}
 							var wechatUserInfoOAuthUrl = 
 								'https://open.weixin.qq.com/connect/oauth2/authorize?'
 					            + 'appid=' + wechatSetting.wechatAppId 
@@ -124,7 +128,7 @@ module.exports.oauthConnect = function(req, res) {
 				return res.status(500).end();
 			}
 			if (result.action == 'done') {
-				return res.status(200).send(result.data);
+				return res.redirect(redirUrl);
 			}
 			if (result.action == 'redirect') {
 				return res.redirect(result.redirUrl);

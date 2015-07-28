@@ -6,6 +6,22 @@ var Buffer = require('buffer').Buffer;
 var ParseMessage = Parse.Object.extend('Message');
 var userModel = require('cloud/tuangoubao/user');
 
+module.exports.getCurrentUser = function(req, res) {
+	var currentUser = Parse.User.current();
+	console.log('currentUser: ' + JSON.stringify(currentUser));
+	if (!currentUser) {
+		// require user to log in
+		return res.status(401).send();
+	}
+	return convertToUserResponseData(currentUser)
+		.then(function(responseData) {
+    		return res.status(200).send(responseData);
+		}, function(error) {
+			console.log('get currentUser error: ' + JSON.stringify(error));
+			return res.status(500).end();
+		});
+}
+
 module.exports.signUp = function(req, res) {
 	console.log('signUp');
 	var parseUser = new Parse.User();
@@ -74,10 +90,6 @@ module.exports.logIn = function(req, res) {
 	.then(function(currentUser) {
 		// Login succeeded, redirect to homepage.
 		// parseExpressCookieSession will automatically set cookie.
-		console.log('currentUser: ' + JSON.stringify(currentUser));
-		if (currentUser == 'Email not verified') {
-			return res.status(401.2).end('Email not verified!');
-		}
 		if (currentUser) {
 			return convertToUserResponseData(currentUser)
 				.then(function(responseData) {
@@ -137,6 +149,8 @@ module.exports.obtainUserInfo = function(req, res) {
 		}
 		return res.status(401).end();
 	}
+
+	var redirUrl = req.query.redir;
 
 	var wechatOAuthCode = req.query.code;
 	var wechatTokenRequestUrl = 
@@ -240,7 +254,7 @@ module.exports.obtainUserInfo = function(req, res) {
 						if (loggedInUser) {
 							var loggedInUserModel = userModel.convertToUserModel(loggedInUser);
 							console.log('send back user modle: ' + JSON.stringify(loggedInUserModel));
-							return res.status(200).send(loggedInUserModel);
+							return res.redirect(redirUrl);
 						}
 						console.log('cannot find sessionToken for existing user');
 						return res.status(500).end();
