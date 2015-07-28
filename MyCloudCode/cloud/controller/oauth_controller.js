@@ -2,8 +2,13 @@ var WechatUser = Parse.Object.extend('WechatUser');
 var wechatSetting = require('cloud/app.config.js').settings.wechat;
 var serviceSetting = require('cloud/app.config.js').settings.webservice;
 var tgbWechatUser = require('cloud/tuangoubao/wechat_user');
+var userModel = require('cloud/tuangoubao/user');
+var _ = require('underscore');
+var Buffer = require('buffer').Buffer;
 
 module.exports.oauthConnect = function(req, res) {
+	Parse.Cloud.useMasterKey();
+
 	var authProvider = req.params.authProvider;
 	console.log('oauthConnect request: ' + req.url);
 	console.log('req query: ' + JSON.stringify(req.query));
@@ -60,7 +65,54 @@ module.exports.oauthConnect = function(req, res) {
 							// We found the user, no need to ask user info again
 							console.log('We found the user, no need to ask user info again');
 							result.action = 'done';
-							result.data = tgbWechatUser.convertToWechatUserModel(parseWechatUser);
+							var wechatUser = tgbWechatUser.convertToWechatUserModel(parseWechatUser);
+							result.data = wechatUser;
+							var parseUserQuery = new Parse.Query(Parse.User);
+							parseUserQuery.equalTo('wechatId', accessToken.openid);
+							return parseUserQuery.first()
+								.then(function(parseUser) {
+									if (parseUser) {
+										// log in on user's behalf now
+										if (parseUser.username == 'wechat_' + accessToken.openid) {
+											// This is the wechat signed in user. It is OK to reset password
+											var passwordBuffer = new Buffer(24);
+										  	_.times(24, function(i) {
+											    passwordBuffer.set(i, _.random(0, 255));
+											});
+											var password = passwordBuffer.toString('base64');
+											parseUser.set('password', password);
+											return parseUser.save()
+												.then(function(savedUser) {
+													return Parse.User.logIn(parseUser.username, password);
+												});
+										}
+										return parseUser;
+									}
+									else {
+										// create a new user
+										var newUser = new Parse.User();
+									  	var passwordBuffer = new Buffer(24);
+									  	_.times(24, function(i) {
+										    passwordBuffer.set(i, _.random(0, 255));
+										});
+										var username = 'wechat_' + accessToken.openid;
+										var password = passwordBuffer.toString('base64')
+										console.log('create new user. username: ' + username + ', password: ' + password);
+									  	newUser.set('username', username);
+									  	newUser.set('password', password);
+									  	newUser.set('wechatId', wechatUser.wechatId);
+									  	newUser.set('nickname', wechatUser.nickname);
+									  	newUser.set('headimgurl', wechatUser.headimgurl);
+									  	newUser.set('wechatNotify', true);
+									  	newUser.set('emailNotify', true);
+									  	newUser.set('bypassClaim', 'true');
+									  	return newUser.signUp();
+									}
+								})
+								.then(function(loggedInUser) {
+									result.data = userModel.convertToUserModel(loggedInUser);
+									return result;
+								});
 						}					
 						return result;
 					});
