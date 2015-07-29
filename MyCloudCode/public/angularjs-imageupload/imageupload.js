@@ -28,6 +28,12 @@
         var coverY = options.coverY || "top";
         var type = options.resizeType || "image/jpg";
 
+        // TGB: custom resize mode
+        var crop = options.crop || options.crop === "" || false;
+        // Most common smart phone image size is 4:3.
+        var cropHeight = options.cropHeight || 300;
+        var cropWidth = options.cropWidth || 400;
+        
         var canvas = getResizeArea();
 
         var height = origImage.height;
@@ -36,24 +42,7 @@
         var imgX = 0;
         var imgY = 0;
 
-        if(!cover){
-          // calculate the width and height, constraining the proportions
-          if (width > height) {
-            if (width > maxWidth) {
-              height = Math.round(height *= maxWidth / width);
-              width = maxWidth;
-            }
-          } else {
-            if (height > maxHeight) {
-              width = Math.round(width *= maxHeight / height);
-              height = maxHeight;
-            }
-          }
-
-          canvas.width = width;
-          canvas.height = height;
-
-        }else{
+        if(cover){
           // Logic for calculating size when in cover-mode
           canvas.width = coverHeight;
           canvas.height = coverWidth;
@@ -89,6 +78,45 @@
             else if (coverY === "center"){ imgY = (canvas.height - height) / 2; }
           }
 
+        } else if (crop) {
+            var ratio = cropWidth / cropHeight;
+            var sx, sy, sw, sh;
+            if (width > height *　ratio) {
+                sw = height * ratio;
+                sx = (width - sw) / 2;
+                sy = 0;
+                sh = height;
+            } else {
+                sw = width;
+                sx = 0;
+                sh = height - width / ratio;
+                sy = (height - sh) / 2;
+            }
+            
+            canvas.height = cropHeight;
+            canvas.width = cropWidth;
+            
+            var ctx = canvas.getContext("2d");
+            ctx.drawImage(origImage, sx, sy, sw, sh, 0, 0, cropWidth, cropHeight);
+
+            // get the data from canvas as 70% jpg (or specified type).
+            return canvas.toDataURL(type, quality);
+        } else {
+          // calculate the width and height, constraining the proportions
+          if (width > height) {
+            if (width > maxWidth) {
+              height = Math.round(height *= maxWidth / width);
+              width = maxWidth;
+            }
+          } else {
+            if (height > maxHeight) {
+              width = Math.round(width *= maxHeight / height);
+              height = maxHeight;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
         }
 
         //draw image on canvas
@@ -205,9 +233,15 @@
     })
     .factory("resize", function($q, doResizing, map){
       return function(options){
-        var should_do_resizing = angular.isDefined(options.resize) &&
+        // TGB: Looks like a bug. Cover mode will not be supported with original implementation. 
+//        var should_do_resizing = angular.isDefined(options.resize) &&
+//          angular.isDefined(options.resizeMaxHeight) &&
+//          angular.isDefined(options.resizeMaxWidth);
+        var should_do_resizing = (angular.isDefined(options.resize) &&
           angular.isDefined(options.resizeMaxHeight) &&
-          angular.isDefined(options.resizeMaxWidth);
+          angular.isDefined(options.resizeMaxWidth)) ||
+          angular.isDefined(options.cover) ||
+          angular.isDefined(options.crop);
 
         return function(model){
           if(should_do_resizing){

@@ -1044,6 +1044,11 @@ tgbApp.controller('dealDetailController', ['$scope', '$state', '$stateParams', '
 
     var dealPromise = dealDataService.getDeal($stateParams.id).then(function(deal) {
         $scope.deal = deal;
+        
+        // TODO: this can probably be more gracefully done using directives.
+        // Set up weixin share.
+        document.title = $scope.deal.name;
+//        document.getElementsByName('description')[0].content = "test content";
     });
 
     commentDataService.getComments($stateParams.id).then(function(comments) {
