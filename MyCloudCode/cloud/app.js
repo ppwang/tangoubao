@@ -44,6 +44,7 @@ app.post('/signup', express.bodyParser(), userController.signUp);
 app.post('/login', express.bodyParser(), userController.logIn);
 app.get('/logout', userController.logOut);
 app.get('/api/user/:authProvider?', userController.obtainUserInfo);
+app.get('/api/user/current', userController.getCurrentUser);
 
 // OAuth connection endpoints
 var oauthController = require('cloud/controller/oauth_controller');

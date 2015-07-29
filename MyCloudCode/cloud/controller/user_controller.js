@@ -1,9 +1,29 @@
 var wechatSetting = require('cloud/app.config.js').settings.wechat;
 var tgbWechatUser = require('cloud/tuangoubao/wechat_user');
 var tgbUser = require('cloud/tuangoubao/user');
+var _ = require('underscore');
+var Buffer = require('buffer').Buffer;
 var ParseMessage = Parse.Object.extend('Message');
+var userModel = require('cloud/tuangoubao/user');
+
+module.exports.getCurrentUser = function(req, res) {
+	var currentUser = Parse.User.current();
+	console.log('currentUser: ' + JSON.stringify(currentUser));
+	if (!currentUser) {
+		// require user to log in
+		return res.status(401).send();
+	}
+	return convertToUserResponseData(currentUser)
+		.then(function(responseData) {
+    		return res.status(200).send(responseData);
+		}, function(error) {
+			console.log('get currentUser error: ' + JSON.stringify(error));
+			return res.status(500).end();
+		});
+}
 
 module.exports.signUp = function(req, res) {
+	console.log('signUp');
 	var parseUser = new Parse.User();
 	var username = req.body.username;
 	var password = req.body.password;
@@ -16,7 +36,8 @@ module.exports.signUp = function(req, res) {
     parseUser.set("email", email);
 
     // set default user preference of getting notified to be all
-    parseUser.set('')
+    parseUser.set('emailNotify', true);
+    parseUser.set('wechatNotify', true);
     
     if (wechatId && claimtoken) {
     	parseUser.set('action', 'signUp');
@@ -24,10 +45,12 @@ module.exports.signUp = function(req, res) {
         parseUser.set("claimtoken", claimtoken);
     }
     return parseUser.signUp()
-    	.then(function() {
-    		Parse.User.logOut();
-    		// Send message 'Email not verified!' to indicate user has not verified email
-    		return res.status(401).end('Email not verified!');
+    	.then(function(signedUpUser) {
+    		return convertToUserResponseData(signedUpUser)
+    			.then(function(responseData) {
+		    		console.log('signUp user: ' + responseData);
+    				return res.status(200).send(responseData);
+    			});
     	}, function(error) {
 			console.log('error: ' + JSON.stringify(error));
 			Parse.User.logOut();
@@ -56,12 +79,6 @@ module.exports.logIn = function(req, res) {
 
 	Parse.User.logIn(req.body.username, req.body.password)
 	.then(function(parseUser) {
-		var emailVerified = parseUser.get('emailVerified');
-		console.log('emailVerified:  ' + emailVerified);
-		if (!emailVerified) {
-    		Parse.User.logOut();
-    		return 'Email not verified';			
-		}
 		if (wechatId && claimtoken) {
 			parseUser.set('action', 'logIn');
         	parseUser.set("wechatId", wechatId);
@@ -73,10 +90,6 @@ module.exports.logIn = function(req, res) {
 	.then(function(currentUser) {
 		// Login succeeded, redirect to homepage.
 		// parseExpressCookieSession will automatically set cookie.
-		console.log('currentUser: ' + JSON.stringify(currentUser));
-		if (currentUser == 'Email not verified') {
-			return res.status(401.2).end('Email not verified!');
-		}
 		if (currentUser) {
 			return convertToUserResponseData(currentUser)
 				.then(function(responseData) {
@@ -122,6 +135,7 @@ var convertToUserResponseData = function(parseUser) {
 }
 
 module.exports.obtainUserInfo = function(req, res) {
+	Parse.Cloud.useMasterKey();
 	var authProvider = req.params.authProvider;
 	
 	// We are supporting only wechat for now
@@ -135,6 +149,8 @@ module.exports.obtainUserInfo = function(req, res) {
 		}
 		return res.status(401).end();
 	}
+
+	var redirUrl = req.query.redir;
 
 	var wechatOAuthCode = req.query.code;
 	var wechatTokenRequestUrl = 
@@ -179,13 +195,71 @@ module.exports.obtainUserInfo = function(req, res) {
     	})
     	.then(function(parseWechatUser) {
     		if (parseWechatUser) {
+    			console.log('Got tgbWechatUser: ' + JSON.stringify(parseWechatUser));
 	    		return tgbWechatUser.convertToWechatUserModel(parseWechatUser);
 	    	}
 	    	return null;
 		})
 		.then(function(wechatUser) {
 			if (wechatUser) {
-				return res.status(200).send(wechatUser);
+				console.log('querying parseUser');
+				var parseUserQuery = new Parse.Query(Parse.User);
+				parseUserQuery.equalTo('wechatId', wechatUser.wechatId);
+				return parseUserQuery.first()
+					.then(function(parseUser) {
+						if (parseUser) {
+							console.log('Got parseUser');
+							// log in on user's behalf now
+							if (parseUser.username == 'wechat_' + wechatUser.wechatId) {
+								console.log('username: ' + parseUser.username);
+								return Parse.User.logOut()
+									.then(function(loggedOutUser) {
+										// This is the wechat signed in user. It is OK to reset password
+										var passwordBuffer = new Buffer(24);
+									  	_.times(24, function(i) {
+										    passwordBuffer.set(i, _.random(0, 255));
+										});
+										var password = passwordBuffer.toString('base64');
+										parseUser.set('password', password);
+										return parseUser.save()
+											.then(function(savedUser) {
+												return Parse.User.logIn(parseUser.username, password);
+											});
+									});
+							}
+							return parseUser;
+						}
+						else {
+							console.log('create a new user');
+							var newUser = new Parse.User();
+						  	var passwordBuffer = new Buffer(24);
+						  	_.times(24, function(i) {
+							    passwordBuffer.set(i, _.random(0, 255));
+							});
+							var username = 'wechat_' + wechatUser.wechatId;
+							var password = passwordBuffer.toString('base64')
+							console.log('create new user. username: ' + username + ', password: ' + password);
+						  	newUser.set('username', username);
+						  	newUser.set('password', password);
+						  	newUser.set('wechatId', wechatUser.wechatId);
+						  	newUser.set('nickname', wechatUser.nickname);
+						  	newUser.set('headimgurl', wechatUser.headimgurl);
+						  	newUser.set('wechatNotify', true);
+						  	newUser.set('emailNotify', true);
+						  	newUser.set('bypassClaim', 'true');
+						  	return newUser.signUp();
+						}
+					})
+					.then(function(loggedInUser) {
+						if (loggedInUser) {
+							var loggedInUserModel = userModel.convertToUserModel(loggedInUser);
+							console.log('send back user modle: ' + JSON.stringify(loggedInUserModel));
+							return res.redirect(redirUrl);
+						}
+						console.log('cannot find sessionToken for existing user');
+						return res.status(500).end();
+					});
+
 			}
 			console.log('Not valid wechat oauth request. Need to ask user to auth again.');
 			return res.status(401).end();
