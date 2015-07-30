@@ -1470,13 +1470,18 @@ tgbApp.controller('messageSendFormController', ['$scope', 'messageDataService', 
     }
     
     $scope.sendMessage = function() {
-          $scope.sendError = false;
-          messageDataService.notifyBuyers($scope.deal.id, $scope.messageType, $scope.content).then(function() {
-              $scope.mode = 'success';
-          }, function() {
-              $scope.sendError = true;
-          });
+        $scope.sendError = false;
+        messageDataService.notifyBuyers($scope.deal.id, $scope.messageType, $scope.content).then(function() {
+          $scope.mode = 'success';
+        }, function() {
+          $scope.sendError = true;
+        });
     };
+
+}]);
+
+tgbApp.controller('htmlController', ['$scope', '$sce', function($scope, $sce) {
+    $scope.trustedHtml = $sce.trustAsHtml($scope.message.messageBody);
 }]);
 
 tgbApp.controller('modalDialogController', ['$scope', '$modalInstance', 'settings', function($scope, $modalInstance, settings) {
@@ -1544,7 +1549,7 @@ tgbApp.controller('contactController', function($scope) {
     
 });
 
-tgbApp.controller('loginController', function($scope, $location, $state, userService) {
+tgbApp.controller('loginController', function($scope, $location, $state, $window, weixinAppId, serviceBaseUrl, userService) {
 
     if (!$scope.user)
     {
@@ -1619,6 +1624,17 @@ tgbApp.controller('loginController', function($scope, $location, $state, userSer
     // Private methods.
     var clearStatusMessage = function() {
         $scope.statusMessage = null;
+    };
+
+    $scope.weixinSignin = function() {
+        var redirUrl = $state.href($state.previousState, $state.previousParams, {absolute: true});
+        var apiUrl = 'https://tuangoubao.parseapp.com' + '/api/oauth/wechat?redir=' + encodeURIComponent(redirUrl);
+        var wexinOauthUrl = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid='
+            + weixinAppId
+            + '&redirect_uri='
+            + encodeURIComponent(apiUrl)
+            + '&response_type=code&scope=snsapi_base#wechat_redirect';
+        $window.location.href = wexinOauthUrl;
     };
 });
 

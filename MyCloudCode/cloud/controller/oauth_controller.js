@@ -63,7 +63,7 @@ module.exports.oauthConnect = function(req, res) {
 					            + '&response_type=code&scope=snsapi_userinfo#wechat_redirect';
 				            console.log('redirUrl wechatUserInfoOAuthUrl:' + wechatUserInfoOAuthUrl);
 				            result.action = 'redirect';
-				            result.redirUrl = wechatUserInfoOAuthUrl;
+				            result.redirUrl = wechatUserInfoOAuthUrl; 
 						}
 						else {
 							// We found the user, no need to ask user info again
@@ -76,8 +76,11 @@ module.exports.oauthConnect = function(req, res) {
 							return parseUserQuery.first()
 								.then(function(parseUser) {
 									if (parseUser) {
+										var parseUserName = parseUser.get('username');
+										console.log('found user: ' + parseUserName);
+
 										// log in on user's behalf now
-										if (parseUser.username == 'wechat_' + accessToken.openid) {
+										if (parseUserName == 'wechat_' + accessToken.openid) {
 											// This is the wechat signed in user. It is OK to reset password
 											var passwordBuffer = new Buffer(24);
 										  	_.times(24, function(i) {
@@ -85,11 +88,15 @@ module.exports.oauthConnect = function(req, res) {
 											});
 											var password = passwordBuffer.toString('base64');
 											parseUser.set('password', password);
+											parseUser.set('masterRequest', 'true');
+											console.log('reset password: ' + password);
 											return parseUser.save()
 												.then(function(savedUser) {
-													return Parse.User.logIn(parseUser.username, password);
+													console.log('log in user now');
+													return Parse.User.logIn(parseUserName, password);
 												});
 										}
+										console.log('user name not matching wechat id');
 										return parseUser;
 									}
 									else {
@@ -128,9 +135,11 @@ module.exports.oauthConnect = function(req, res) {
 				return res.status(500).end();
 			}
 			if (result.action == 'done') {
+				console.log('redirect to: ' + redirUrl);
 				return res.redirect(redirUrl);
 			}
 			if (result.action == 'redirect') {
+				console.log('redirect to: ' + result.redirUrl);
 				return res.redirect(result.redirUrl);
 			}
 			return res.status(401).end();

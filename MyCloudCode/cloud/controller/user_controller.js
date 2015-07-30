@@ -5,6 +5,7 @@ var _ = require('underscore');
 var Buffer = require('buffer').Buffer;
 var ParseMessage = Parse.Object.extend('Message');
 var userModel = require('cloud/tuangoubao/user');
+var messageModel = require('cloud/tuangoubao/message');
 
 module.exports.getCurrentUser = function(req, res) {
 	var currentUser = Parse.User.current();
@@ -46,7 +47,11 @@ module.exports.signUp = function(req, res) {
     }
     return parseUser.signUp()
     	.then(function(signedUpUser) {
-    		return convertToUserResponseData(signedUpUser)
+    		// Add a new welcome message
+    		return messageModel.addWelcomeMessage(signedUpUser)
+    			.then(function(welcomeMessage) {
+    				return convertToUserResponseData(signedUpUser);
+    			})
     			.then(function(responseData) {
 		    		console.log('signUp user: ' + responseData);
     				return res.status(200).send(responseData);
@@ -74,6 +79,7 @@ module.exports.logIn = function(req, res) {
             		return res.status(200).send(responseData);
 				});
 		}
+		console.log('no user');
 		return res.status(401).end();
 	}
 
@@ -151,6 +157,7 @@ module.exports.obtainUserInfo = function(req, res) {
 	}
 
 	var redirUrl = req.query.redir;
+	console.log('user controller obtainUserInfo redirUrl: ' + redirUrl);
 
 	var wechatOAuthCode = req.query.code;
 	var wechatTokenRequestUrl = 
@@ -166,7 +173,7 @@ module.exports.obtainUserInfo = function(req, res) {
     	})
     	.then(function(httpResponse) {
     		// TODO: error code check for refresh token ...
-	        console.log('got token: ' + httpResponse.text);
+	        console.log('usercontroller got token: ' + httpResponse.text);
 	        var tokenResult = JSON.parse(httpResponse.text);
 	        var accessToken = {};
 	        accessToken.token = tokenResult.access_token;
@@ -202,16 +209,17 @@ module.exports.obtainUserInfo = function(req, res) {
 		})
 		.then(function(wechatUser) {
 			if (wechatUser) {
-				console.log('querying parseUser');
+				console.log('usercontroller querying parseUser');
 				var parseUserQuery = new Parse.Query(Parse.User);
 				parseUserQuery.equalTo('wechatId', wechatUser.wechatId);
 				return parseUserQuery.first()
 					.then(function(parseUser) {
 						if (parseUser) {
 							console.log('Got parseUser');
+							var parseUserName = parseUser.get('username');
 							// log in on user's behalf now
-							if (parseUser.username == 'wechat_' + wechatUser.wechatId) {
-								console.log('username: ' + parseUser.username);
+							if (parseUserName == 'wechat_' + wechatUser.wechatId) {
+								console.log('username: ' + parseUserName);
 								return Parse.User.logOut()
 									.then(function(loggedOutUser) {
 										// This is the wechat signed in user. It is OK to reset password
@@ -223,14 +231,14 @@ module.exports.obtainUserInfo = function(req, res) {
 										parseUser.set('password', password);
 										return parseUser.save()
 											.then(function(savedUser) {
-												return Parse.User.logIn(parseUser.username, password);
+												return Parse.User.logIn(parseUserName, password);
 											});
 									});
 							}
 							return parseUser;
 						}
 						else {
-							console.log('create a new user');
+							console.log('usercontroller create a new user');
 							var newUser = new Parse.User();
 						  	var passwordBuffer = new Buffer(24);
 						  	_.times(24, function(i) {
@@ -238,7 +246,7 @@ module.exports.obtainUserInfo = function(req, res) {
 							});
 							var username = 'wechat_' + wechatUser.wechatId;
 							var password = passwordBuffer.toString('base64')
-							console.log('create new user. username: ' + username + ', password: ' + password);
+							console.log('usercontroller create new user. username: ' + username + ', password: ' + password);
 						  	newUser.set('username', username);
 						  	newUser.set('password', password);
 						  	newUser.set('wechatId', wechatUser.wechatId);
@@ -253,7 +261,8 @@ module.exports.obtainUserInfo = function(req, res) {
 					.then(function(loggedInUser) {
 						if (loggedInUser) {
 							var loggedInUserModel = userModel.convertToUserModel(loggedInUser);
-							console.log('send back user modle: ' + JSON.stringify(loggedInUserModel));
+							console.log('send back user model: ' + JSON.stringify(loggedInUserModel));
+							console.log('usercontroller redirUrl: ' + redirUrl); 
 							return res.redirect(redirUrl);
 						}
 						console.log('cannot find sessionToken for existing user');
