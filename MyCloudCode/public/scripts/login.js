@@ -1,4 +1,4 @@
-var tgbApp = angular.module('tuanGouBao', ['GlobalConfiguration', 'ui.router', 'xeditable', 'imageupload', 'ui.bootstrap']);
+var tgbApp = angular.module('tuanGouBao', ['GlobalConfiguration', 'ui.router', 'xeditable', 'imageupload', 'cgBusy', 'ui.bootstrap']);
 
 //tgbApp.config(function($locationProvider) {
 //    //$locationProvider.html5Mode(true).hashPrefix('!');
@@ -1071,11 +1071,10 @@ tgbApp.controller('dealDetailController', ['$scope', '$state', '$stateParams', '
     
     $scope.toggleFollowedStatus = function() {
         userService.ensureUserLoggedIn().then(function() {
-            var resultPromise;
             if ($scope.deal.followed) {
-                dealDataService.unfollowDeal($scope.deal);
+                $scope.resultPromise = dealDataService.unfollowDeal($scope.deal);
             } else {
-                dealDataService.followDeal($scope.deal)
+                $scope.resultPromise = dealDataService.followDeal($scope.deal)
             }
         });
     };
