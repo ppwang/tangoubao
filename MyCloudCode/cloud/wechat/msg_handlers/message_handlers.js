@@ -10,6 +10,7 @@ var messageUtils = require('cloud/wechat/utils/message_utils');
 
 module.exports.textMsgHandler = function (wechatId, publicAccountId, createTime, req, res) {
     var userMessage = req.body.xml.content.toString();
+    console.log('message: ' + JSON.stringify(req.body.xml));
     console.log('userMessage: ' + userMessage);
     var recreateWelcomeMessage = userMessage.indexOf('Recreate binding') === 0;
 
@@ -42,6 +43,7 @@ module.exports.textMsgHandler = function (wechatId, publicAccountId, createTime,
 
 module.exports.eventMsgHandler = function (wechatId, publicAccountId, createTime, req, res) {
     var event = req.body.xml.event.toString();
+    console.log('event message: ' + JSON.stringify(req.body.xml));
     switch (event.trim())
     {
         case 'subscribe':

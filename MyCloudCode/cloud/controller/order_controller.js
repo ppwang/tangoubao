@@ -3,6 +3,8 @@ var orderModel = require('cloud/tuangoubao/order');
 var userModel = require('cloud/tuangoubao/user');
 var ParseDeal = Parse.Object.extend('Deal');
 var tgbDeal = require('cloud/tuangoubao/deal');
+var notificationController = require('cloud/controller/notification_controller');
+var tgbAdminUser = require('cloud/app.config.js').settings.tgbAdminUser;
 
 module.exports.putOrder = function(req, res) {
 	var currentUser = Parse.User.current();
@@ -257,7 +259,13 @@ var createOrder = function(dealId, currentUser, req) {
 		})
 		.then(function(savedDeal) {
 			console.log('parseDealPromise save');
-			return savedOrder;
+			var creatorId = tgbAdminUser.userId;
+			var creatorName = tgbAdminUser.userName;
+			// TODO: add order message with more details
+			return notificationController.notifyBuyer(creatorId, creatorName, savedOrder, 'general', 'Your order is successful!')
+				.then(function() {
+					return savedOrder;
+				});
 		});
 };
 

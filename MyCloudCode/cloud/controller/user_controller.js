@@ -291,13 +291,14 @@ module.exports.sendEmailVerification = function(req, res) {
 		.then(function(parseUser) {
 			var user = tgbUser.convertToUserModel(parseUser);
 			email = user.email;
+			console.log('set user email to empty');
 			parseUser.set('email', '');
-			return parseUser.save();
+			return parseUser.save(null, {useMasterKey: true});
 		})
 		.then(function(savedUser) {
 			console.log('reset email: ' + email);
 			savedUser.set('email', email);
-			return savedUser.save();
+			return savedUser.save(null, {useMasterKey: true});
 		})
 		.then(function(updatedUser) {
 			return res.status(200).end();

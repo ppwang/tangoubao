@@ -321,8 +321,9 @@ var saveDeal = function(parseDeal, req) {
 				return parseDeal.save();
 			});
 	}
-
-	console.log('save deal without image: ' + JSON.stringify(parseDeal));
-	parseDeal.set('dealImage', null);
+	if (!imageType) {
+		console.log('save deal without image: ' + JSON.stringify(parseDeal));
+		parseDeal.set('dealImage', null);
+	}
 	return parseDeal.save();
 };

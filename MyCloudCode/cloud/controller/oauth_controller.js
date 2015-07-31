@@ -135,12 +135,14 @@ module.exports.oauthConnect = function(req, res) {
 				return res.status(500).end();
 			}
 			if (result.action == 'done') {
-				console.log('redirect to: ' + redirUrl);
-				return res.redirect(redirUrl);
+				var endUrl = (redirUrl && redirUrl != 'null')? redirUrl : serviceSetting.baseUrl;
+				console.log('oauth controller redirect,' + redirUrl + ', redirect to: ' + endUrl + ', baseUrl: ' + serviceSetting.baseUrl);
+				return res.redirect(endUrl);
 			}
 			if (result.action == 'redirect') {
-				console.log('redirect to: ' + result.redirUrl);
-				return res.redirect(result.redirUrl);
+				var endUrl = (result.redirUrl && result.redirUrl != 'null')? result.redirUrl : serviceSetting.baseUrl;
+				console.log('oauth controller redirect,' + result.redirUrl + ', redirect to: ' + endUrl + ', baseUrl: ' + serviceSetting.baseUrl);
+				return res.redirect(endUrl);
 			}
 			return res.status(401).end();
 		}, function(error) {

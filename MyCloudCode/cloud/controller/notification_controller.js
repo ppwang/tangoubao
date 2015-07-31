@@ -61,6 +61,10 @@ module.exports.notifyBuyers = function (req, res) {
     	});
 };
 
+module.exports.notifyBuyer = function(creatorId, creatorName, order, messageType, messageText) {
+	return notifyBuyer(creatorId, creatorName, order, messageType, messageText);
+};
+
 var notifyBuyer = function(creatorId, creatorName, order, messageType, messageText) {
 	var receiverId = order.creatorId;
 	var parseUserPromise = new Parse.Query(Parse.User);
