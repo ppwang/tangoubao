@@ -1511,7 +1511,7 @@ tgbApp.controller('modalDialogController', ['$scope', '$modalInstance', 'setting
     };
 }]);
 
-tgbApp.controller('messageCenterController', ['$scope', 'userService', 'messageDataService', function($scope, $userService, messageDataService) {
+tgbApp.controller('messageCenterController', ['$scope', 'userService', 'messageDataService', function($scope, userService, messageDataService) {
     userService.ensureUserLoggedIn().then(function(user) {
         messageDataService.getMessages().then(function(messages) {
             $scope.messages = messages;
