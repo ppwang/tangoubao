@@ -79,6 +79,6 @@
 <!--     <div class="user-img" ng-show="currentUser != null">
         <img class="user-icon" ng-src="{{currentUser.headimgurl}}"/>
     </div> -->
-    <div class="mainViewArea" ui-view="content"></div>
+    <div class="mainViewArea" ui-view="content"  cg-busy="{promise: busyPromise, message: 'Loading', backdrop: true, templateUrl:'views/busy.html' ,delay:0, minDuration: 0}"></div>
 </body>
 </html>
