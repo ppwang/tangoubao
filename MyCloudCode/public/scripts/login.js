@@ -1055,7 +1055,7 @@ tgbApp.controller('orderCardListController', ['$scope', function($scope) {
     });
 }]);
 
-tgbApp.controller('dealDetailController', ['$scope', '$state', '$stateParams', '$modal', '$location', 'userService', 'userAgentDetectionService', 'dealDataService', 'commentDataService', 'modalDialogService', 'weixinService', function($scope, $state, $stateParams, $modal, $location, userService, userAgentDetectionService, dealDataService, commentDataService, modalDialogService, weixinService) {
+tgbApp.controller('dealDetailController', ['$scope', '$state', '$stateParams', '$modal', '$location', '$q', 'userService', 'userAgentDetectionService', 'dealDataService', 'commentDataService', 'modalDialogService', 'weixinService', function($scope, $state, $stateParams, $modal, $location, $q, userService, userAgentDetectionService, dealDataService, commentDataService, modalDialogService, weixinService) {
     userService.tryUserLogIn();
 
     var dealPromise = dealDataService.getDeal($stateParams.id).then(function(deal) {
@@ -1067,9 +1067,13 @@ tgbApp.controller('dealDetailController', ['$scope', '$state', '$stateParams', '
 //        document.getElementsByName('description')[0].content = "test content";
     });
 
-    commentDataService.getComments($stateParams.id).then(function(comments) {
+    var commentPromise = commentDataService.getComments($stateParams.id).then(function(comments) {
         $scope.comments = comments;
     });        
+
+//    var allPromises = $q.all(dealPromise, commentPromise);
+//    $scope.busyPromise = $q.all(dealPromise, commentPromise);
+    $scope.busyPromise = [dealPromise, commentPromise];
 
     $scope.weixinShareVisible = userAgentDetectionService.isWeixin() && userAgentDetectionService.isiOS();
 //    if ($scope.weixinShareVisible) {
@@ -1088,9 +1092,9 @@ tgbApp.controller('dealDetailController', ['$scope', '$state', '$stateParams', '
     $scope.toggleFollowedStatus = function() {
         userService.ensureUserLoggedIn().then(function() {
             if ($scope.deal.followed) {
-                $scope.resultPromise = dealDataService.unfollowDeal($scope.deal);
+                $scope.busyPromise = dealDataService.unfollowDeal($scope.deal);
             } else {
-                $scope.resultPromise = dealDataService.followDeal($scope.deal)
+                $scope.busyPromise = dealDataService.followDeal($scope.deal)
             }
         });
     };
