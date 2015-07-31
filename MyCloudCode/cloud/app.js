@@ -47,6 +47,7 @@ app.get('/api/user/:authProvider?', userController.obtainUserInfo);
 app.get('/api/user/current', userController.getCurrentUser);
 app.post('/api/user/sendEmailVerification', userController.sendEmailVerification);
 app.post('/api/user/tgbMessage', express.bodyParser(), userController.sendContactUsEmail);
+app.post('/api/user/resetPassword', express.bodyParser(), userController.resetPassword);
 
 // OAuth connection endpoints
 var oauthController = require('cloud/controller/oauth_controller');

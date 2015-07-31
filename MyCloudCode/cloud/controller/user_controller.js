@@ -335,4 +335,26 @@ module.exports.sendContactUsEmail = function (req, res) {
 			});
 	}
 	return res.status(404).end();
-}
+};
+
+module.exports.resetPassword = function(req, res) {
+	var currentUser = Parse.User.current();
+	var email = req.body.email;
+	if (!email) {
+		return res.status(404).end();
+	}
+	return Parse.User.requestPasswordReset(email)
+		.then(function() {
+			console.log('password reset email sent for: ' + email);
+			if (currentUser) {
+				return Parse.User.logOut()
+					.then(function() {
+						return res.status(200).end();
+					});
+			}
+			return res.status(200).end();
+		}, function(error) {
+			console.log('password reset email sent failure: ' + JSON.stringify(error));
+			return res.status(500).end();
+		});
+};
