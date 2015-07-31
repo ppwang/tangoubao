@@ -1170,7 +1170,7 @@ tgbApp.controller('dealDetailController', ['$scope', '$state', '$stateParams', '
     };
 }]);
 
-tgbApp.controller('createDealController', ['$scope', '$state', '$stateParams', 'dealDataService', 'regionDataService', 'userService', 'modalDialogService',  function($scope, $state, $stateParams, dealDataService, regionDataService, userService, modalDialogService) {
+tgbApp.controller('createDealController', ['$scope', '$state', '$stateParams', 'dealDataService', 'regionDataService', 'userService', 'modalDialogService', 'busyIndicatorService', function($scope, $state, $stateParams, dealDataService, regionDataService, userService, modalDialogService, busyIndicatorService) {
     var addNewPickupOption = function() {
         var nextId;
         if ($scope.deal.pickupOptions.length === 0) {
@@ -1184,9 +1184,8 @@ tgbApp.controller('createDealController', ['$scope', '$state', '$stateParams', '
         });
     };
 
-    userService.ensureUserLoggedIn().then(function() {
+    var promise = userService.ensureUserLoggedIn().then(function() {
         $scope.regions = [];
-        regionDataService.populateRegions($scope.regions);
 
         if ($stateParams.deal) {
             $scope.deal = $stateParams.deal;
@@ -1202,7 +1201,11 @@ tgbApp.controller('createDealController', ['$scope', '$state', '$stateParams', '
         }
         
         addNewPickupOption();
+        
+        return regionDataService.populateRegions($scope.regions);
     });
+    
+    busyIndicatorService.setPromise(promise);
     
     $scope.clearproductImageUpload = function() {
         if ($scope.productImageUpload) {
@@ -1240,10 +1243,12 @@ tgbApp.controller('createDealController', ['$scope', '$state', '$stateParams', '
             $scope.deal.imageBase64 = $scope.productImageUpload.resized.dataURL.split(',')[1];
         }
 
-        dealDataService.saveDeal($scope.deal).then(function() {
+        var promise = dealDataService.saveDeal($scope.deal);
+        $scope.transparentBusyPromise = promise;
+        promise.then(function() {
             var message = '您成功发布了' + $scope.deal.name + '团购,'
             if ($scope.deal.endDate) {
-                message += ' 截止日期为' + $scope.deal.endDate.getYear() + '年' + $scope.deal.endDate.getMonth() + '月' + $scope.deal.endDate.getDay() + '日,'
+                message += ' 截止日期为' + $scope.deal.endDate.getFullYear() + '年' + ($scope.deal.endDate.getMonth() + 1) + '月' + $scope.deal.endDate.getDate() + '日,'
             }
             message += ' 谢谢您的参与!';
             
