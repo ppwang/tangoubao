@@ -5,14 +5,15 @@
     <br>
     <span>{{message.messageTitle}}</span>
     <br>
-    <div ng-show="showContent"></div>
-    <span ng-switch="message.messageType" >
-    	<span ng-switch-when="sendEmailVerification">
-    		Welcome to TuanGouBao! Here is a link to send verification email again: 
-    		<a ng-click="sendEmailVerification()">Verify email</a>
-    	</span>
-    	<span ng-switch-default>
-    		{{message.messageBody}}
-    	</span>
-    </span>
+    <div ng-show="showContent">
+	    <span ng-switch="message.messageType" >
+	    	<span ng-switch-when="sendEmailVerification">
+	    		Welcome to TuanGouBao! Here is a link to send verification email again: 
+	    		<a ng-click="sendEmailVerification()">Verify email</a>
+	    	</span>
+	    	<span ng-switch-default>
+	    		{{message.messageBody}}
+	    	</span>
+	    </span>
+    </div>
 </div>
