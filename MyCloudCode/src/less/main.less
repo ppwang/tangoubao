@@ -116,8 +116,8 @@ img {
 }
 
 .glyphicon-spin {
-    -webkit-animation: spin 1000ms infinite linear;
-    animation: spin 1000ms infinite linear;
+    -webkit-animation: spin 1s infinite linear;
+    animation: spin 1s infinite linear;
 }
 
 @keyframes spin {
@@ -131,6 +131,16 @@ img {
     }
 }
 
+@-webkit-keyframes spin {
+    0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform: rotate(359deg);
+        transform: rotate(359deg);
+    }
+}
 .center-horizontal-and-vertical {
     position: fixed;
     top: 50%;
