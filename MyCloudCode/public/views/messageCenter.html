@@ -1,19 +1,20 @@
-<div ng-repeat="message in messages"  ng-click="showContent = !showContent; markRead(message)">
-    <span ng-class="'glyphicon glyphicon-envelope ' + (message.isRead ? 'tgb-message-read-color' : 'tgb-primary-color')"></span>
-    <span>来自<span class="tgb-primary-color">{{message.creatorName}}</span>的消息</span>
-    <span>{{message.createdAt | date:'yyyy年MM月dd日'}}</span>
-    <br>
-    <span>{{message.messageTitle}}</span>
-    <br>
-    <div ng-show="showContent">
-	    <span ng-switch="message.messageType" >
-	    	<span ng-switch-when="sendEmailVerification">
-	    		Welcome to TuanGouBao! Here is a link to send verification email again: 
-	    		<a ng-click="sendEmailVerification()">Verify email</a>
-	    	</span>
-	    	<span ng-switch-default>
-	    		{{message.messageBody}}
-	    	</span>
-	    </span>
+<div cg-busy="{promise: transparentBusyPromise, backdrop: true, templateUrl:'views/busy.html', backdropClass: 'tgb-busy-backdrop-transparent'}">
+    <div ng-repeat="message in messages"  ng-click="showContent = !showContent; markRead(message)" >
+        <span ng-class="'glyphicon glyphicon-envelope ' + (message.isRead ? 'tgb-message-read-color' : 'tgb-primary-color')"></span>
+        <span>来自<span class="tgb-primary-color">{{message.creatorName}}</span>的消息</span>
+        <span>{{message.createdAt | date:'yyyy年MM月dd日'}}</span>
+        <br>
+        <span>{{message.messageTitle}}</span>
+        <br>
+        <div ng-show="showContent">
+            <span ng-switch="message.messageType" >
+                <span ng-switch-when="sendEmailVerification">
+                    欢迎使用团购宝, 请点击<a href ng-click="sendEmailVerification(); $event.stopPropagation();" style="font-weight: bold;">这里</a>发送确认邮件到您的电子邮件信箱. 确认后您可以选择通过Email接收信息. 如果您的密码丢失的话, 也可以通过Email重置哦!
+                </span>
+                <span ng-switch-default>
+                    {{message.messageBody}}
+                </span>
+            </span>
+        </div>
     </div>
 </div>
