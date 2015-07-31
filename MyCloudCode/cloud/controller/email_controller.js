@@ -4,6 +4,7 @@ var orderModel = require('cloud/tuangoubao/order');
 var messageModel = require('cloud/tuangoubao/message');
 var excelHelper = require('cloud/lib/excel_helper');
 var Buffer = require('buffer').Buffer;
+var tgbContact = require('cloud/app.config.js').settings.tgbContact;
 
 var mandrillSetting = require('cloud/app.config.js').settings.mandrill;
 var mandrill = require('mandrill');
@@ -27,6 +28,29 @@ module.exports.sendEmail = function(emailAddress, sendeeName, order, messageType
 				  name: sendeeName
 				}
 	      	]
+	    },
+	    async: true
+	  }, {
+	    success: function() { console.log("Email sent!"); },
+	    error: function() { console.log("Uh oh, something went wrong"); }
+	  });
+};
+
+module.exports.sendContactUsEmail = function(senderName, messageTitle, messageBody) {
+	var emailAddress = tgbContact.email;
+	var sendeeName = 'Tuan Gou Bao Admin';
+	console.log('messageTitle: ' + messageTitle);
+	console.log('messageBody: ' + messageBody);
+	return mandrill.sendEmail({
+		message: {
+			html: messageBody,
+			subject: messageTitle,
+			from_email: "info@tuangoubao.parseapps.com",
+			from_name: senderName,
+			to: [ {
+				  email: emailAddress,
+				  name: sendeeName
+				} ]
 	    },
 	    async: true
 	  }, {

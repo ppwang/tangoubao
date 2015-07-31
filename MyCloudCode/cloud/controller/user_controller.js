@@ -6,6 +6,7 @@ var Buffer = require('buffer').Buffer;
 var ParseMessage = Parse.Object.extend('Message');
 var userModel = require('cloud/tuangoubao/user');
 var messageModel = require('cloud/tuangoubao/message');
+var emailController = require('cloud/controller/email_controller');
 
 module.exports.getCurrentUser = function(req, res) {
 	var currentUser = Parse.User.current();
@@ -307,3 +308,31 @@ module.exports.sendEmailVerification = function(req, res) {
 			return res.status(500).end();
 		});
 };
+
+module.exports.sendContactUsEmail = function (req, res) {
+	var currentUser = Parse.User.current();
+	console.log('currentUser: ' + JSON.stringify(currentUser));
+	if (!currentUser) {
+		// require user to log in
+		return res.status(401).send();
+	}
+
+	var message = req.body.message;
+	if (message) {
+		return currentUser.fetch()
+			.then(function(parseUser) {
+				var user = tgbUser.convertToUserModel(parseUser);
+				var senderName = user.nickname? user.nickname : user.username;
+				return emailController.sendContactUsEmail(senderName, 
+					'Message from user in contactus', message);
+			})
+			.then(function() {
+				console.log('sendContactUsEmail succeeded');
+				return res.status(200).end();
+			}, function(error) {
+				console.log('sendContactUsEmail error: ' + JSON.stringify(error));
+				return res.status(500).end();
+			});
+	}
+	return res.status(404).end();
+}

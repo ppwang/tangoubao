@@ -856,6 +856,10 @@ tgbApp.factory('messageDataService', ['$http', 'serviceBaseUrl', '$q', function(
             
         return resultDeferred.promise;
     };
+
+    messageDataService.invalidateCache = function() {
+        cachedMessagesPromise = null;
+    };
     
     return messageDataService;
 }]);
@@ -1308,7 +1312,8 @@ tgbApp.controller('orderDetailController', ['$scope', '$state', '$stateParams', 
     };
 }]);
 
-tgbApp.controller('createOrderController', ['$scope', '$state', '$stateParams', '$q', 'userService', 'dealDataService', 'orderDataService', 'modalDialogService', 'busyIndicatorService', function($scope, $state, $stateParams, $q, userService, dealDataService, orderDataService, modalDialogService, busyIndicatorService) {
+tgbApp.controller('createOrderController', ['$scope', '$state', '$stateParams', '$q', 'userService', 'dealDataService', 'orderDataService', 'modalDialogService', 'busyIndicatorService', 'messageDataService',
+    function($scope, $state, $stateParams, $q, userService, dealDataService, orderDataService, modalDialogService, busyIndicatorService, messageDataService) {
     
     var promise = userService.ensureUserLoggedIn().then(function(user) {
         $scope.user = user;
@@ -1408,6 +1413,12 @@ tgbApp.controller('createOrderController', ['$scope', '$state', '$stateParams', 
             $scope.transparentBusyPromise = orderPromise;
             orderPromise.then(function() {
                 // TODO: show order details.
+                messageDataService.invalidateCache();
+                if (!$scope.user.unreadMessageCount) {
+                    $scope.user.unreadMessageCount = 0;
+                }
+                $scope.user.unreadMessageCount ++;
+
                 $state.go('buyerAccount.orders', { status: 'active' });
             }, function(error) {
                 var orderFailedMessage = '您的订单提交不成功,　请稍后再试试.';
