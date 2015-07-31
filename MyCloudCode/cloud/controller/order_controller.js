@@ -259,10 +259,12 @@ var createOrder = function(dealId, currentUser, req) {
 		})
 		.then(function(savedDeal) {
 			console.log('parseDealPromise save');
-			var creatorId = tgbAdminUser.userId;
-			var creatorName = tgbAdminUser.userName;
+			var messageCreatorId = tgbAdminUser.userId;
+			var messageCreatorName = tgbAdminUser.userName;
 			// TODO: add order message with more details
-			return notificationController.notifyBuyer(creatorId, creatorName, savedOrder, 'general', 'Your order is successful!')
+			console.log('send notification from message creator id: ' + messageCreatorId + ', messageCreatorName: ' + messageCreatorName);
+			var orderToNotify = orderModel.convertToOrderModel(savedOrder);
+			return notificationController.notifyBuyer(messageCreatorId, messageCreatorName, orderToNotify, 'general', 'Your order is successful!')
 				.then(function() {
 					return savedOrder;
 				});

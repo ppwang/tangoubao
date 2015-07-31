@@ -67,16 +67,19 @@ module.exports.notifyBuyer = function(creatorId, creatorName, order, messageType
 
 var notifyBuyer = function(creatorId, creatorName, order, messageType, messageText) {
 	var receiverId = order.creatorId;
+	console.log('receiverId: ' + receiverId);
 	var parseUserPromise = new Parse.Query(Parse.User);
 	parseUserPromise.equalTo('objectId', receiverId);
 	return parseUserPromise.first()
 		.then(function(parseUser) {
 			if (!parseUser) {
+				console.log('no parseUser');
 				return;
 			}
 			
 			var messageBody = messageModel.constructMessageBody(order, messageType, messageText);
 			var messageTitle = messageModel.constructMessageTitle(order, messageType, messageText);
+			console.log('messageBody: ' + messageBody + ', messageTitle: ' + messageTitle);
 			
 			var promises = [];
 			
