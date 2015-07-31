@@ -34,12 +34,9 @@ module.exports.addWelcomeMessage = function(signedUpUser) {
 	parseMessage.set('creatorId', 'parse_admin');
 	parseMessage.set('receiverId', signedUpUser.id);
 	parseMessage.set('creatorName', 'Your friend at Tuan Gou Bao');
-	parseMessage.set('messageType', 'welcome');
-	var messageTitle = 'Welcome to TuanGouBao!';
-	parseMessage.set('messageTitle', messageTitle);
-	var messageBody = 'Welcome to TuanGouBao! Here is a link to send verification email again:' 
-		+ '<a href="https://tuangoubao.parseapp.com">Verify email</a>';
-	parseMessage.set('messageBody', messageBody);
+	parseMessage.set('messageType', 'sendEmailVerification');
+	parseMessage.set('messageTitle', '');
+	parseMessage.set('messageBody', '');
 	parseMessage.set('isRead', false);
 	return parseMessage.save();
 };

@@ -277,3 +277,32 @@ module.exports.obtainUserInfo = function(req, res) {
 			return res.status(500).end();
 		});
 };
+
+module.exports.sendEmailVerification = function(req, res) {
+	var currentUser = Parse.User.current();
+	console.log('currentUser: ' + JSON.stringify(currentUser));
+	if (!currentUser) {
+		// require user to log in
+		return res.status(401).send();
+	}
+	
+	var email;
+	return currentUser.fetch()
+		.then(function(parseUser) {
+			var user = tgbUser.convertToUserModel(parseUser);
+			email = user.email;
+			parseUser.set('email', '');
+			return parseUser.save();
+		})
+		.then(function(savedUser) {
+			console.log('reset email: ' + email);
+			savedUser.set('email', email);
+			return savedUser.save();
+		})
+		.then(function(updatedUser) {
+			return res.status(200).end();
+		}, function(error) {
+			console.log('sendEmailVerification error: ' + JSON.stringify(error));
+			return res.status(500).end();
+		});
+};

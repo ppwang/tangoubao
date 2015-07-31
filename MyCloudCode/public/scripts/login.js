@@ -825,6 +825,22 @@ tgbApp.factory('messageDataService', ['$http', 'serviceBaseUrl', '$q', function(
 
         return resultDeferred.promise;        
     };
+
+    messageDataService.sendEmailVerification = function() {
+        var resultDeferred = $q.defer();
+
+        $http.post(serviceBaseUrl + '/api/user/sendEmailVerification')
+            .success(function(data, status, headers, config) {
+                resultDeferred.resolve();
+            })
+            .error(function(data, status, headers, config) {
+                resultDeferred.reject("Unable to send email verification: " + status + " " + data);
+                console.log('error code:' + status);
+            });
+            
+        return resultDeferred.promise;
+
+    };
     
     return messageDataService;
 }]);
@@ -1479,10 +1495,6 @@ tgbApp.controller('messageSendFormController', ['$scope', 'messageDataService', 
 
 }]);
 
-tgbApp.controller('htmlController', ['$scope', '$sce', function($scope, $sce) {
-    $scope.trustedHtml = $sce.trustAsHtml($scope.message.messageBody);
-}]);
-
 tgbApp.controller('modalDialogController', ['$scope', '$modalInstance', 'settings', function($scope, $modalInstance, settings) {
     $scope.settings = settings;
     
@@ -1495,7 +1507,7 @@ tgbApp.controller('modalDialogController', ['$scope', '$modalInstance', 'setting
     };
 }]);
 
-tgbApp.controller('messageCenterController', ['$scope', 'userService', 'messageDataService', function($scope, userService, messageDataService) {
+tgbApp.controller('messageCenterController', ['$scope', 'userService', 'messageDataService', function($scope, $userService, messageDataService) {
     userService.ensureUserLoggedIn().then(function(user) {
         messageDataService.getMessages().then(function(messages) {
             $scope.messages = messages;
@@ -1514,6 +1526,18 @@ tgbApp.controller('messageCenterController', ['$scope', 'userService', 'messageD
                 }                
             });
         }
+    };
+
+    $scope.sendEmailVerification = function() {
+        messageDataService.sendEmailVerification()
+            .then(function() 
+                {
+                    // notify user of sending verification success
+                }, function(error)
+                {
+                    // notify user of failure
+
+                });
     };
 }]);
 
