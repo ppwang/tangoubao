@@ -842,6 +842,21 @@ tgbApp.factory('messageDataService', ['$http', 'serviceBaseUrl', '$q', function(
 
     };
     
+    messageDataService.sendMessageToTgb = function(message) {
+        var resultDeferred = $q.defer();
+
+        $http.post(serviceBaseUrl + '/api/user/tgbMessage', {
+            message: message,
+        }).success(function(data, status, headers, config) {
+            resultDeferred.resolve();
+        }).error(function(data, status, headers, config) {
+            resultDeferred.reject("Unable to send email verification: " + status + " " + data);
+            console.log('error code:' + status);
+        });
+            
+        return resultDeferred.promise;
+    };
+    
     return messageDataService;
 }]);
 
@@ -1610,9 +1625,23 @@ tgbApp.controller('userProfileController', ['$scope', '$rootScope', 'userService
     };
 }]);
 
-tgbApp.controller('contactController', function($scope) {
-    
-});
+tgbApp.controller('contactController', ['$scope', 'messageDataService', 'modalDialogService', function($scope, messageDataService, modalDialogService) {
+    $scope.sendMessage = function() {
+        var promise = messageDataService.sendMessageToTgb($scope.message);
+        $scope.transparentBusyPromise = promise;
+        promise.then(function() {
+            modalDialogService.show({
+                message: '信息发送成功!',
+                showCancelButton: false,
+            });
+        }, function(error) {
+            modalDialogService.show({
+                message: '对不起, 刚才没能成功发送信息, 请稍后再试试.',
+                showCancelButton: false,
+            });
+        });
+    };
+}]);
 
 tgbApp.controller('loginController', function($scope, $location, $state, $window, weixinAppId, serviceBaseUrl, userService) {
     if (!$scope.user)

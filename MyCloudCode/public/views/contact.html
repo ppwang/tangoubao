@@ -1,5 +1,5 @@
 <!-- contact.html -->
-<div class="jumbotron text-center">
+<div class="jumbotron text-center" cg-busy="{promise: transparentBusyPromise, backdrop: true, templateUrl:'views/busy.html', backdropClass: 'tgb-busy-backdrop-transparent'}">
     <p>
         北美团购宝是针对美国团购买家和卖家打造的商业平台。买家可以低廉的价格购买优质商品，而卖家则可以在本平台发起团购活动，极大方便在线商业行为，为广大北美华人买家服务。北美团购宝集成了社交媒体、数据分析、产品信息、线上支付等服务。建设一个开放式的团购业务平台。同时，我们也在积极地与多家美国商业组织展开合作，推出更多更实惠的Deals，打造区域性团购、社区性团购、社交媒体团购的领先品牌！
     </p>
@@ -7,4 +7,8 @@
     <span>电子邮件：<a href="mailto:info@shopgenie.com">info@shopgenie.com</a></span>
     <br>
     <span>微 信ID：tuangougenie</span>
+    <br>
+    <textarea ng-model="message" maxlength="500"></textarea>
+    <br>
+    <button ng-click="sendMessage()">发信息给团购宝</button>
 </div>
