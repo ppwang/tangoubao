@@ -1,4 +1,4 @@
-<div class="container-fluid deal-status-card">
+<div class="container-fluid deal-status-card" cg-busy="{promise: transparentBusyPromise, backdrop: true, templateUrl:'views/busy.html', backdropClass: 'tgb-busy-backdrop-transparent'}">
 	<div class="row">
 		<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
 			<img class="img-responsive pull-left col-lg-6 col-md-6 col-sm-6 col-xs-6" ng-src="{{deal.dealImageUrl? deal.dealImageUrl : 'resources/placeholder.png'}}" onerror="this.src = 'resources/placeholder.png'"/>

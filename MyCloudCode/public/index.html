@@ -26,7 +26,7 @@
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-    <script src="//res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+<!--    <script src="//res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>-->
 <!--    <link href="./styles/font-awesome.css" rel="stylesheet" type="text/css" >-->
     <link href="./styles/main.css" rel="stylesheet" type="text/css" >
 
@@ -79,6 +79,7 @@
 <!--     <div class="user-img" ng-show="currentUser != null">
         <img class="user-icon" ng-src="{{currentUser.headimgurl}}"/>
     </div> -->
-    <div class="mainViewArea" ui-view="content"  cg-busy="{promise: busyPromise, message: 'Loading', backdrop: true, templateUrl:'views/busy.html' ,delay:0, minDuration: 0}"></div>
+    <div ui-view="content" class="container-fluid" cg-busy="{promise: opaqueBusyPromise, message: 'Loading', backdrop: true, templateUrl:'views/busy.html', delay: 0, minDuration: 0, backdropClass: 'tgb-busy-backdrop-opaque'}">
+    </div>
 </body>
 </html>

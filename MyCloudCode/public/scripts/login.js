@@ -957,6 +957,16 @@ tgbApp.factory('modalDialogService', ['$modal', function($modal) {
     return modalDialogService;
 }]);
 
+tgbApp.factory('busyIndicatorService', ['$rootScope', function($rootScope) {
+    var busyIndicatorService = {};
+    
+    busyIndicatorService.setPromise = function(promise) {
+        $rootScope.opaqueBusyPromise = promise;
+    };
+    
+    return busyIndicatorService;
+}]);
+
 tgbApp.directive('dealCard', function() {
     return {
         restrict: 'E',
@@ -1020,15 +1030,17 @@ tgbApp.controller('welcomeController', ['$scope', 'userService', function($scope
     userService.ensureUserLoggedIn();
 }]);
 
-tgbApp.controller('publicDealsController', ['$scope', 'dealDataService', 'userService', function($scope, dealDataService, userService) {
+tgbApp.controller('publicDealsController', ['$scope', 'dealDataService', 'userService', 'busyIndicatorService', function($scope, dealDataService, userService, busyIndicatorService) {
     userService.tryUserLogIn();
 
     // Wrap the promise in an object before passing into child directive.
     // http://stackoverflow.com/questions/17159614/how-do-i-pass-promises-as-directive-attributes-in-angular
     // No need to wait for logon for public deals.
+    var promise = dealDataService.getPublicDeals();
     $scope.dealsPromiseWrapper = {
-        promise: dealDataService.getPublicDeals(),
-    };        
+        promise: promise,
+    };
+    busyIndicatorService.setPromise(promise);
 }]);
 
 tgbApp.controller('dealCardController', ['$scope', '$state', function($scope, $state) {
@@ -1055,7 +1067,7 @@ tgbApp.controller('orderCardListController', ['$scope', function($scope) {
     });
 }]);
 
-tgbApp.controller('dealDetailController', ['$scope', '$state', '$stateParams', '$modal', '$location', '$q', 'userService', 'userAgentDetectionService', 'dealDataService', 'commentDataService', 'modalDialogService', 'weixinService', function($scope, $state, $stateParams, $modal, $location, $q, userService, userAgentDetectionService, dealDataService, commentDataService, modalDialogService, weixinService) {
+tgbApp.controller('dealDetailController', ['$scope', '$state', '$stateParams', '$modal', '$location', '$q', 'userService', 'userAgentDetectionService', 'dealDataService', 'commentDataService', 'modalDialogService', 'weixinService', 'busyIndicatorService', function($scope, $state, $stateParams, $modal, $location, $q, userService, userAgentDetectionService, dealDataService, commentDataService, modalDialogService, weixinService, busyIndicatorService) {
     userService.tryUserLogIn();
 
     var dealPromise = dealDataService.getDeal($stateParams.id).then(function(deal) {
@@ -1071,9 +1083,7 @@ tgbApp.controller('dealDetailController', ['$scope', '$state', '$stateParams', '
         $scope.comments = comments;
     });        
 
-//    var allPromises = $q.all(dealPromise, commentPromise);
-//    $scope.busyPromise = $q.all(dealPromise, commentPromise);
-    $scope.busyPromise = [dealPromise, commentPromise];
+    busyIndicatorService.setPromise([dealPromise, commentPromise]);
 
     $scope.weixinShareVisible = userAgentDetectionService.isWeixin() && userAgentDetectionService.isiOS();
 //    if ($scope.weixinShareVisible) {
@@ -1091,11 +1101,14 @@ tgbApp.controller('dealDetailController', ['$scope', '$state', '$stateParams', '
     
     $scope.toggleFollowedStatus = function() {
         userService.ensureUserLoggedIn().then(function() {
+            var busyPromise;
             if ($scope.deal.followed) {
-                $scope.busyPromise = dealDataService.unfollowDeal($scope.deal);
+                busyPromise = dealDataService.unfollowDeal($scope.deal);
             } else {
-                $scope.busyPromise = dealDataService.followDeal($scope.deal)
+                busyPromise = dealDataService.followDeal($scope.deal)
             }
+            
+            $scope.transparentBusyPromise = busyPromise;
         });
     };
     
@@ -1250,8 +1263,8 @@ tgbApp.controller('createDealController', ['$scope', '$state', '$stateParams', '
     };
 }]);
 
-tgbApp.controller('orderDetailController', ['$scope', '$state', '$stateParams', 'userService', 'orderDataService', 'regionDataService', function($scope, $state, $stateParams, userService, orderDataService, regionDataService) {
-    userService.ensureUserLoggedIn().then(function() {
+tgbApp.controller('orderDetailController', ['$scope', '$state', '$stateParams', 'userService', 'orderDataService', 'regionDataService', 'busyIndicatorService', function($scope, $state, $stateParams, userService, orderDataService, regionDataService, busyIndicatorService) {
+    var promise = userService.ensureUserLoggedIn().then(function() {
         var id = $stateParams.id;
         orderDataService.getOrder(id).then(function(order) {
             $scope.order = order;
@@ -1260,7 +1273,9 @@ tgbApp.controller('orderDetailController', ['$scope', '$state', '$stateParams', 
             });
         });
     });
-                                                      
+    
+    busyIndicatorService.setPromise(promise);
+    
     $scope.modifyOrder = function() {
           $state.go(
               'createOrder',
@@ -1273,9 +1288,9 @@ tgbApp.controller('orderDetailController', ['$scope', '$state', '$stateParams', 
     };
 }]);
 
-tgbApp.controller('createOrderController', ['$scope', '$state', '$stateParams', '$q', 'userService', 'dealDataService', 'orderDataService', 'modalDialogService', function($scope, $state, $stateParams, $q, userService, dealDataService, orderDataService, modalDialogService) {
+tgbApp.controller('createOrderController', ['$scope', '$state', '$stateParams', '$q', 'userService', 'dealDataService', 'orderDataService', 'modalDialogService', 'busyIndicatorService', function($scope, $state, $stateParams, $q, userService, dealDataService, orderDataService, modalDialogService, busyIndicatorService) {
     
-    userService.ensureUserLoggedIn().then(function(user) {
+    var promise = userService.ensureUserLoggedIn().then(function(user) {
         $scope.user = user;
         
         // TODO: optimization: no need to get deal if also need to get order, since order contains the deal object.
@@ -1301,7 +1316,7 @@ tgbApp.controller('createOrderController', ['$scope', '$state', '$stateParams', 
             orderPromise = orderDeferred.promise;
         }
         
-        $q.all([dealPromise, orderPromise]).then(function(results) {
+        return $q.all([dealPromise, orderPromise]).then(function(results) {
             var deal = results[0];
             var order = results[1];
             
@@ -1327,6 +1342,8 @@ tgbApp.controller('createOrderController', ['$scope', '$state', '$stateParams', 
         });
     });
 
+    busyIndicatorService.setPromise(promise);
+    
     // TODO: implement better tooltips for form validation.
     var validateOrder = function() {
         if (!$scope.order.phoneNumber) {
@@ -1367,7 +1384,9 @@ tgbApp.controller('createOrderController', ['$scope', '$state', '$stateParams', 
             message: message,
             showCancelButton: true,
         }).result.then(function() {
-            orderDataService.createOrder($scope.order).then(function() {
+            var orderPromise = orderDataService.createOrder($scope.order);
+            $scope.transparentBusyPromise = orderPromise;
+            orderPromise.then(function() {
                 // TODO: show order details.
                 $state.go('buyerAccount.orders', { status: 'active' });
             }, function(error) {
@@ -1386,36 +1405,42 @@ tgbApp.controller('buyerAccountController', ['$state', 'userService', function($
     userService.ensureUserLoggedIn();
 }]);
 
-tgbApp.controller('filteredOrdersController', ['$scope', '$stateParams', 'orderDataService', function($scope, $stateParams, orderDataService) {
+tgbApp.controller('filteredOrdersController', ['$scope', '$rootScope', '$stateParams', 'orderDataService', 'busyIndicatorService', function($scope, $rootScope, $stateParams, orderDataService, busyIndicatorService) {
+    var promise = orderDataService.getOrders().then(function(orders) {
+        return orders[$stateParams.status];
+    });
     $scope.ordersPromiseWrapper = {
-        promise: orderDataService.getOrders().then(function(orders) {
-            return orders[$stateParams.status];
-        }),
+        promise: promise,
     };
+    busyIndicatorService.setPromise(promise);
 }]);
 
 tgbApp.controller('sellerAccountController', ['$state', 'userService', function($state, userService) {
     userService.ensureUserLoggedIn();
 }]);
 
-tgbApp.controller('filteredDealsController', ['$scope', '$stateParams', 'dealDataService', function($scope, $stateParams, dealDataService) {
+tgbApp.controller('filteredDealsController', ['$scope', '$stateParams', 'dealDataService', 'busyIndicatorService', function($scope, $stateParams, dealDataService, busyIndicatorService) {
+    var promise = dealDataService.getDeals().then(function(deals) {
+        return deals.own[$stateParams.status];
+    });
     $scope.dealsPromiseWrapper = {
-        promise: dealDataService.getDeals().then(function(deals) {
-            return deals.own[$stateParams.status];
-        }),
+        promise: promise,
     };
+    busyIndicatorService.setPromise(promise);
 }]);
 
-tgbApp.controller('followedDealsController', ['$scope', 'dealDataService', function($scope, dealDataService) {
+tgbApp.controller('followedDealsController', ['$scope', 'dealDataService', 'busyIndicatorService', function($scope, dealDataService, busyIndicatorService) {
+    var promise = dealDataService.getDeals().then(function(deals) {
+        return deals.follow.active;
+    });
     $scope.dealsPromiseWrapper = {
-        promise: dealDataService.getDeals().then(function(deals) {
-            return deals.follow.active;
-        }),
+        promise: promise,
     };
+    busyIndicatorService.setPromise(promise);
 }]);
 
-tgbApp.controller('dealStatusController', ['$scope', '$state', '$stateParams', '$q', 'userService', 'dealDataService', 'modalDialogService', '$modal', function($scope, $state, $stateParams, $q, userService, dealDataService, modalDialogService, $modal) {
-    userService.ensureUserLoggedIn().then(function(user) {
+tgbApp.controller('dealStatusController', ['$scope', '$state', '$stateParams', '$q', 'userService', 'dealDataService', 'modalDialogService', '$modal', 'busyIndicatorService', function($scope, $state, $stateParams, $q, userService, dealDataService, modalDialogService, $modal, busyIndicatorService) {
+    var promise = userService.ensureUserLoggedIn().then(function(user) {
         var dealPromise;
         if ($stateParams.deal) {
             var dealDeferred = $q.defer();
@@ -1425,21 +1450,19 @@ tgbApp.controller('dealStatusController', ['$scope', '$state', '$stateParams', '
             dealPromise = dealDataService.getDeal($stateParams.id);
         }
 
-        dealPromise.then(function(deal) {
+        return dealPromise.then(function(deal) {
             $scope.deal = deal;
         });
     });
 
+    busyIndicatorService.setPromise(promise);
+    
     $scope.modifyDeal = function() {
         $state.go('createDeal', { deal: $scope.deal });
     };
     
     $scope.closeDeal = function() {
-        dealDataService.closeDeal($scope.deal);
-    };
-    
-    $scope.sendProductArrivedMessage = function() {
-        
+        $scope.transparentBusyPromise = dealDataService.closeDeal($scope.deal);
     };
     
     $scope.sendMessage = function(messageType) {
@@ -1459,7 +1482,9 @@ tgbApp.controller('dealStatusController', ['$scope', '$state', '$stateParams', '
     };
     
     $scope.sendSpreadsheet = function() {
-        dealDataService.sendSpreadsheet($scope.deal.id).then(function() {
+        var promise = dealDataService.sendSpreadsheet($scope.deal.id);
+        $scope.transparentBusyPromise = promise;
+        promise.then(function() {
             var message = '买家信息已生成Excel表格并发送到您注册账号的邮箱. 谢谢您使用团购宝!';
 
             modalDialogService.show({
@@ -1511,12 +1536,14 @@ tgbApp.controller('modalDialogController', ['$scope', '$modalInstance', 'setting
     };
 }]);
 
-tgbApp.controller('messageCenterController', ['$scope', 'userService', 'messageDataService', function($scope, userService, messageDataService) {
-    userService.ensureUserLoggedIn().then(function(user) {
-        messageDataService.getMessages().then(function(messages) {
+tgbApp.controller('messageCenterController', ['$scope', 'userService', 'messageDataService', 'modalDialogService', 'busyIndicatorService', function($scope, userService, messageDataService, modalDialogService, busyIndicatorService) {
+    var promise = userService.ensureUserLoggedIn().then(function(user) {
+        return messageDataService.getMessages().then(function(messages) {
             $scope.messages = messages;
         });
     });
+    
+    busyIndicatorService.setPromise(promise);
     
     $scope.markRead = function(message) {
         if (!message.isRead) {
@@ -1533,20 +1560,24 @@ tgbApp.controller('messageCenterController', ['$scope', 'userService', 'messageD
     };
 
     $scope.sendEmailVerification = function() {
-        messageDataService.sendEmailVerification()
-            .then(function() 
-                {
-                    // notify user of sending verification success
-                }, function(error)
-                {
-                    // notify user of failure
-
-                });
+        var promise = messageDataService.sendEmailVerification();
+        $scope.transparentBusyPromise = promise;
+        promise.then(function() {
+            modalDialogService.show({
+                message: '确认邮件发送成功!',
+                showCancelButton: false,
+            });
+        }, function(error) {
+            modalDialogService.show({
+                message: '对不起,确认邮件发送不成功, 请稍后再试试.',
+                showCancelButton: false,
+            });
+        });
     };
 }]);
 
-tgbApp.controller('userProfileController', ['$scope', '$rootScope', 'userService', 'modalDialogService', function($scope, $rootScope, userService, modalDialogService) {
-    userService.ensureUserLoggedIn().then(function(user) {
+tgbApp.controller('userProfileController', ['$scope', '$rootScope', 'userService', 'modalDialogService', 'busyIndicatorService', function($scope, $rootScope, userService, modalDialogService, busyIndicatorService) {
+    var promise = userService.ensureUserLoggedIn().then(function(user) {
         $scope.user = angular.copy($rootScope.currentUser);
 
         userService.getUserProfile().then(function(profile) {
@@ -1554,8 +1585,10 @@ tgbApp.controller('userProfileController', ['$scope', '$rootScope', 'userService
         });
     });
     
+    busyIndicatorService.setPromise(promise);
+    
     $scope.saveProfile = function() {
-        userService.saveUserProfile($scope.profile).then(function(profile) {
+        $scope.transparentBusyPromise = userService.saveUserProfile($scope.profile).then(function(profile) {
             $rootScope.currentUser.nickname = profile.nickname;
             $rootScope.currentUser.email = profile.email;
             $rootScope.currentUser.phoneNumber = profile.phoneNumber;
@@ -1577,7 +1610,6 @@ tgbApp.controller('contactController', function($scope) {
 });
 
 tgbApp.controller('loginController', function($scope, $location, $state, $window, weixinAppId, serviceBaseUrl, userService) {
-
     if (!$scope.user)
     {
         $scope.user = {};

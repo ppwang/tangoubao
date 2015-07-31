@@ -143,7 +143,8 @@ angular.module('cgBusy').directive('cgBusy',['$compile','$templateCache','cgBusy
                     minDuration:0,
                     backdrop: true,
                     message:'Please Wait...',
-                    wrapperClass: 'cg-busy cg-busy-animation'
+                    wrapperClass: 'cg-busy cg-busy-animation',
+                    backdropClass: 'cg-busy-backdrop',
                 };
 
                 angular.extend(defaults,cgBusyDefaults);
@@ -215,7 +216,7 @@ angular.module('cgBusy').directive('cgBusy',['$compile','$templateCache','cgBusy
                             options.backdrop = typeof options.backdrop === 'undefined' ? true : options.backdrop;
 
                             if (options.backdrop){
-                                var backdrop = '<div class="cg-busy cg-busy-backdrop cg-busy-backdrop-animation ng-hide" ng-show="$cgBusyIsActive()"></div>';
+                                var backdrop = '<div class="cg-busy ' + options.backdropClass + ' cg-busy-backdrop-animation ng-hide" ng-show="$cgBusyIsActive()"></div>';
                                 backdropElement = $compile(backdrop)(templateScope);
                                 element.append(backdropElement);
                             }

@@ -1,30 +1,32 @@
-<img ng-src="user.headimgurl"></img>
-<div>
-    <span>{{user.nickname}}</span>
+<div cg-busy="{promise: transparentBusyPromise, message: 'Loading', backdrop: true, templateUrl:'views/busy.html', delay: 0, minDuration: 0, backdropClass: 'tgb-busy-backdrop-transparent'}">
+    <img ng-src="user.headimgurl"></img>
+    <div>
+        <span>{{user.nickname}}</span>
+        <br>
+        <span>{{user.email}}</span>
+    </div>
+    <input ng-model="profile.nickname" placeholder="昵称"></input>
     <br>
-    <span>{{user.email}}</span>
+    <input ng-model="profile.email" type="email" placeholder="Email"></input>
+    <br>
+    <input ng-model="profile.phoneNumber" placeholder="电话"></input>
+    <br>
+    <span>请选择您的联系方式，我们可以通过下面三种方式为您推送最新的团购商品，您的订单信息，取货信息等:</span>
+    <br>
+    <span>
+        <input type="checkbox" ng-model="profile.emailNotify"></input>
+        电子邮件
+    </span>
+    <br>
+    <span>
+        <input type="checkbox" ng-model="profile.wechatNotify"></input>
+        微信推送
+    </span>
+    <br>
+    <span>
+        <input type="checkbox" checked ng-disabled="true"></input>
+        团购宝消息
+    </span>
+    <br>
+    <button ng-click="saveProfile()">保存</button>
 </div>
-<input ng-model="profile.nickname" placeholder="昵称"></input>
-<br>
-<input ng-model="profile.email" type="email" placeholder="Email"></input>
-<br>
-<input ng-model="profile.phoneNumber" placeholder="电话"></input>
-<br>
-<span>请选择您的联系方式，我们可以通过下面三种方式为您推送最新的团购商品，您的订单信息，取货信息等:</span>
-<br>
-<span>
-    <input type="checkbox" ng-model="profile.emailNotify"></input>
-    电子邮件
-</span>
-<br>
-<span>
-    <input type="checkbox" ng-model="profile.wechatNotify"></input>
-    微信推送
-</span>
-<br>
-<span>
-    <input type="checkbox" checked ng-disabled="true"></input>
-    团购宝消息
-</span>
-<br>
-<button ng-click="saveProfile()">保存</button>
