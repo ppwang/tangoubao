@@ -381,6 +381,19 @@ tgbApp.factory('userService', ['$http', '$q', 'serviceBaseUrl', '$rootScope', '$
                 });
             return resultDeferred.promise;            
         },
+        
+        resetPassword: function(email) {
+            var resultDeferred = $q.defer();
+            $http.post(serviceBaseUrl + '/api/user/resetPassword', {
+                email: email,
+            }).success(function(data, status, headers, config) {
+                    resultDeferred.resolve();
+            }).error(function(data, status, headers, config) {
+                resultDeferred.reject(status);
+                console.log('error code:' + status);
+            });
+            return resultDeferred.promise;                        
+        },
     };
 }]);
 
@@ -1654,7 +1667,7 @@ tgbApp.controller('contactController', ['$scope', 'messageDataService', 'modalDi
     };
 }]);
 
-tgbApp.controller('loginController', function($scope, $location, $state, $window, weixinAppId, serviceBaseUrl, userService) {
+tgbApp.controller('loginController', function($scope, $location, $state, $window, weixinAppId, serviceBaseUrl, userService, modalDialogService) {
     if (!$scope.user)
     {
         $scope.user = {};
@@ -1676,11 +1689,20 @@ tgbApp.controller('loginController', function($scope, $location, $state, $window
 
     $scope.signUp = function(user) {
         clearStatusMessage();
+        
+        // Validate input.
+        if (user.password !== $scope.passwordReentered) {
+            modalDialogService.show({
+                message: '两次输入的密码不一致',
+                showCancelButton: false,
+            });
+            return;
+        }
         user.wechatId = $scope.user.wechatId;
         user.claimtoken = $scope.user.claimtoken;
         userService.signUp(user).then(
             function() {
-                if ($state.previousState) {
+                if ($state.previousState && $state.previousState.name) {
                     $state.go($state.previousState, $state.previousParams);
                 }
             },
@@ -1702,7 +1724,7 @@ tgbApp.controller('loginController', function($scope, $location, $state, $window
         user.claimtoken = $scope.user.claimtoken;
         userService.logIn(user).then(
             function(user) {
-                if ($state.previousState) {
+                if ($state.previousState  && $state.previousState.name) {
                     $state.go($state.previousState, $state.previousParams);
                 } else {
                     $state.go('welcome');
@@ -1723,6 +1745,30 @@ tgbApp.controller('loginController', function($scope, $location, $state, $window
     $scope.logOut = function() {
         clearStatusMessage();
         userService.logOut();
+    };
+    
+    $scope.resetPassword = function() {
+        clearStatusMessage();
+        userService.resetPassword($scope.passwordResetEmail).then(function() {
+            modalDialogService.show({
+                message: '密码重置的链接已发至您的邮箱, 请您及时查看您的邮件.',
+                showCancelButton: false,
+            }).result.then(function() {
+                $scope.scenario = 'Log in';
+            });
+        }, function(error) {
+            if(error === 404) {
+                modalDialogService.show({
+                    message: '对不起, 您的账号没有设置电子邮件, 我们将无法给您发送密码重置的邮件. 如果您已经和我们的微信公众平台绑定, 您可以从我们的公众平台使用微信一键登录的功能.',
+                    showCancelButton: false,
+                });
+            } else {
+                modalDialogService.show({
+                    message: '对不起, 密码重置邮件没能发送成功, 请稍后再试试或联系我们.',
+                    showCancelButton: false,
+                });                
+            }
+        });
     };
     
     // Private methods.
