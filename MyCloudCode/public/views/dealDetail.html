@@ -74,7 +74,7 @@
 
     <div class="row">
         <a ng-show="weixinShareVisible" ng-click="weixinShare()" class="col-md-1 col-xs-3"><img src="resources/wechat.png" class="tgb-share-icon"/></a>
-        <a class="col-md-1 col-xs-3"><img src="resources/facebook.png" class="tgb-share-icon"/></a>
+        <a ng-show="false" class="col-md-1 col-xs-3"><img src="resources/facebook.png" class="tgb-share-icon"/></a>
         <button ng-show="!deal.owned" ng-click="toggleFollowedStatus()" class="col-md-1 col-xs-3">{{deal.followed ? '取消关注' : '关注'}}</button>
         <button ng-show="!deal.owned && deal.status === 'active'" ng-click="purchaseDeal()" class="col-md-1 col-xs-3">购买</button>
         <button ng-show="deal.owned" ng-click="manageDeal()" class="col-md-1 col-xs-3">订单状况</button>
