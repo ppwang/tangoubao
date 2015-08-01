@@ -9,12 +9,12 @@ Parse.Cloud.beforeSave(Parse.User, function(request, response) {
 	var masterRequest = currentUser.get('masterRequest');
 	var bypassClaim = currentUser.get('bypassClaim');
 	if (masterRequest) {
-		currentUser.set('masterRequest', undefined);
+		currentUser.set('masterRequest', null);
 		return response.success();
 	}
 
 	if (bypassClaim) {
-		currentUser.set('bypassClaim', undefined);
+		currentUser.set('bypassClaim', null);
 		return response.success();
 	}
 
