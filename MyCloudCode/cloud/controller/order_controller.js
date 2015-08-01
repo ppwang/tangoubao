@@ -244,6 +244,9 @@ var createOrder = function(dealId, currentUser, req) {
 			return parseOrder.save();
 		})
 		.then(function(savedParseOrder) {
+			if (savedParseOrder == 'Invalid order') {
+				return 'Invalid order';
+			}
 			console.log('save order');
 			savedOrder = savedParseOrder;
 			var orderCount = parseDeal.get('orderCount');
@@ -258,7 +261,11 @@ var createOrder = function(dealId, currentUser, req) {
 			return parseDealPromise.save(null, { useMasterKey: true });
 		})
 		.then(function(savedDeal) {
+			if (savedDeal == 'Invalid order') {
+				return 'Invalid order';
+			}
 			console.log('parseDealPromise save');
+			console.log('savedOrder: ' + JSON.stringify(savedOrder));
 			var messageCreatorId = tgbAdminUser.userId;
 			var messageCreatorName = tgbAdminUser.userName;
 			// TODO: add order message with more details

@@ -7,8 +7,6 @@ var _ = require('underscore');
 var Buffer = require('buffer').Buffer;
 
 module.exports.oauthConnect = function(req, res) {
-	Parse.Cloud.useMasterKey();
-
 	var authProvider = req.params.authProvider;
 	console.log('oauthConnect request: ' + req.url);
 	console.log('req query: ' + JSON.stringify(req.query));
@@ -48,7 +46,7 @@ module.exports.oauthConnect = function(req, res) {
 	    		var query = new Parse.Query(WechatUser);
 				query.equalTo('wechatId', accessToken.openid);
 				var result = {};
-				return query.first()
+				return query.first({useMasterKey: true})
 					.then(function(parseWechatUser) {
 						if (!parseWechatUser) {
 							console.log('no parseWechatUser. We need to request oauth based user info');
@@ -73,7 +71,7 @@ module.exports.oauthConnect = function(req, res) {
 							result.data = wechatUser;
 							var parseUserQuery = new Parse.Query(Parse.User);
 							parseUserQuery.equalTo('wechatId', accessToken.openid);
-							return parseUserQuery.first()
+							return parseUserQuery.first({useMasterKey: true})
 								.then(function(parseUser) {
 									if (parseUser) {
 										var parseUserName = parseUser.get('username');
@@ -90,14 +88,17 @@ module.exports.oauthConnect = function(req, res) {
 											parseUser.set('password', password);
 											parseUser.set('masterRequest', 'true');
 											console.log('reset password: ' + password);
-											return parseUser.save()
+											return parseUser.save(null, {useMasterKey: true})
 												.then(function(savedUser) {
 													console.log('log in user now');
 													return Parse.User.logIn(parseUserName, password);
 												});
 										}
 										console.log('user name not matching wechat id');
-										return parseUser;
+
+										var sessionToken = parseUser.getSessionToken();
+										console.log('Got sessionToken: ' + JSON.stringify(sessionToken));
+										return Parse.User.become(sessionToken);
 									}
 									else {
 										// create a new user

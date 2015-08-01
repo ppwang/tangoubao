@@ -339,8 +339,10 @@ module.exports.sendContactUsEmail = function (req, res) {
 
 module.exports.resetPassword = function(req, res) {
 	var currentUser = Parse.User.current();
+	
 	var email = req.body.email;
 	if (!email) {
+		console.log('No email provided');
 		return res.status(404).end();
 	}
 	return Parse.User.requestPasswordReset(email)
