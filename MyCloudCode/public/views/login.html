@@ -30,6 +30,11 @@
                 密码: <input type="password" ng-model="user.password" ng-required="true"/>
               </div>
             </div>
+            <div class="row signup-input">
+              <div class="signup-input-row">
+                确认密码: <input type="password" ng-model="passwordReentered" ng-required="true"/>
+              </div>
+            </div>
             <div class="row signup-terms">点击注册，代表您已经同意北美团购宝 <a href="/terms.html">用户协议</a></div>
             <div class="row signup-button-container">
               <button class="signup-button" ng-click="signUp(user)">注册</button>
@@ -59,6 +64,9 @@
         </div>
         <div class="row signin-button-container">
           <button class="signin-button" ng-click="logIn(user)">登录</button>
+        </div>
+        <div class="row signin-button-container">
+          <button class="signin-button" ng-click="resetPassword(); $event.stopPropagation();">忘记密码?</button>
         </div>
         <div class="signup-reference">
           New to TuanGouBao? Sign up <a ng-click='scenario="Sign up"'>&nbsp;here&nbsp;&nbsp;&nbsp;&nbsp;</a>

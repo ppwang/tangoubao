@@ -381,6 +381,19 @@ tgbApp.factory('userService', ['$http', '$q', 'serviceBaseUrl', '$rootScope', '$
                 });
             return resultDeferred.promise;            
         },
+        
+        resetPassword: function() {
+            var resultDeferred = $q.defer();
+            $http.post(serviceBaseUrl + '/api/user/resetPassword')
+                .success(function(data, status, headers, config) {
+                    resultDeferred.resolve();
+                })
+                .error(function(data, status, headers, config) {
+                    resultDeferred.reject(status);
+                    console.log('error code:' + status);
+                });
+            return resultDeferred.promise;                        
+        },
     };
 }]);
 
@@ -1654,7 +1667,7 @@ tgbApp.controller('contactController', ['$scope', 'messageDataService', 'modalDi
     };
 }]);
 
-tgbApp.controller('loginController', function($scope, $location, $state, $window, weixinAppId, serviceBaseUrl, userService) {
+tgbApp.controller('loginController', function($scope, $location, $state, $window, weixinAppId, serviceBaseUrl, userService, modalDialogService) {
     if (!$scope.user)
     {
         $scope.user = {};
@@ -1676,6 +1689,15 @@ tgbApp.controller('loginController', function($scope, $location, $state, $window
 
     $scope.signUp = function(user) {
         clearStatusMessage();
+        
+        // Validate input.
+        if (user.password !== $scope.passwordReentered) {
+            modalDialogService.show({
+                message: '两次输入的密码不一致',
+                showCancelButton: false,
+            });
+            return;
+        }
         user.wechatId = $scope.user.wechatId;
         user.claimtoken = $scope.user.claimtoken;
         userService.signUp(user).then(
@@ -1723,6 +1745,11 @@ tgbApp.controller('loginController', function($scope, $location, $state, $window
     $scope.logOut = function() {
         clearStatusMessage();
         userService.logOut();
+    };
+    
+    $scope.resetPassword = function() {
+        clearStatusMessage();
+        userService.resetPassword();
     };
     
     // Private methods.
