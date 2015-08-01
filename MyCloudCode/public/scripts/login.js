@@ -1058,8 +1058,16 @@ tgbApp.controller('topNavController', ['$scope', '$modal', function($scope, $mod
     };
 }]);
 
-tgbApp.controller('welcomeController', ['$scope', 'userService', function($scope, userService) {
+tgbApp.controller('welcomeController', ['$scope', '$modal', 'userService', function($scope, $modal, userService) {
     userService.ensureUserLoggedIn();
+    
+    $scope.showCreateDealInfo = function() {
+        $modal.open({
+            templateUrl: 'views/createOrderDisabledNotice.html',
+            size: 'sm',
+            backdrop: 'static',
+        });
+    };
 }]);
 
 tgbApp.controller('publicDealsController', ['$scope', 'dealDataService', 'userService', 'busyIndicatorService', function($scope, dealDataService, userService, busyIndicatorService) {
