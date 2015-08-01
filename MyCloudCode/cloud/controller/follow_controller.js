@@ -113,6 +113,9 @@ module.exports.unfollowDeal = function(req, res) {
 			else {
 				followCount--;
 			}
+            if (followCount < 0) {
+                followCount = 0;
+            }
 			parseDeal.set('followCount', followCount);
 			console.log('set followCount: ' + followCount);
 			return parseDeal.save(null, {useMasterKey: true});

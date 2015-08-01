@@ -297,6 +297,7 @@ var saveDeal = function(parseDeal, req) {
 	}
 
 	parseDeal.set('status', 'active');
+	parseDeal.set('featured', false);
 
 	var imageData = req.body.imageBase64;
 	var imageType = req.body.imageType;
