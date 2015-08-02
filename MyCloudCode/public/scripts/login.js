@@ -1073,7 +1073,30 @@ tgbApp.controller('welcomeController', ['$scope', '$modal', 'userService', funct
 
 tgbApp.controller('publicDealsController', ['$scope', 'dealDataService', 'userService', 'busyIndicatorService', function($scope, dealDataService, userService, busyIndicatorService) {
     userService.tryUserLogIn();
-
+    $scope.responsive = [
+        {
+            breakpoint: 1600, 
+            settings: {
+                slidesToShow: 3,
+            }
+        },
+        {
+            breakpoint: 1200,
+            settings: {
+                slidesToShow: 2,
+            }
+        },
+        {
+            breakpoint: 512,
+            settings: {
+                slidesToShow: 1,
+            }
+        }
+    // You can unslick at a given breakpoint now by adding:
+    // settings: "unslick"
+    // instead of a settings object
+    ]
+    
     // Wrap the promise in an object before passing into child directive.
     // http://stackoverflow.com/questions/17159614/how-do-i-pass-promises-as-directive-attributes-in-angular
     // No need to wait for logon for public deals.
