@@ -104,7 +104,7 @@
 <!--     <div class="user-img" ng-show="currentUser != null">
         <img class="user-icon" ng-src="{{currentUser.headimgurl}}"/>
     </div> -->
-    <div ui-view="content" class="container-fluid" cg-busy="{promise: opaqueBusyPromise, message: 'Loading', backdrop: true, templateUrl:'views/busy.html', delay: 0, minDuration: 0, backdropClass: 'tgb-busy-backdrop-opaque'}">
+    <div ui-view="content" class="container" cg-busy="{promise: opaqueBusyPromise, message: 'Loading', backdrop: true, templateUrl:'views/busy.html', delay: 0, minDuration: 0, backdropClass: 'tgb-busy-backdrop-opaque'}">
     </div>
 </body>
 </html>

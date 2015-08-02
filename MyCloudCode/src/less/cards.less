@@ -1,12 +1,16 @@
 
 .deal-card,
 .order-card {
-  padding:1.5rem;
+  padding: 1px;
   box-shadow: 1px 3px 3px #888888;
   background:white;
   border-radius:3px;
   margin-bottom: 5px;
   cursor: pointer;
+  overflow: hidden;
+  white-space:nowrap;
+  // ellipsis doesn't work for some reason ...
+  text-overflow: ellipsis;
 }
 
 .deal-detail-box-shadow {

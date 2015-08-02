@@ -175,7 +175,7 @@ tgbApp.filter('daysRemainingFilter', function() {
         if (date) {
             var daysRemaining = Math.ceil((date.getTime() - Date.now())/86400000);
             if (daysRemaining > 0) {
-                return '还有' + daysRemaining + '天';
+                return '还有' + daysRemaining + '天截止';
             } else {
                 return '已截止订购';
             }
@@ -1004,7 +1004,8 @@ tgbApp.directive('dealCard', function() {
         restrict: 'E',
         templateUrl: '/directives/dealCard.html',
         scope: {
-            deal: '=',  
+            deal: '=',
+            index: '=',
         },
     };   
 });
@@ -1099,7 +1100,7 @@ tgbApp.controller('dealCardController', ['$scope', '$state', function($scope, $s
 
 tgbApp.controller('dealCardListController', ['$scope', function($scope) {
     $scope.dealsPromiseWrapper.promise.then(function(deals) {
-        $scope.chunkedDeals = _.chunk(deals, 4); 
+        $scope.deals = deals;
     });
 }]);
 
