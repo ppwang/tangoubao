@@ -1,4 +1,4 @@
-var tgbApp = angular.module('tuanGouBao', ['GlobalConfiguration', 'ui.router', 'xeditable', 'imageupload', 'cgBusy', 'ui.bootstrap', 'ngTouch']);
+var tgbApp = angular.module('tuanGouBao', ['ngTouch', 'GlobalConfiguration', 'ui.router', 'xeditable', 'imageupload', 'cgBusy', 'ui.bootstrap', 'slick']);
 
 //tgbApp.config(function($locationProvider) {
 //    //$locationProvider.html5Mode(true).hashPrefix('!');
