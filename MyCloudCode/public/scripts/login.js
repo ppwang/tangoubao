@@ -1,4 +1,4 @@
-var tgbApp = angular.module('tuanGouBao', ['GlobalConfiguration', 'ui.router', 'xeditable', 'imageupload', 'cgBusy', 'ui.bootstrap']);
+var tgbApp = angular.module('tuanGouBao', ['GlobalConfiguration', 'ui.router', 'xeditable', 'imageupload', 'cgBusy', 'ui.bootstrap', 'ngTouch']);
 
 //tgbApp.config(function($locationProvider) {
 //    //$locationProvider.html5Mode(true).hashPrefix('!');
@@ -30,7 +30,7 @@ tgbApp.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, 
             url:'/publicDeals',
             views: {
                 'content': {
-                    templateUrl: 'views/deals.html',
+                    templateUrl: 'views/publicDeals.html',
                     controller: 'publicDealsController',
                 }
             }
@@ -175,7 +175,7 @@ tgbApp.filter('daysRemainingFilter', function() {
         if (date) {
             var daysRemaining = Math.ceil((date.getTime() - Date.now())/86400000);
             if (daysRemaining > 0) {
-                return '还剩' + daysRemaining + '天';
+                return '还有' + daysRemaining + '天';
             } else {
                 return '已截止订购';
             }
@@ -1077,10 +1077,18 @@ tgbApp.controller('publicDealsController', ['$scope', 'dealDataService', 'userSe
     // http://stackoverflow.com/questions/17159614/how-do-i-pass-promises-as-directive-attributes-in-angular
     // No need to wait for logon for public deals.
     var promise = dealDataService.getPublicDeals();
-    $scope.dealsPromiseWrapper = {
-        promise: promise,
-    };
     busyIndicatorService.setPromise(promise);
+
+    var nonFeaturedDealsPromise = promise.then(function(deals) {
+        var dealsGroupByFeatured = _.groupBy(deals, function(d) {
+            return d.featured === true;
+        });
+        $scope.featuredDeals = dealsGroupByFeatured.true;
+        return dealsGroupByFeatured.false;
+    });
+    $scope.dealsPromiseWrapper = {
+        promise: nonFeaturedDealsPromise,
+    };
 }]);
 
 tgbApp.controller('dealCardController', ['$scope', '$state', function($scope, $state) {
