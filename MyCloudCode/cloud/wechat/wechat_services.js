@@ -8,6 +8,8 @@ var createMenus = require('cloud/wechat/create_menus');
 var authenticate = function (req) {
     var timestamp = req.query.timestamp;
     var nonce = req.query.nonce;
+    console.log('wechat authenticate. timestamp: ' + timestamp 
+        + ', nonce: ' + nonce + ', signature' + req.query.signature);
     var signatureArray = new Array(wechatSetting.wechatAppToken, timestamp, nonce);
     signatureArray = signatureArray.sort();
     var signature = signatureArray.join('');
