@@ -7,23 +7,29 @@
     </div>
     
     <div class="row item-detail-row">
-        <div class="col-md-12 col-xs-12">
+        <div class="col-md-8 col-xs-8">
             <span class="deal-title">{{deal.name}}</span>
         </div>
-    </div>
-
-    <div class="row item-detail-row">
-        <div class="col-md-12 col-xs-12">
-            购买 {{deal.orderCount || 0}} 关注 {{deal.followCount || 0}}
+        <div class="col-md-4 col-xs-4">
+            <span>{{deal.orderCount || 0}}人购买 {{deal.followCount || 0}}人关注</span>
         </div>
     </div>
 
     <div class="row item-detail-row">
-        <div class="col-md-4 col-xs-5">
-            地区: {{deal.region}}
+        <div class="col-md-2 col-xs-2">
+            地 区: 
         </div>
-        <div class="col-md-8 col-xs-7">
-            价格: {{deal.unitPrice | currency:'$'}}/{{deal.unitName}} (每件{{deal.unitsPerPackage}}{{deal.unitName}})
+        <div class="col-md-10 col-xs-10">
+            {{deal.region}}
+        </div>
+    </div>
+
+    <div class="row item-detail-row">
+        <div class="col-md-2 col-xs-2">
+            价 格: 
+        </div>
+        <div class="col-md-10 col-xs-10">
+            {{deal.unitPrice | currency:'$'}}/{{deal.unitName}} (每件{{deal.unitsPerPackage}}{{deal.unitName}})
         </div>
     </div>
 
