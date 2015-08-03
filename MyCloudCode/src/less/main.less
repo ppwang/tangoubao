@@ -107,7 +107,7 @@ img {
 }
 
 .tgb-primary-color {
-    color: #FF8000;   
+    color: @tgb-primary-color;   
 }
 
 .tgb-message-read-color {
@@ -176,10 +176,39 @@ img {
     text-align: left;
 }
 
+.tgb-carousel-slide {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
 .deal-image {
     max-width: 700px;
 }
 
 .slick-slider {
     margin-bottom: 10px;
+}
+
+.tgb-nav-pills {
+    border-style: solid;
+    border-width: 2px;
+    border-color: @tgb-primary-color;
+/*    
+    > li {
+        > a {
+            &:link，
+            &:visited {
+                color: #000000;
+            ｝
+        }
+    }
+*/
+}
+
+// Override bootstrap style.
+.nav-pills {
+  > li {
+    + li {
+      margin-left: 0px;
+    }
+  }
 }

@@ -1071,23 +1071,23 @@ tgbApp.controller('welcomeController', ['$scope', '$modal', 'userService', funct
     };
 }]);
 
-tgbApp.controller('publicDealsController', ['$scope', 'dealDataService', 'userService', 'busyIndicatorService', function($scope, dealDataService, userService, busyIndicatorService) {
+tgbApp.controller('publicDealsController', ['$scope', '$state', 'dealDataService', 'userService', 'busyIndicatorService', function($scope, $state, dealDataService, userService, busyIndicatorService) {
     userService.tryUserLogIn();
     $scope.responsive = [
         {
-            breakpoint: 1600, 
+            breakpoint: 3000, 
             settings: {
                 slidesToShow: 3,
             }
         },
         {
-            breakpoint: 1200,
+            breakpoint: 2000,
             settings: {
                 slidesToShow: 2,
             }
         },
         {
-            breakpoint: 512,
+            breakpoint: 768,
             settings: {
                 slidesToShow: 1,
             }
@@ -1112,6 +1112,10 @@ tgbApp.controller('publicDealsController', ['$scope', 'dealDataService', 'userSe
     });
     $scope.dealsPromiseWrapper = {
         promise: nonFeaturedDealsPromise,
+    };
+    
+    $scope.showDealDetail = function(deal) {
+        $state.go('dealDetail', {'id': deal.id} );
     };
 }]);
 
@@ -1499,8 +1503,14 @@ tgbApp.controller('filteredOrdersController', ['$scope', '$rootScope', '$statePa
     busyIndicatorService.setPromise(promise);
 }]);
 
-tgbApp.controller('sellerAccountController', ['$state', 'userService', function($state, userService) {
+tgbApp.controller('sellerAccountController', ['$scope', '$state', 'userService', function($scope, $state, userService) {
     userService.ensureUserLoggedIn();
+    
+    $scope.showDealsWithStatus = function(status) {
+        $state.go('sellerAccount.deals', {
+            status: status,
+        });
+    };
 }]);
 
 tgbApp.controller('filteredDealsController', ['$scope', '$stateParams', 'dealDataService', 'busyIndicatorService', function($scope, $stateParams, dealDataService, busyIndicatorService) {

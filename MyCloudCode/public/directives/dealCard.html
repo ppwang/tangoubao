@@ -1,5 +1,5 @@
 <!-- If you update col-*-*, you also need to update the clearfix section accordingly to handle uneven height. -->
-<div ng-controller="dealCardController" ng-click="showDealDetail()" class="deal-card col-lg-3 col-md-4 col-sm-6 col-xs-6">
+<div ng-controller="dealCardController" ng-click="showDealDetail()" class="deal-card col-lg-2 col-md-3 col-sm-4 col-xs-6">
     <img ng-src="{{deal.dealImageUrl? deal.dealImageUrl : 'resources/placeholder.png'}}" onerror="this.src = 'resources/placeholder.png'"/> 
     <br>
 	<div>
@@ -8,6 +8,7 @@
         <span>{{deal.unitPrice | currency:'$'}}/{{deal.unitName}}</span>
     </div>
 </div>
-<div ng-if="index % 4 === 3" class="clearfix visible-lg-block"></div>
-<div ng-if="index % 3 === 2" class="clearfix visible-md-block"></div>
-<div ng-if="index % 2 === 1" class="clearfix visible-sm-block visible-xs-block"></div>
+<div ng-if="index % 6 === 5" class="clearfix visible-lg-block"></div>
+<div ng-if="index % 4 === 3" class="clearfix visible-md-block"></div>
+<div ng-if="index % 3 === 2" class="clearfix visible-sm-block "></div>
+<div ng-if="index % 2 === 1" class="clearfix visible-xs-block"></div>
