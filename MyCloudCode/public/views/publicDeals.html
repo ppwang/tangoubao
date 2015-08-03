@@ -12,7 +12,7 @@
 </carousel>
 -->
 <slick dots="false" autoplay="true" autoplaySpeed="5000" infinite="true" speed="300" touch-move="false" slides-to-scroll="1" center-mode="true" center-padding="10%" focus-on-select="true" class="slider one-time" init-onload="true" data="featuredDeals" responsive="responsive">
-    <div ng-repeat="deal in featuredDeals" class="tgb-carousel-slide" style="position: relative; margin-left: 2px;">
+    <div ng-repeat="deal in featuredDeals" ng-click="showDealDetail(deal)" class="tgb-carousel-slide" style="position: relative; margin-left: 2px;">
         <img ng-src="{{deal.dealImageUrl || 'resources/placeholder.png'}}" style="margin-left: auto; margin-right: auto;">
         <div class="tgb-carousel-caption">
             <span>{{deal.name}}</span>

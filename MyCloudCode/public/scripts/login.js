@@ -1071,7 +1071,7 @@ tgbApp.controller('welcomeController', ['$scope', '$modal', 'userService', funct
     };
 }]);
 
-tgbApp.controller('publicDealsController', ['$scope', 'dealDataService', 'userService', 'busyIndicatorService', function($scope, dealDataService, userService, busyIndicatorService) {
+tgbApp.controller('publicDealsController', ['$scope', '$state', 'dealDataService', 'userService', 'busyIndicatorService', function($scope, $state, dealDataService, userService, busyIndicatorService) {
     userService.tryUserLogIn();
     $scope.responsive = [
         {
@@ -1112,6 +1112,10 @@ tgbApp.controller('publicDealsController', ['$scope', 'dealDataService', 'userSe
     });
     $scope.dealsPromiseWrapper = {
         promise: nonFeaturedDealsPromise,
+    };
+    
+    $scope.showDealDetail = function(deal) {
+        $state.go('dealDetail', {'id': deal.id} );
     };
 }]);
 
