@@ -1075,19 +1075,19 @@ tgbApp.controller('publicDealsController', ['$scope', 'dealDataService', 'userSe
     userService.tryUserLogIn();
     $scope.responsive = [
         {
-            breakpoint: 1600, 
+            breakpoint: 2000, 
             settings: {
                 slidesToShow: 3,
             }
         },
         {
-            breakpoint: 1200,
+            breakpoint: 1600,
             settings: {
                 slidesToShow: 2,
             }
         },
         {
-            breakpoint: 512,
+            breakpoint: 768,
             settings: {
                 slidesToShow: 1,
             }
