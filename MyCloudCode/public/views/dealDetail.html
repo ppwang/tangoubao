@@ -107,18 +107,16 @@
             </a>
         </div>
         <div class="col-md-2 col-xs-2">
-            <button ng-show="deal.owned" ng-click="manageDeal()">订单状况</button>
+            <button class="btn tgb-btn-default" ng-show="deal.owned" ng-click="manageDeal()">订单状况</button>
         </div>
         <div class="col-md-2 col-xs-2">
             <span ng-show="deal.status === 'closed'">已结束</span>
         </div>
-        <div class="col-md-3 col-xs-3">
-            <button class="btn btn-default"  ng-show="!deal.owned" ng-click="toggleFollowedStatus()">
+        <div class="col-md-6 col-xs-6 action-btns">
+            <button class="btn tgb-btn-default" ng-show="!deal.owned" ng-click="toggleFollowedStatus()">
                 {{deal.followed ? '取消关注' : '关注'}}
             </button>
-        </div>
-        <div class="col-md-3 col-xs-3">
-            <button class="btn btn-default" ng-show="!deal.owned && deal.status === 'active'" ng-click="purchaseDeal()">
+            <button class="btn tgb-btn-default" ng-show="!deal.owned && deal.status === 'active'" ng-click="purchaseDeal()">
                 购买
             </button>
         </div>
@@ -134,21 +132,21 @@
     </div>
 
     <div class="comment-submission">
-        <div class="row">
+        <div class="row item-detail-row comment-submission-first-row">
             <div class="col-md-2 col-xs-3 item-detail-tag">
                 您的评论: 
             </div>
             <div class="col-md-10 col-xs-9">
-                <rating ng-model="rating" max="5" readonly="false" on-hover="ratingHoveringOver(value)" on-leave="overStar=null" rating-states="ratingStates"></rating>
+                <rating class="comment-rating-submission" ng-model="rating" max="5" readonly="false" on-hover="ratingHoveringOver(value)" on-leave="overStar=null" rating-states="ratingStates"></rating>
             </div>
         </div>
-        <div class="row"> 
+        <div class="row item-detail-row"> 
             <div class="col-md-9 col-xs-9">
-                <textarea class="comment-submission-text" ng-model="comment" maxlength="500" placeholder="限500字">
+                <textarea class="form-control comment-submission-text" rows="5" ng-model="comment" maxlength="500" placeholder="请填入您的评论，限500字">
                 </textarea>
             </div>
             <div class="col-md-3 col-xs-3 comment-submission-button">
-                <button class="btn btn-default" ng-click="addComment()" ng-disabled="!rating && !comment">提交</button>
+                <button class="btn tgb-btn-default" ng-click="addComment()" ng-disabled="!rating && !comment">提交</button>
             </div>
         </div>
     </div>
