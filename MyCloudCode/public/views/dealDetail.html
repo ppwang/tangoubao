@@ -6,85 +6,122 @@
         </div>
     </div>
     
-    <div class="row item-detail-row">
-        <div class="col-md-8 col-xs-8">
+    <div class="row item-detail-row item-title-row">
+        <div class="col-md-6 col-xs-8">
             <span class="deal-title">{{deal.name}}</span>
         </div>
-        <div class="col-md-4 col-xs-4">
+        <div class="col-md-6 col-xs-4">
             <span>{{deal.orderCount || 0}}人购买 {{deal.followCount || 0}}人关注</span>
         </div>
     </div>
 
     <div class="row item-detail-row">
-        <div class="col-md-2 col-xs-2">
+        <div class="col-md-2 col-xs-3 item-detail-tag">
             地 区: 
         </div>
-        <div class="col-md-10 col-xs-10">
+        <div class="col-md-10 col-xs-9">
             {{deal.region}}
         </div>
     </div>
 
     <div class="row item-detail-row">
-        <div class="col-md-2 col-xs-2">
+        <div class="col-md-2 col-xs-3 item-detail-tag">
             价 格: 
         </div>
-        <div class="col-md-10 col-xs-10">
-            {{deal.unitPrice | currency:'$'}}/{{deal.unitName}} (每件{{deal.unitsPerPackage}}{{deal.unitName}})
+        <div class="col-md-10 col-xs-9">
+            <span style="font-weight: bold;">{{deal.unitPrice | currency:'$'}}/{{deal.unitName}} </span>
+            (每件{{deal.unitsPerPackage}}{{deal.unitName}})
         </div>
     </div>
 
     <div class="row item-detail-row">
-        <div class="col-md-6 col-xs-6">
-            开始: {{deal.beginDate | date:'yyyy年MM月dd日'}}
+        <div class="col-md-2 col-xs-3 item-detail-tag">
+            开始日期:
         </div>
-        <div class="col-md-6 col-xs-6">
-            截止: {{deal.endDate | date:'yyyy年MM月dd日'}}
-        </div>
-    </div>
-
-    <div class="row item-detail-row">
-        <div class="col-md-12 col-xs-12">
-            团购进度: {{deal.endDate | daysRemainingFilter}}
+        <div class="col-md-10 col-xs-9">
+            {{deal.beginDate | date:'yyyy年MM月dd日'}}
         </div>
     </div>
 
     <div class="row item-detail-row">
-        <div class="col-md-12 col-xs-12">
-            发起人: {{deal.creatorName}}
+        <div class="col-md-2 col-xs-3 item-detail-tag">
+            截止日期: 
+        </div>
+        <div class="col-md-10 col-xs-9">
+            {{deal.endDate | date:'yyyy年MM月dd日'}}
         </div>
     </div>
 
     <div class="row item-detail-row">
-        <div class="col-md-12 col-xs-12">
-            发货方式: 自取
+        <div class="col-md-2 col-xs-3 item-detail-tag">
+            团购进度: 
         </div>
-    </div>
-
-    <div class="row" ng-repeat="option in deal.pickupOptions">
-       <div class="col-md-4 col-xs-4 deal-pickup-options">
-            取货地址: {{option.address}}
-        </div>
-        <div class="col-md-4 col-xs-4">
-            联系人: {{option.contactName}}
-        </div>
-        <div class="col-md-4 col-xs-4">
-            电话: {{option.phoneNumber}}
+        <div class="col-md-10 col-xs-9">
+            {{deal.endDate | daysRemainingFilter}}
         </div>
     </div>
 
     <div class="row item-detail-row">
-        <div class="col-md-12 col-xs-12">
-            货品描述: {{deal.description}}
+        <div class="col-md-2 col-xs-3 item-detail-tag">
+            发起人: 
+        </div>
+        <div class="col-md-10 col-xs-9">
+            {{deal.creatorName}}
         </div>
     </div>
 
-    <div class="row">
-        <a ng-show="weixinShareVisible" ng-click="weixinShare()" class="col-md-1 col-xs-3"><img src="resources/wechat.png" class="tgb-share-icon"/></a>
-        <a ng-show="false" class="col-md-1 col-xs-3"><img src="resources/facebook.png" class="tgb-share-icon"/></a>
-        <button ng-show="!deal.owned" ng-click="toggleFollowedStatus()" class="col-md-1 col-xs-3">{{deal.followed ? '取消关注' : '关注'}}</button>
-        <button ng-show="!deal.owned && deal.status === 'active'" ng-click="purchaseDeal()" class="col-md-1 col-xs-3">购买</button>
-        <button ng-show="deal.owned" ng-click="manageDeal()" class="col-md-1 col-xs-3">订单状况</button>
-        <span ng-show="deal.status === 'closed'" class="col-md-1 col-xs-3">已结束</span>
+    <div class="row item-detail-row">
+        <div class="col-md-2 col-xs-3 item-detail-tag">
+            发货方式: 
+        </div>
+        <div class="col-md-10 col-xs-9">
+            自取
+        </div>
+    </div>
+
+    <div class="row item-detail-row" ng-repeat="option in deal.pickupOptions">
+        <div class="col-md-3 col-xs-4">
+            <span class="item-detail-tag">联系人: </span><br>{{option.contactName}}
+        </div>
+        <div class="col-md-3 col-xs-4">
+            <span class="item-detail-tag">电话: </span><br>{{option.phoneNumber}}
+        </div>
+        <div class="col-md-3 col-xs-4 deal-pickup-options">
+            <span class="item-detail-tag">取货地址: </span><br>{{option.address}}
+        </div>
+    </div>
+
+    <div class="row item-detail-row">
+        <div class="col-md-2 col-xs-3 item-detail-tag">
+            货品描述: 
+        </div>
+        <div class="col-md-10 col-xs-9">
+            {{deal.description}}
+        </div>
+    </div>
+
+    <div class="row order-sns-row">
+        <div class="col-md-2 col-xs-2 item-detail-tag">
+            <a ng-show="weixinShareVisible" ng-click="weixinShare()">
+                <img src="resources/wechat.png" class="tgb-share-icon"/>
+            </a>
+        </div>
+        <div class="col-md-2 col-xs-3">
+            <button ng-show="deal.owned" ng-click="manageDeal()">订单状况</button>
+        </div>
+        <div class="col-md-2 col-xs-3">
+            <span ng-show="deal.status === 'closed'">已结束</span>
+        </div>
+        <div class="col-md-3 col-xs-2">
+            <button ng-show="!deal.owned" ng-click="toggleFollowedStatus()">
+                {{deal.followed ? '取消关注' : '关注'}}
+            </button>
+        </div>
+        <div class="col-md-3 col-xs-2">
+            <button ng-show="!deal.owned && deal.status === 'active'" ng-click="purchaseDeal()">
+                购买
+            </button>
+        </div>
     </div>
     
     <div>
