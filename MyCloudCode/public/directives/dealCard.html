@@ -1,6 +1,6 @@
 <!-- If you update col-*-*, you also need to update the clearfix section accordingly to handle uneven height. -->
 <div ng-controller="dealCardController" ng-click="showDealDetail()" class="deal-card col-lg-2 col-md-3 col-sm-4 col-xs-6">
-    <img ng-src="{{deal.dealImageUrl? deal.dealImageUrl : 'resources/placeholder.png'}}" onerror="this.src = 'resources/placeholder.png'"/> 
+    <img ng-src="{{deal.dealImageUrl || 'resources/placeholder.png'}}" onerror="this.src = 'resources/placeholder.png'"/> 
     <br>
 	<div>
         <span style="font-weight: bold">{{deal.name}}</span>

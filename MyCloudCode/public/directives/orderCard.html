@@ -1,22 +1,14 @@
-<div ng-controller="orderCardController" ng-click="showOrderDetail()" class="order-card col-lg-12 col-md-12 col-sm-12 col-xs-12">
-    <img ng-src="{{order.dealImageUrl? order.dealImageUrl : 'resources/placeholder.png'}}" onerror="this.src = 'resources/placeholder.png'" class="img-responsive pull-left col-lg-6 col-md-6 col-sm-6 col-xs-6"/>
-	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+<!-- If you update col-*-*, you also need to update the clearfix section accordingly to handle uneven height. -->
+<div ng-controller="orderCardController" ng-click="showOrderDetail()" class="order-card col-lg-2 col-md-3 col-sm-4 col-xs-6">
+    <img ng-src="{{order.dealImageUrl || 'resources/placeholder.png'}}" onerror="this.src = 'resources/placeholder.png'"/>
+    <br>
+	<div>
         <span style="font-weight: bold">{{order.dealName}}</span>
         <br>
-        <span>购买数量: {{order.quantity}}件</span>
-        <br>
-        <span>购买时间: {{order.orderTime | date:'yyyy年MM月dd日'}}</span>
-<!--
-        <span>地区: {{orderdeal.region}}</span>
-        <br>
-        <span>价格: {{deal.unitPrice | currency:'$'}}/{{deal.unitName}}</span>
-        <br>
-        <span>团购进度: {{deal.endDate | daysRemainingFilter}}</span>
-        <br>
-         TODO: show owner name or id 
-        <span>发起人: {{deal.creatorName}}</span>
-        <br>
-        <span>热度</span>
--->
+        <span>{{order.quantity}}件 {{order.orderTime | date:'yyyy年MM月dd日'}}</span>
     </div>
 </div>
+<div ng-if="index % 6 === 5" class="clearfix visible-lg-block"></div>
+<div ng-if="index % 4 === 3" class="clearfix visible-md-block"></div>
+<div ng-if="index % 3 === 2" class="clearfix visible-sm-block "></div>
+<div ng-if="index % 2 === 1" class="clearfix visible-xs-block"></div>

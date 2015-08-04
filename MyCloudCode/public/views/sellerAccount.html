@@ -1,5 +1,6 @@
 <tabset type="pills" class="tgb-nav-pills">
-    <tab heading="进行中的" ui-sref=".deals({status: 'active'})" class="col-xs-4 col-sm-3 col-md-2 col-lg-2"></tab>
-    <tab heading="已结束的" ui-sref=".deals({status: 'closed'})" class="col-xs-4 col-sm-3 col-md-2 col-lg-2"></tab>
+    <!-- ui-sref doesn't seem to work for touch when it is not placed on an anchor, so we are settomg state using ng-click here. -->
+    <tab heading="进行中的" select="showDealsWithStatus('active')" class="col-xs-4 col-sm-3 col-md-2 col-lg-2"></tab>
+    <tab heading="已结束的" select="showDealsWithStatus('closed')" class="col-xs-4 col-sm-3 col-md-2 col-lg-2"></tab>
 </tabset>
 <div ui-view="content"></div>

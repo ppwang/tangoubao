@@ -1139,7 +1139,7 @@ tgbApp.controller('orderCardController', ['$scope', '$state', function($scope, $
 
 tgbApp.controller('orderCardListController', ['$scope', function($scope) {
     $scope.ordersPromiseWrapper.promise.then(function(orders) {
-        $scope.chunkedOrders = _.chunk(orders, 4); 
+        $scope.orders = orders; 
     });
 }]);
 
@@ -1489,8 +1489,18 @@ tgbApp.controller('createOrderController', ['$scope', '$state', '$stateParams', 
     };
 }]);
 
-tgbApp.controller('buyerAccountController', ['$state', 'userService', function($state, userService) {
+tgbApp.controller('buyerAccountController', ['$scope', '$state', 'userService', function($scope, $state, userService) {
     userService.ensureUserLoggedIn();
+
+    $scope.showOrdersWithStatus = function(status) {
+        $state.go('buyerAccount.orders', {
+            status: status,
+        });
+    };
+
+    $scope.showFollowedDeals = function() {
+        $state.go('buyerAccount.followedDeals');
+    };
 }]);
 
 tgbApp.controller('filteredOrdersController', ['$scope', '$rootScope', '$stateParams', 'orderDataService', 'busyIndicatorService', function($scope, $rootScope, $stateParams, orderDataService, busyIndicatorService) {
@@ -1505,6 +1515,12 @@ tgbApp.controller('filteredOrdersController', ['$scope', '$rootScope', '$statePa
 
 tgbApp.controller('sellerAccountController', ['$scope', '$state', 'userService', function($scope, $state, userService) {
     userService.ensureUserLoggedIn();
+    
+    $scope.showDealsWithStatus = function(status) {
+        $state.go('sellerAccount.deals', {
+            status: status,
+        });
+    };
 }]);
 
 tgbApp.controller('filteredDealsController', ['$scope', '$stateParams', 'dealDataService', 'busyIndicatorService', function($scope, $stateParams, dealDataService, busyIndicatorService) {
