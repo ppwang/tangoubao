@@ -27,6 +27,7 @@
         <div class="col-md-2 col-xs-2">
             <span ng-show="deal.status === 'closed'">已结束</span>
         </div>
+
         <div class="col-md-6 col-xs-6 action-btns">
             <button class="btn tgb-btn-default" ng-show="!deal.owned" ng-click="toggleFollowedStatus()">
                 {{deal.followed ? '取消关注' : '关注'}}
@@ -36,7 +37,7 @@
             </button>
         </div>
     </div>
-    
+
     <div class="row item-detail-row">
         <div class="col-md-2 col-xs-3 item-detail-tag">
             地 区: 
@@ -141,12 +142,10 @@
             </div>
         </div>
         <div class="row item-detail-row"> 
-            <div class="col-md-9 col-xs-9">
+            <div class="col-md-12 col-xs-12">
                 <textarea class="form-control comment-submission-text" rows="5" ng-model="comment" maxlength="500" placeholder="请填入您的评论，限500字">
                 </textarea>
-            </div>
-            <div class="col-md-3 col-xs-3 comment-submission-button">
-                <button class="btn tgb-btn-default" ng-click="addComment()" ng-disabled="!rating && !comment">提交</button>
+                <button class="btn tgb-btn-default btn-comment-submission" ng-click="addComment()" ng-disabled="!rating && !comment">提交</button>
             </div>
         </div>
     </div>

@@ -1,89 +1,141 @@
 <div class="container deal-detail-box-shadow">
-    <div class="row">
+    <div class="row item-detail-row">
         <div class="col-md-12 col-xs-12 order-detail-deal-name">
-            <h2>{{order.deal.name}}</h2>
-        </div>
-    </div>
-    
-    <div class="row deal-detail-row">
-        <div class="col-md-4 col-xs-5">
-            地区: {{order.deal.region}}
-        </div>
-        <div class="col-md-8 col-xs-7">
-            价格: {{order.deal.unitPrice | currency:'$'}}/{{order.deal.unitName}} (每件{{order.deal.unitsPerPackage}}{{order.deal.unitName}})
+            <div class="deal-title">{{order.deal.name}}</div>
         </div>
     </div>
 
-    <div class="row deal-detail-row">
-        <div class="col-md-6 col-xs-6">
-            开始: {{order.deal.beginDate | date:'yyyy年MM月dd日'}}
+    <div class="row item-detail-row">
+        <div class="col-md-2 col-xs-3 item-detail-tag">
+            地 区: 
         </div>
-        <div class="col-md-6 col-xs-6">
-            截止: {{order.deal.endDate | date:'yyyy年MM月dd日'}}
-        </div>
-    </div>
-
-    <div class="row deal-detail-row">
-        <div class="col-md-12 col-xs-12">
-            团购进度: 还剩{{order.deal.endDate | daysRemainingFilter}}
+        <div class="col-md-10 col-xs-9">
+            {{order.deal.region}}
         </div>
     </div>
 
-    <div class="row deal-detail-row">
-        <div class="col-md-12 col-xs-12">
-            发起人: {{order.deal.creatorName}}
+    <div class="row item-detail-row">
+        <div class="col-md-2 col-xs-3 item-detail-tag">
+            价 格: 
+        </div>
+        <div class="col-md-10 col-xs-9">
+            <span style="font-weight: bold;">{{order.deal.unitPrice | currency:'$'}}/{{order.deal.unitName}} </span>
+            (每件{{order.deal.unitsPerPackage}}{{order.deal.unitName}})
         </div>
     </div>
 
-    <div class="row deal-detail-row">
-        <div class="col-md-12 col-xs-12">
-            订货人: {{order.creator.nickname}}
+    <div class="row item-detail-row">
+        <div class="col-md-2 col-xs-3 item-detail-tag">
+            开始日期:
+        </div>
+        <div class="col-md-10 col-xs-9">
+            {{order.deal.beginDate | date:'yyyy年MM月dd日'}}
         </div>
     </div>
 
-    <div class="row deal-detail-row">
-        <div class="col-md-12 col-xs-12">
-            电话: {{order.creator.phoneNumber}}
+    <div class="row item-detail-row">
+        <div class="col-md-2 col-xs-3 item-detail-tag">
+            截止日期: 
+        </div>
+        <div class="col-md-10 col-xs-9">
+            {{order.deal.endDate | date:'yyyy年MM月dd日'}}
         </div>
     </div>
 
-    <div class="row deal-detail-row">
-        <div class="col-md-12 col-xs-12">
-            Email: {{order.creator.email}}
+    <div class="row item-detail-row">
+        <div class="col-md-2 col-xs-3 item-detail-tag">
+            团购进度: 
+        </div>
+        <div class="col-md-10 col-xs-9">
+            {{order.deal.endDate | daysRemainingFilter}}
         </div>
     </div>
 
-    <div class="row deal-detail-row">
-        <div class="col-md-12 col-xs-12">
-            数额: {{order.quantity}}件, {{order.quantity * order.deal.unitsPerPackage}}{{order.deal.unitName}}, 共计{{ order.quantity * order.deal.unitsPerPackage * order.deal.unitPrice | currency:'$'}}
+    <div class="row item-detail-row">
+        <div class="col-md-2 col-xs-3 item-detail-tag">
+            发起人: 
+        </div>
+        <div class="col-md-10 col-xs-9">
+            {{order.deal.creatorName}}
         </div>
     </div>
 
-    <div class="row deal-detail-row">
-        <div class="col-md-12 col-xs-12">
-            发货方式: 自取
+    <div class="row item-detail-row">
+        <div class="col-md-2 col-xs-3 item-detail-tag">
+            订货人: 
+        </div>
+        <div class="col-md-10 col-xs-9">
+            {{order.creator.nickname}}
         </div>
     </div>
 
-    <div class="row deal-detail-row">
-    	<div class="col-md-2 col-xs-2"></div>
-    	<div class="col-md-10 col-xs-10">
-    		<div class="col-md-12 col-xs-12 deal-pickup-options">
-            发货地址: {{pickupOption.address}}
-	        </div>
-	        <div class="col-md-12 col-xs-12">
-	            发货人员: {{pickupOption.contactName}}
-	        </div>
-	        <div class="col-md-12 col-xs-12">
-	            联系电话: {{pickupOption.phoneNumber}}
-	        </div>
-    	</div>
+    <div class="row item-detail-row">
+        <div class="col-md-2 col-xs-3 item-detail-tag">
+            电话: 
+        </div>
+        <div class="col-md-10 col-xs-9">
+            {{order.creator.phoneNumber}}
+        </div>
     </div>
 
-    <div class="row deal-detail-row">
-    	<div class="col-md-12 col-xs-12">
-    		团购成功
-    	</div>
+    <div class="row item-detail-row">
+        <div class="col-md-2 col-xs-3 item-detail-tag">
+            Email: 
+        </div>
+        <div class="col-md-10 col-xs-9">
+            {{order.creator.email}}
+        </div>
+    </div>
+
+    <div class="row item-detail-row">
+        <div class="col-md-2 col-xs-3 item-detail-tag">
+            数额: 
+        </div>
+        <div class="col-md-10 col-xs-9">
+            {{order.quantity}}件, {{order.quantity * order.deal.unitsPerPackage}}{{order.deal.unitName}}, 共计{{ order.quantity * order.deal.unitsPerPackage * order.deal.unitPrice | currency:'$'}}
+        </div>
+    </div>
+
+    <div class="row item-detail-row">
+        <div class="col-md-2 col-xs-3 item-detail-tag">
+            发货方式: 
+        </div>
+        <div class="col-md-10 col-xs-9">
+            自取
+        </div>
+    </div>
+
+     <div class="row item-detail-row">
+        <div class="col-md-2 col-xs-3 item-detail-tag">
+            发起人: 
+        </div>
+        <div class="col-md-10 col-xs-9">
+            {{order.deal.creatorName}}
+        </div>
+    </div>
+
+    <div class="row item-detail-row">
+        <div class="col-md-3 col-xs-4">
+            <span class="item-detail-tag">发货人员: </span><br>{{pickupOption.contactName}}
+        </div>
+        <div class="col-md-3 col-xs-4">
+            <span class="item-detail-tag">联系电话: </span><br>{{pickupOption.phoneNumber}}
+        </div>
+        <div class="col-md-3 col-xs-4 deal-pickup-options">
+            <span class="item-detail-tag">发货地址: </span><br>{{pickupOption.address}}
+        </div>
+    </div>
+
+    <div class="row item-detail-row order-success-row">
+        <div class="col-md-3 col-xs-4">
+            
+        </div>
+        <div class="col-md-3 col-xs-4">
+            <span class="tgb-btn-default order-succes-label">团购成功</span>
+        </div>
+        <div class="col-md-3 col-xs-4 deal-pickup-options">
+            
+        </div>
     </div>
     
     <button ng-click="modifyOrder()">修改订单</button>

@@ -1,60 +1,74 @@
-.deal-detail {
 
-	// Image row
-	.deal-img-row {
-		img {
-			width: 100%;
-		}
+// Image row
+.deal-img-row {
+	img {
+		width: 100%;
 	}
+}
 
-	.item-title-row {
-		margin-bottom: 0.2em;
-	}
+.item-title-row {
+	margin-bottom: 0.2em;
+}
 
-	.item-detail-row {
-		margin-left: 2%;
-	}
+.item-detail-row {
+	margin-left: 2%;
+}
 
-	// Title row
-	.deal-title {
-		font-weight: bold;
-		font-size: @deal-title-font-size;
-	}
+// Title row
+.deal-title {
+	font-weight: bold;
+	font-size: @deal-title-font-size;
+}
 
-	// Tags
-	.item-detail-tag {
-		color: @highlight-color;
-	}
+// Tags
+.item-detail-tag {
+	color: @highlight-color;
+}
 
-	.order-sns-row {
-		margin-top: 1em;
+.order-sns-row {
+	margin-top: 1em;
+	margin-bottom: 1em;
+	text-align: center;
+}
+
+.comment-submission-text {
+	width: 75%;
+	max-width: 700px;
+	display: inline-block;
+}
+
+.comment-submission-button {
+	position: absolute;
+	right: 0%;
+	bottom: 0.5%;
+}
+
+.comment-submission {
+	.comment-submission-first-row {
 		margin-bottom: 1em;
-		text-align: center;
 	}
 
-	.comment-submission-text {
-		width: 95%;
+	.comment-rating-submission {
+		// To make it easier to tap on phones.
+		letter-spacing: 0.5em;
 	}
 
-	.comment-submission-button {
-		position: absolute;
-		right: 0%;
-		bottom: 0.5%;
-	}
-
-	.comment-submission {
-		.comment-submission-first-row {
-			margin-bottom: 1em;
-		}
-
-		.comment-rating-submission {
-			// To make it easier to tap on phones.
-			letter-spacing: 0.5em;
-		}
+	.btn-comment-submission {
+		margin-bottom: 2em;
 	}
 }
 
 .order-detail-deal-name {
 	font-weight: bold;
 	font-size: @deal-title-font-size;
+}
+
+.order-success-row {
+	margin-top: 2em;
+	.order-succes-label {
+		padding: 0.5em 1em;
+		background-color: @tgb-primary-color;
+		color: white;
+		font-weight: bold;
+	}
 }
