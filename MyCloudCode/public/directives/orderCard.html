@@ -1,11 +1,13 @@
 <!-- If you update col-*-*, you also need to update the clearfix section accordingly to handle uneven height. -->
 <div ng-controller="orderCardController" ng-click="showOrderDetail()" class="order-card col-lg-2 col-md-3 col-sm-4 col-xs-6">
-    <img ng-src="{{order.dealImageUrl || 'resources/placeholder.png'}}" onerror="this.src = 'resources/placeholder.png'"/>
-    <br>
-	<div>
-        <span style="font-weight: bold">{{order.dealName}}</span>
+    <div class="card-border">
+        <img ng-src="{{order.dealImageUrl || 'resources/placeholder.png'}}" onerror="this.src = 'resources/placeholder.png'"/>
         <br>
-        <span>{{order.quantity}}件 {{order.orderTime | date:'yyyy年MM月dd日'}}</span>
+        <div>
+            <span style="font-weight: bold">{{order.dealName}}</span>
+            <br>
+            <span>{{order.quantity}}件 {{order.orderTime | date:'yyyy年MM月dd日'}}</span>
+        </div>
     </div>
 </div>
 <div ng-if="index % 6 === 5" class="clearfix visible-lg-block"></div>
