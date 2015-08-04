@@ -1505,12 +1505,6 @@ tgbApp.controller('filteredOrdersController', ['$scope', '$rootScope', '$statePa
 
 tgbApp.controller('sellerAccountController', ['$scope', '$state', 'userService', function($scope, $state, userService) {
     userService.ensureUserLoggedIn();
-    
-    $scope.showDealsWithStatus = function(status) {
-        $state.go('sellerAccount.deals', {
-            status: status,
-        });
-    };
 }]);
 
 tgbApp.controller('filteredDealsController', ['$scope', '$stateParams', 'dealDataService', 'busyIndicatorService', function($scope, $stateParams, dealDataService, busyIndicatorService) {

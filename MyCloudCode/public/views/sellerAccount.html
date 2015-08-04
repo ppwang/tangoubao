@@ -1,15 +1,5 @@
-<!--
-<ul class="nav nav-tabs">
-  <li role="presentation" class="active"><a ui-sref=".deals({status: 'active'})">进行中的</a></li>
-  <li role="presentation"><a ui-sref=".deals({status: 'closed'})">已结束的</a></li>
-</ul>
--->
-<tabset type="pills">
-    <tab heading="进行中的" select="showDealsWithStatus('active')" class="col-xs-4 col-sm-3 col-md-2 col-lg-2 tgb-nav-pills"></tab>
-    <tab heading="已结束的" select="showDealsWithStatus('closed')" class="col-xs-4 col-sm-3 col-md-2 col-lg-2 tgb-nav-pills"></tab>
+<tabset type="pills" class="tgb-nav-pills">
+    <tab heading="进行中的" ui-sref=".deals({status: 'active'})" class="col-xs-4 col-sm-3 col-md-2 col-lg-2"></tab>
+    <tab heading="已结束的" ui-sref=".deals({status: 'closed'})" class="col-xs-4 col-sm-3 col-md-2 col-lg-2"></tab>
 </tabset>
-<!--
-<span ng-click="showDealsWithStatus('active')" class="col-xs-4 tgb-tab">进行中的</span>
-<span ng-click="showDealsWithStatus('closed')" class="col-xs-4 tgb-tab">已结束的</span>
--->
 <div ui-view="content"></div>
