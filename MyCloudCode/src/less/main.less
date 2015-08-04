@@ -184,9 +184,8 @@ img {
     max-width: 700px;
 }
 
-// Override slick theme.
 .slick-slider {
-    margin-bottom: 0px;
+    margin-bottom: 10px;
 }
 
 .tgb-nav-pills {
@@ -209,4 +208,23 @@ img {
       margin-left: 0px;
     }
   }
+}
+
+.tgb-btn-default {
+    color: @btn-font-color;
+    border-style: solid;
+    border-width: 2px;
+    border-color: @tgb-primary-color;
+    margin-right: 1em;
+    background-color: white; 
+}
+
+.btn.disabled,
+.btn[disabled] {
+    opacity: 0.3;
+}
+
+// This is to work arond slick adding margin to the right and make the mobile page adding extra margin
+slick {
+    overflow: hidden;
 }

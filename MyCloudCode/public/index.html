@@ -51,7 +51,7 @@
         <div class="navbar-header pull-right">
           <ul class="nav pull-left">
             <!-- This works well for static text, like a username -->
-            <li class="navbar-text pull-left tgb-navbar-icon" style="margin-top: 10px;">微蜂团购</li>
+            <li class="navbar-text pull-left tgb-navbar-icon" style="margin-top: 10px; margin-right: 20px;">微蜂团购</li>
             <!-- Add any additional bootstrap header items.  This is a drop-down from an icon -->
             <li class="dropdown pull-right" >
               <a href data-toggle="dropdown" class="dropdown-toggle tgb-navbar-icon"><span class="glyphicon glyphicon-user"></span><b class="caret"></b></a>
@@ -64,8 +64,8 @@
                 </li>
               </ul>
             </li>
-            <li class="pull-right" style="margin-top: 9px;">
-                <a ui-sref="messageCenter" style="padding: 0px;">
+            <li class="pull-right" style="margin-top: 5px;">
+                <a ui-sref="messageCenter">
                     <div ng-show="currentUser" type="button" class="glyphicon glyphicon-envelope tgb-navbar-icon"></div>
                     <span ng-show="currentUser && currentUser.unreadMessageCount > 0" class="badge tgb-new-message-count-badge">{{currentUser.unreadMessageCount}}</span>
                 </a>
