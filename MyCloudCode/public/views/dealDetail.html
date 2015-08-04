@@ -15,6 +15,28 @@
         </div>
     </div>
 
+    <div class="row order-sns-row">
+        <div class="col-md-2 col-xs-2 item-detail-tag">
+            <a ng-show="weixinShareVisible" ng-click="weixinShare()">
+                <img src="resources/wechat.png" class="tgb-share-icon"/>
+            </a>
+        </div>
+        <div class="col-md-2 col-xs-2">
+            <button class="btn tgb-btn-default" ng-show="deal.owned" ng-click="manageDeal()">订单状况</button>
+        </div>
+        <div class="col-md-2 col-xs-2">
+            <span ng-show="deal.status === 'closed'">已结束</span>
+        </div>
+        <div class="col-md-6 col-xs-6 action-btns">
+            <button class="btn tgb-btn-default" ng-show="!deal.owned" ng-click="toggleFollowedStatus()">
+                {{deal.followed ? '取消关注' : '关注'}}
+            </button>
+            <button class="btn tgb-btn-default" ng-show="!deal.owned && deal.status === 'active'" ng-click="purchaseDeal()">
+                购买
+            </button>
+        </div>
+    </div>
+    
     <div class="row item-detail-row">
         <div class="col-md-2 col-xs-3 item-detail-tag">
             地 区: 
@@ -97,28 +119,6 @@
         </div>
         <div class="col-md-10 col-xs-9">
             {{deal.description}}
-        </div>
-    </div>
-
-    <div class="row order-sns-row">
-        <div class="col-md-2 col-xs-2 item-detail-tag">
-            <a ng-show="weixinShareVisible" ng-click="weixinShare()">
-                <img src="resources/wechat.png" class="tgb-share-icon"/>
-            </a>
-        </div>
-        <div class="col-md-2 col-xs-2">
-            <button class="btn tgb-btn-default" ng-show="deal.owned" ng-click="manageDeal()">订单状况</button>
-        </div>
-        <div class="col-md-2 col-xs-2">
-            <span ng-show="deal.status === 'closed'">已结束</span>
-        </div>
-        <div class="col-md-6 col-xs-6 action-btns">
-            <button class="btn tgb-btn-default" ng-show="!deal.owned" ng-click="toggleFollowedStatus()">
-                {{deal.followed ? '取消关注' : '关注'}}
-            </button>
-            <button class="btn tgb-btn-default" ng-show="!deal.owned && deal.status === 'active'" ng-click="purchaseDeal()">
-                购买
-            </button>
         </div>
     </div>
     
