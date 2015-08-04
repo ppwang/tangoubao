@@ -60,48 +60,38 @@
         </div>
     </div>
 
-    <div class="row item-detail-row">
-        <div class="col-md-2 col-xs-3 item-detail-tag">
-            订货人: 
-        </div>
-        <div class="col-md-10 col-xs-9">
+    <div class="row item-detail-row order-buyer-firstrow">
+        <div class="col-md-12 col-xs-12 order-buyer-detail">
+            <img class="buyer-icons" src="resources/name.png"/>
             {{order.creator.nickname}}
         </div>
     </div>
 
-    <div class="row item-detail-row">
-        <div class="col-md-2 col-xs-3 item-detail-tag">
-            电话: 
-        </div>
-        <div class="col-md-10 col-xs-9">
+    <div class="row item-detail-row order-buyer-row">
+        <div class="col-md-12 col-xs-12 order-buyer-detail">
+            <img class="buyer-icons" src="resources/telephone.png"/>
             {{order.creator.phoneNumber}}
         </div>
     </div>
 
-    <div class="row item-detail-row">
-        <div class="col-md-2 col-xs-3 item-detail-tag">
-            Email: 
-        </div>
-        <div class="col-md-10 col-xs-9">
+    <div class="row item-detail-row order-buyer-row">
+        <div class="col-md-12 col-xs-12 order-buyer-detail">
+            <img class="buyer-icons" src="resources/email.png"/>
             {{order.creator.email}}
         </div>
     </div>
 
-    <div class="row item-detail-row">
-        <div class="col-md-2 col-xs-3 item-detail-tag">
-            数额: 
-        </div>
-        <div class="col-md-10 col-xs-9">
+    <div class="row item-detail-row order-buyer-row">
+        <div class="col-md-12 col-xs-12 order-buyer-detail">
+            <img class="buyer-icons" src="resources/quantity.png"/>
             {{order.quantity}}件, {{order.quantity * order.deal.unitsPerPackage}}{{order.deal.unitName}}, 共计{{ order.quantity * order.deal.unitsPerPackage * order.deal.unitPrice | currency:'$'}}
         </div>
     </div>
 
-    <div class="row item-detail-row">
-        <div class="col-md-2 col-xs-3 item-detail-tag">
-            发货方式: 
-        </div>
-        <div class="col-md-10 col-xs-9">
-            自取
+     <div class="row item-detail-row order-buyer-row">
+        <div class="col-md-12 col-xs-12 order-buyer-detail">
+            <img class="buyer-icons" src="resources/deliver.png"/>
+            发货方式: 自取
         </div>
     </div>
 
