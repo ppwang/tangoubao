@@ -17,22 +17,23 @@
         <div class="sign-area">
             <div class="row signup-input">
               <div class="signup-input-row">
-                邮箱: <input type="email" ng-model="user.email" ng-required="true"/>
+                昵 称: <input type="text" autocapitalize="off" autocorrect="off" ng-model="user.username" ng-required="true"/>
               </div>
             </div>
             <div class="row signup-input">
               <div class="signup-input-row">
-                昵称: <input type="text" autocapitalize="off" autocorrect="off" ng-model="user.username" ng-required="true"/>
+                邮 箱: <input type="email" ng-model="user.email" ng-required="true"/>
               </div>
             </div>
             <div class="row signup-input">
               <div class="signup-input-row">
-                密码: <input type="password" ng-model="user.password" ng-required="true"/>
+                密 码: <input type="password" ng-model="user.password" ng-required="true"/>
               </div>
             </div>
             <div class="row signup-input">
               <div class="signup-input-row">
-                确认密码: <input type="password" ng-model="passwordReentered" ng-required="true"/>
+                <span class="confirm-password-label">确认密码:</span>
+                <input type="password" ng-model="passwordReentered" ng-required="true"/>
               </div>
             </div>
             <div class="row signup-terms">点击注册，代表您已经同意北美团购宝 <a href="/terms.html">用户协议</a></div>
