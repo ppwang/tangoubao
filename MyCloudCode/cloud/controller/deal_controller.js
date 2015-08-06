@@ -270,6 +270,22 @@ var saveDeal = function(parseDeal, req) {
 		parseDeal.set('unitsPerPackage', null);
 	}
 
+	var originalUnitPrice = req.body.originalUnitPrice;
+	if (originalUnitPrice) {
+		parseDeal.set('originalUnitPrice', originalUnitPrice);
+	}
+	else {
+		parseDeal.set('originalUnitPrice', null);
+	}
+
+	var quantityLimit = req.body.quantityLimit;
+	if (quantityLimit) {
+		parseDeal.set('quantityLimit', quantityLimit);
+	}
+	else {
+		parseDeal.set('quantityLimit', null);
+	}
+
 	var remarks = req.body.remarks;
 	if (remarks) {
 		parseDeal.set('remarks', remarks);
