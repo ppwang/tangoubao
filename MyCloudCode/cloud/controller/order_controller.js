@@ -284,6 +284,7 @@ var modifyOrder = function(orderId, currentUser, req) {
 	var pickupOptionId = req.body.pickupOptionId;
 	var creatorName = req.body.creatorName;
 	var creatorImageUrl = req.body.creatorImageUrl;
+    var dealId = req.body.dealId;
 
 	if (!phoneNumber || !quantity || (pickupOptionId == null)) {
 		throw new Error('Missing data');
