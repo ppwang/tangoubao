@@ -1049,13 +1049,24 @@ tgbApp.directive('backgroundImage', function() {
     };
 });
 
-tgbApp.controller('topNavController', ['$scope', '$modal', function($scope, $modal) {
+tgbApp.controller('topNavController', ['$scope', '$modal', '$state', function($scope, $modal, $state) {
     $scope.showCreateDealInfo = function() {
         $modal.open({
-            templateUrl: 'views/createOrderDisabledNotice.html',
+            templateUrl: 'views/createDealDisabledNotice.html',
             size: 'sm',
             backdrop: 'static',
+            controller: 'stateTransitionController',
         });
+    };
+    
+    $scope.onClickSiteName = function() {
+        $state.go('publicDeals');
+    };
+}]);
+
+tgbApp.controller('stateTransitionController', ['$scope', '$state', function($scope, $state) {
+    $scope.goToState = function(state, parameters) {
+        $state.go(state, parameters);  
     };
 }]);
 
