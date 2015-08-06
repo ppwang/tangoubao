@@ -102,15 +102,21 @@
         </div>
     </div>
 
+    <div class="row item-detail-row">
+        <div class="col-md-2 col-xs-3 item-detail-tag">
+            发货方式: 
+        </div>
+        <div class="col-md-10 col-xs-9">
+            自取
+        </div>
+    </div>
+
     <div class="row item-detail-row" ng-repeat="option in deal.pickupOptions">
-        <div class="col-md-3 col-xs-4">
-            <span class="item-detail-tag">联系人: </span><br>{{option.contactName}}
+        <div class="col-md-2 col-xs-3 item-detail-tag">
+            <span class="item-detail-tag">取货地址 {{deal.pickupOptions.length > 1 ? $index+1 : ''}}:</span>
         </div>
-        <div class="col-md-3 col-xs-4">
-            <span class="item-detail-tag">电话: </span><br>{{option.phoneNumber}}
-        </div>
-        <div class="col-md-3 col-xs-4 deal-pickup-options">
-            <span class="item-detail-tag">取货地址: </span><br>{{option.address}}
+        <div class="col-md-10 col-xs-9">
+            {{option.address}}
         </div>
     </div>
 
@@ -122,9 +128,17 @@
             {{deal.description}}
         </div>
     </div>
+
+    <div class="row item-detail-row">
+        <div class="col-md-2 col-xs-3 item-detail-tag">
+            评论: 
+        </div>
+        <div class="col-md-10 col-xs-9">
+        </div>
+    </div>
     
-    <div class="comments-area" ng-repeat="comment in comments">
-        <img ng-src="{{comment.creatorHeadimgurl}}" class="col-md-1 col-xs-1"/>
+    <div class="comments-area row" ng-repeat="comment in comments">
+        <img ng-src="{{comment.creatorHeadimgurl}}" class="col-md-1 col-xs-1 comment-head-icon"/>
         <span>{{comment.nickname}}</span>
         <rating ng-model="comment.rating" max="5" readonly="true" rating-states="ratingStates"></rating>
         <span>{{comment.createdAt | date:'yyyy年MM月dd日'}}</span>
