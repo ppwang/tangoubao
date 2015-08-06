@@ -192,6 +192,7 @@ var convertToOrderModel = function(parseOrder) {
 	order.dealImageUrl = parseOrder.get('dealImageUrl');
 	order.creatorName = parseOrder.get('creatorName');
 	order.creatorImageUrl = parseOrder.get('creatorImageUrl');
+	order.email = parseOrder.get('email');
 	order.status = parseOrder.get('status');
 	order.price = parseOrder.get('price');
 	return order;

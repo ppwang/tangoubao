@@ -185,6 +185,7 @@ var createOrder = function(dealId, currentUser, req) {
 	var pickupOptionId = req.body.pickupOptionId;
 	var creatorName = req.body.creatorName;
 	var creatorImageUrl = req.body.creatorImageUrl;
+	var email = req.body.email;
 
 	if (!phoneNumber || !quantity || (pickupOptionId == null)) {
 		console.log('phoneNumber: ' + phoneNumber + '; quantity: ' + quantity + '; pickupOptionId:' + pickupOptionId);
@@ -236,6 +237,7 @@ var createOrder = function(dealId, currentUser, req) {
 			parseOrder.set('phoneNumber', phoneNumber);
 			parseOrder.set('dealName', deal.name);
 			parseOrder.set('dealImageUrl', deal.dealImageUrl);
+			parseOrder.set('email', email);
 			parseOrder.set('creatorName', creatorName);
 			parseOrder.set('creatorImageUrl', creatorImageUrl);
 			// total order price:
