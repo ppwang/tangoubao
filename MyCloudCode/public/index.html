@@ -51,7 +51,7 @@
         <div class="navbar-header pull-right">
           <ul class="nav pull-left">
             <!-- This works well for static text, like a username -->
-            <li class="navbar-text pull-left tgb-navbar-icon" style="margin-top: 10px; margin-right: 20px;">微蜂团购</li>
+              <li ng-click="onClickSiteName()" class="navbar-text pull-left tgb-navbar-icon" style="margin-top: 10px; margin-right: 20px; cursor: pointer;">微蜂团购</li>
             <!-- Add any additional bootstrap header items.  This is a drop-down from an icon -->
             <li class="dropdown pull-right" >
               <a href data-toggle="dropdown" class="dropdown-toggle tgb-navbar-icon"><span class="glyphicon glyphicon-user"></span><b class="caret"></b></a>
@@ -80,24 +80,6 @@
         </div>
       </div>
     </nav>
-<!--
-    <div class="site-brand">
-        <span>微风网</span>
-        <a ui-sref="userProfile">
-            <img ng-show="currentUser && currentUser.headimgurl" ng-src="{{currentUser.headimgurl}}"></img>
-            <span ng-show="!currentUser || !currentUser.headimgurl" class="glyphicon glyphicon-user"></span>
-        </a>
-        <a ui-sref="messageCenter">
-            <button ng-show="currentUser" type="button" class="glyphicon glyphicon-envelope tgb-envelope">
-                <span ng-show="currentUser && currentUser.unreadMessageCount > 0" class="badge tgb-new-message-count-badge">{{currentUser.unreadMessageCount}}</span>
-            </button>
-        </a>
-        <a ui-sref="login" style="float: right;">{{currentUser ? '退出' : '登录/注册'}}</a>
-    </div>
--->
-<!--     <div class="user-img" ng-show="currentUser != null">
-        <img class="user-icon" ng-src="{{currentUser.headimgurl}}"/>
-    </div> -->
     <div ui-view="content" class="container" cg-busy="{promise: opaqueBusyPromise, message: 'Loading', backdrop: true, templateUrl:'views/busy.html', delay: 0, minDuration: 0, backdropClass: 'tgb-busy-backdrop-opaque'}">
     </div>
 </body>

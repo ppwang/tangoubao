@@ -1049,7 +1049,7 @@ tgbApp.directive('backgroundImage', function() {
     };
 });
 
-tgbApp.controller('topNavController', ['$scope', '$modal', function($scope, $modal) {
+tgbApp.controller('topNavController', ['$scope', '$modal', '$state', function($scope, $modal, $state) {
     $scope.showCreateDealInfo = function() {
         $modal.open({
             templateUrl: 'views/createDealDisabledNotice.html',
@@ -1057,6 +1057,10 @@ tgbApp.controller('topNavController', ['$scope', '$modal', function($scope, $mod
             backdrop: 'static',
             controller: 'stateTransitionController',
         });
+    };
+    
+    $scope.onClickSiteName = function() {
+        $state.go('publicDeals');
     };
 }]);
 
