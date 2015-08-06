@@ -188,26 +188,21 @@ img {
     margin-bottom: 10px;
 }
 
+// Override bootstrap style.
 .tgb-nav-pills {
     > ul {
         > li {
             border-style: solid;
             border-width: 2px;
             border-color: @tgb-primary-color;
+            + li {
+              margin-left: 0px;
+            }
             > a {
                 color: @tgb-secondary-text-color;
             }
         }
     }
-}
-
-// Override bootstrap style.
-.nav-pills {
-  > li {
-    + li {
-      margin-left: 0px;
-    }
-  }
 }
 
 .tgb-btn-default {
@@ -231,4 +226,17 @@ img {
 // This is to work arond slick adding margin to the right and make the mobile page adding extra margin
 slick {
     overflow: hidden;
+}
+
+.tgb-input {
+    border-left-style: none;
+    border-right-style: none;
+    border-top-style: none;
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
+    border-bottom-color: @tgb-primary-color;
+}
+
+.tgb-primary-text {
+    color: @tgb-primary-text-color;
 }
