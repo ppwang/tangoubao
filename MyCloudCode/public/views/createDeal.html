@@ -61,10 +61,14 @@
 
     <div class="row tgb-input-group">
         <div class="col-md-2 col-xs-3 input-label">商品价格</div>
-        <div class="col-md-4 col-xs-4 input-box">
+        <div class="col-md-4 col-xs-3 input-box">
             <input type="number" class="input-box-shadow" ng-model="deal.unitPrice" />
         </div>
-        <div class="col-md-2 col-xs-2 input-label">单位</div>
+        <div class="col-md-2 col-xs-3 input-label">原价</div>
+        <div class="col-md-4 col-xs-3 input-box">
+            <input type="number" class="input-box-shadow" ng-model="deal.originalUnitPrice" />
+        </div>
+        <div class="col-md-2 col-xs-3 input-label">单位</div>
         <div class="col-md-4 col-xs-3 input-box">
             <input class="input-box-shadow" ng-model="deal.unitName" />
         </div>
@@ -81,6 +85,14 @@
         <div class="col-md-2 col-xs-2 input-label">/ 件</div>
     </div>
 
+    <div class="row tgb-input-group">
+        <div class="col-md-2 col-xs-3 input-label">最多购买</div>
+        <div class="col-md-4 col-xs-3 input-box">
+            <input type="number" class="input-box-shadow" ng-model="deal.quantityLimit" />
+        </div>
+        <div class="col-md-2 col-xs-2 input-label">件</div>
+    </div>
+    
     <div class="row tgb-input-group">
         <div class="col-md-2 col-xs-3 input-label">卖家信息</div>
         <div class="col-md-4 col-xs-4 input-box">

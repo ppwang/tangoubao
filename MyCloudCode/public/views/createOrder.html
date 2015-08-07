@@ -24,7 +24,7 @@
         <div class="col-md-2 col-xs-3 tgb-input-label">数量: </div>
         <div class="col-md-10 col-xs-9 input-box">
         	<input class="input-box-shadow-small" type="number" ng-model="order.quantity" ng-pattern="/^\d*$/"  ng-required="true"/>
-			<span>件 * {{deal.unitPrice | currency:'$'}}/{{deal.unitName}} * {{deal.unitsPerPackage}}{{deal.unitName}}/件</span>
+			<span>件 * {{deal.unitPrice | currency:'$'}}/{{deal.unitName}} * {{deal.unitsPerPackage}}{{deal.unitName}}/件 (最多{{deal.quantityLimit}}件)</span>
         </div>
 	</div>
 

@@ -3,6 +3,7 @@
         <img ng-src="{{deal.dealImageUrl || 'resources/placeholder.png'}}" style="margin-left: auto; margin-right: auto;">
         <div class="tgb-carousel-caption">
             <span>{{deal.name}}</span>
+            <span ng-show="deal.originalUnitPrice" style="text-decoration: line-through;">{{deal.originalUnitPrice | currency:'$'}}</span>
             <span>{{deal.unitPrice | currency:'$'}}/{{deal.unitName}}</span>
             <br>
             <span>已有{{deal.orderCount || 0}}人参与团购, {{deal.endDate | daysRemainingFilter}}</span>

@@ -1440,16 +1440,16 @@ tgbApp.controller('createOrderController', ['$scope', '$state', '$stateParams', 
     // TODO: implement better tooltips for form validation.
     var validateOrder = function() {
         if (!$scope.order.phoneNumber) {
-            return "请您填写您的联系电话.";
+            return '请您填写您的联系电话.';
         }
         
         if (!$scope.order.email) {
-            return "请您填写您的邮件信箱.";            
+            return '请您填写您的邮件信箱.';            
         }
         
         var quantity = $scope.order.quantity;
-        if (!quantity || Number(quantity) !== quantity || quantity % 1 !== 0) {
-            return "请您填写正确的购买件数.";
+        if (!quantity || Number(quantity) !== quantity || quantity % 1 !== 0 || quantity <= 0 || quantity > $scope.order.deal.quantityLimit) {
+            return '请您填写正确的购买件数. 您最多能购买' + $scope.order.deal.quantityLimit + '件.';
         };
     };
     

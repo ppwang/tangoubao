@@ -6,6 +6,7 @@
         <div>
             <span style="font-weight: bold">{{deal.name}}</span>
             <br>
+            <span ng-show="deal.originalUnitPrice" style="text-decoration: line-through;">{{deal.originalUnitPrice | currency:'$'}}</span>
             <span>{{deal.unitPrice | currency:'$'}}/{{deal.unitName}}</span>
         </div>
     </div>
