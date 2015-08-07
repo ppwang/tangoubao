@@ -42,13 +42,13 @@
    <nav role="navigation" class="navbar navbar-default" style="padding-top: 6px;" ng-controller="topNavController">
       <div class="container">
         <!-- Title -->
-        <div class="navbar-header pull-left">
+        <div class="navbar-header">
           <!-- Required bootstrap placeholder for the collapsed menu -->
           <button type="button" data-toggle="collapse" data-target=".navbar-collapse" class="navbar-toggle"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button>
         </div>
         
         <!-- 'Sticky' (non-collapsing) right-side menu item(s) -->
-        <div class="navbar-header pull-right">
+        <div class="navbar-header pull-right" style="position: absolute; top: 0px; right: 0px; padding-top: 6px;">
           <ul class="nav pull-left">
             <!-- This works well for static text, like a username -->
               <li ng-click="onClickSiteName()" class="navbar-text pull-left tgb-navbar-icon" style="margin-top: 10px; margin-right: 20px; cursor: pointer;">微蜂团购</li>
