@@ -1,8 +1,8 @@
 <div cg-busy="{promise: transparentBusyPromise, message: 'Loading', backdrop: true, templateUrl:'views/busy.html', delay: 0, minDuration: 0, backdropClass: 'tgb-busy-backdrop-transparent'}" class="tgb-profile-page">
     <div class="row">
         <img ng-src="{{user.headimgurl}}" class="pull-left col-xs-4"></img>
-        <div>
-            <span>{{user.nickname}}</span>
+        <div class="col-xs-8">
+            <span style="font-weight: bold; font-size: 1.5em;">{{user.nickname}}</span>
             <br>
             <span>{{user.email}}</span>
         </div>
