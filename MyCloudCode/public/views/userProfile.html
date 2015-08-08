@@ -1,4 +1,4 @@
-<div cg-busy="{promise: transparentBusyPromise, message: 'Loading', backdrop: true, templateUrl:'views/busy.html', delay: 0, minDuration: 0, backdropClass: 'tgb-busy-backdrop-transparent'}">
+<div cg-busy="{promise: transparentBusyPromise, message: 'Loading', backdrop: true, templateUrl:'views/busy.html', delay: 0, minDuration: 0, backdropClass: 'tgb-busy-backdrop-transparent'}" class="tgb-profile-page">
     <div class="row">
         <img ng-src="{{user.headimgurl}}" class="pull-left col-xs-4"></img>
         <div>
@@ -7,29 +7,28 @@
             <span>{{user.email}}</span>
         </div>
     </div>
-    <div class="row">
+    <div class="row" class="row col-xs-offset-1 col-xs-10">
         <input ng-model="profile.nickname" placeholder="昵称" class="col-xs-offset-1 col-xs-8 col-xs-offset-3 tgb-input"></input>
         <input ng-model="profile.email" type="email" placeholder="Email" class="col-xs-offset-1 col-xs-8 col-xs-offset-3 tgb-input"></input>
         <input ng-model="profile.phoneNumber" placeholder="电话" class="col-xs-offset-1 col-xs-8 col-xs-offset-3 tgb-input"></input>
     </div>
-    <div>
-        <span class="col-xs-offset-1 tgb-primary-text">请选择您的联系方式，我们可以通过下面三种方式为您推送最新的团购商品，您的订单信息，取货信息等:</span>
+    <div class="row col-xs-offset-1 col-xs-8" style="margin-top: 1em;">
+        <span class="tgb-primary-text">请选择您的联系方式，我们可以通过下面三种方式为您推送最新的团购商品，您的订单信息，取货信息等:</span>
     </div>
-    <br>
-    <span>
+    <div class="clearfix"></div>
+    <div class="row col-xs-offset-1">
         <input type="checkbox" ng-model="profile.emailNotify"></input>
         电子邮件
-    </span>
-    <br>
-    <span>
+    </div>
+    <div class="row col-xs-offset-1">
         <input type="checkbox" ng-model="profile.wechatNotify"></input>
         微信推送
-    </span>
-    <br>
-    <span>
+    </div>
+    <div class="row col-xs-offset-1">
         <input type="checkbox" checked ng-disabled="true"></input>
         团购宝消息
-    </span>
-    <br>
-    <button ng-click="saveProfile()">保存</button>
+    </div>
+    <div class="row col-xs-offset-1 col-xs-8">
+        <button ng-click="saveProfile()" class="pull-right tgb-btn-default">保存</button>
+    </div>
 </div>
