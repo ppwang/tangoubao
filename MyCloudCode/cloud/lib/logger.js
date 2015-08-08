@@ -1,3 +1,4 @@
+var appConfig = require('cloud/app.config.js').settings.config;
 var utils = require('cloud/lib/utils');
 
 module.exports.newCorrelationId = function() {
@@ -6,6 +7,8 @@ module.exports.newCorrelationId = function() {
 }
 
 module.exports.logDiagnostics = function(correlationId, type, message) {
+	debugLog(message);
+	
 	// type is error / info / warning
 	var dimensions = {
 		correlationId: correlationId,
@@ -27,6 +30,12 @@ module.exports.logUsage = function(type, message) {
 };
 
 module.exports.debugLog = function(message) {
+	debugLog(message);
+};
+
+var debugLog = function(message) {
 	// For now, use parse log dashboard for all the debug logs.
-	console.log(message);
-}
+	if (appConfig.debug) {
+		console.log(message);
+	}	
+};

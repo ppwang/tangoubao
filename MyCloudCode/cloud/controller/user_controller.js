@@ -296,7 +296,6 @@ module.exports.obtainUserInfo = function(req, res) {
 					});
 
 			}
-			logger.debugLog('obtainUserInfo log. Not valid wechat oauth request. Need to ask user to auth again.');
 			logger.logDiagnostics(correlationId, 'error', 'obtainUserInfo error: Not valid wechat oauth request. Need to ask user to auth again.');
 			return res.status(401).send(responseError);
 		}, function(error) {

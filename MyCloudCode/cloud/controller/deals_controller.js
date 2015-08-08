@@ -30,7 +30,6 @@ module.exports.getPublicDeals = function(req, res) {
 			return res.status(200).send(JSON.stringify(responseData));
 	    }, function(error) {
 	    	var errorMessage = 'getPublicDeals error: ' + JSON.stringify(error);
-	    	logger.debugLog(errorMessage);
 	    	logger.logDiagnostics(correlationId, 'error', errorMessage);
 	    	return res.status(500).send(responseError);
 	    });
@@ -45,7 +44,7 @@ module.exports.getDeals = function(req, res) {
 	if (!currentUser) {
 		// require user to log in
 		// TODO: client side code asks user to sign in
-		logger.logD(correlationId, 'error', 'getDeals error (401): user logged in.');
+		logger.logDiagnostics(correlationId, 'error', 'getDeals error (401): user logged in.');
 		return res.status(401).send(responseError);
 	}
 
@@ -89,7 +88,6 @@ module.exports.getDeals = function(req, res) {
 			return res.status(200).send(JSON.stringify(responseData));
 	    }, function(error) {
 	    	var errorMessage = 'getDeals error: ' + JSON.stringify(error);
-	    	logger.debugLog(errorMessage);
 	    	logger.logDiagnostics(correlationId, 'error', errorMessage);
 	    	return res.status(500).send(errorMessage);
 	    });

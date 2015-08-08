@@ -72,7 +72,7 @@ module.exports.oauthConnect = function(req, res) {
 						}
 						else {
 							// We found the user, no need to ask user info again
-							logger.debugLog('oauthConnect logger. no parseWechatUser. We found the user, no need to ask user info again');
+							logger.debugLog('oauthConnect logger. We found the user, no need to ask user info again');
 							result.action = 'done';
 							var wechatUser = tgbWechatUser.convertToWechatUserModel(parseWechatUser);
 							result.data = wechatUser;

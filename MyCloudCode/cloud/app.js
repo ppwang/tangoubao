@@ -129,6 +129,10 @@ var userProfileController = require('cloud/controller/user_profile_controller');
 app.get('/api/userProfile', userProfileController.getCurrentUserProfile);
 app.put('/api/userProfile', express.bodyParser(), userProfileController.putCurrentUserProfile);
 
+// Entry points for payments
+var paymentController = require('cloud/controller/payment_controller');
+app.post('/api/payOrder', express.bodyparser(), paymentController.payOrder);
+
 // Custom menus
 app.get('/wechat/create_menus', wechatServices.createMenus);
 

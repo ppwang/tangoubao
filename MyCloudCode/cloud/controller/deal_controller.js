@@ -31,7 +31,6 @@ module.exports.putDeal = function(req, res) {
 				return res.status(201).send(deal);
 			}, function(error) {
 				var errorMessage = 'putDeal error: ' + JSON.stringify(error);
-				logger.debugLog(errorMessage);
 				logger.logDiagnostics(correlationId, 'error', errorMessage);
 				return res.status(500).send(responseError);
 			});
@@ -46,7 +45,6 @@ module.exports.putDeal = function(req, res) {
 			return res.status(201).send(deal);
 		}, function(error) {
 			var errorMessage = 'putDeal error: ' + JSON.stringify(error);
-			logger.debugLog(errorMessage);
 			logger.logDiagnostics(correlationId, 'error', errorMessage);
 			return res.status(500).send(responseError);
 		});
@@ -98,7 +96,6 @@ module.exports.putStatus = function(req, res) {
 			return res.status(200).send(deal);
 		}, function(error) {
 			var errorMessage = 'deal putStatus error: ' + JSON.stringify(error);
-			logger.debugLog(errorMessage);
 			logger.logDiagnostics(correlationId, 'error', errorMessage);
 			return res.status(500).send(responseError);
 		});
@@ -181,7 +178,6 @@ module.exports.getDeal = function(req, res) {
 				return res.status(201).send(deal);
 			}, function(error) {
 				var errorMessage = 'getDeal error: ' + JSON.stringify(error);
-				logger.debugLog(errorMessage);
 				logger.logDiagnostics(correlationId, 'error', errorMessage);
 				return res.status(500).send(responseError);
 			});

@@ -30,7 +30,6 @@ module.exports.getMessages = function(req, res) {
 			return res.status(200).send(messages);
 		}, function(error) {
 			var errorMessage = 'getMessages error: ' + JSON.stringify(error);
-			logger.debugLog(errorMessage);
 			logger.logDiagnostics(correlationId, 'error', errorMessage);
 			return res.status(500).send(responseError);
 		});

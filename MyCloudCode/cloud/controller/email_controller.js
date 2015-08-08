@@ -39,8 +39,7 @@ module.exports.sendEmail = function(emailAddress, sendeeName, order, messageType
 		},
 		error: function() { 
 			var errorMessage = 'sendEmail log. Email sent error.';
-			logger.logDiagnostics(correlationId, 'error', errorMessage)
-			logger.debugLog(errorMessage);
+			logger.logDiagnostics(correlationId, 'error', errorMessage);
 		}
 	  });
 };
@@ -70,8 +69,7 @@ module.exports.sendContactUsEmail = function(senderName, messageTitle, messageBo
 	    },
 	    error: function() { 
 	    	var errorMessage = 'sendEmail log. Email sent error.';
-			logger.logDiagnostics(correlationId, 'error', errorMessage)
-			logger.debugLog(errorMessage);
+			logger.logDiagnostics(correlationId, 'error', errorMessage);
 	    }
 	  });
 };
@@ -154,8 +152,7 @@ module.exports.sendDealReport = function(req, res) {
 			    },
 			    error: function() { 
 			    	var errorMessage = 'sendEmail log. Email sent error.';
-					logger.logDiagnostics(correlationId, 'error', errorMessage)
-					logger.debugLog(errorMessage);
+					logger.logDiagnostics(correlationId, 'error', errorMessage);
 			    }
 			  });
 		})
@@ -163,7 +160,6 @@ module.exports.sendDealReport = function(req, res) {
 			res.status(200).end();
 		}, function(error) {
 			var errorMessage = 'sendDealReport error: ' + JSON.stringify(error);
-			logger.debugLog(errorMessage);
 			logger.logDiagnostics(correlationId, 'error', errorMessage);
 			return res.status(500).send(errorMessage);
 		});
