@@ -71,7 +71,6 @@ module.exports.followDeal = function(req, res) {
     		return res.status(200).end();
     	}, function(error) {
             var errorMessage = 'followDeal error: ' + JSON.stringify(error);
-            logger.debugLog(errorMessage);
             logger.logDiagnostics(correlationId, 'error', errorMessage);
     		return res.status(500).send(responseError);
     	});
@@ -138,7 +137,6 @@ module.exports.unfollowDeal = function(req, res) {
     		return res.status(200).end();
     	}, function(error) {
             var errorMessage = 'unfollowDeal error: ' + JSON.stringify(error);
-            logger.debugLog(errorMessage);
             logger.logDiagnostics(correlationId, 'error', errorMessage);
     		return res.status(500).send(responseError);
     	});
@@ -188,7 +186,6 @@ module.exports.followUser = function(req, res) {
     		return res.status(200).end();
     	}, function(error) {
             var errorMessage = 'followUser error: ' + JSON.stringify(error);
-            logger.debugLog(errorMessage);
             logger.logDiagnostics(correlationId, 'error', errorMessage);
     		return res.status(500).send(responseError);
     	});
@@ -211,7 +208,6 @@ module.exports.unfollowUser = function(req, res) {
 	if (!userId) {
 		// not found
         var errorMessage = 'unfollowUser error: no userId provided from request'; 
-        logger.debugLog(errorMessage);
         logger.logDiagnostics(correlationId, 'error', errorMessage);
 		return res.status(404).send(responseError);
 	}
@@ -231,7 +227,6 @@ module.exports.unfollowUser = function(req, res) {
     		return res.status(200).end();
     	}, function(error) {
             var errorMessage = 'unfollowUser error: ' + JSON.stringify(error);
-            logger.debugLog(errorMessage);
             logger.logDiagnostics(correlationId, 'error', errorMessage);
     		return res.status(500).send(responseError);
     	});

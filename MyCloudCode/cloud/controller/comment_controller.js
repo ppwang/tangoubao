@@ -50,7 +50,6 @@ module.exports.putComment = function (req, res) {
 			return res.status(200).send(comment);
 		}, function(error) {
 			var errorMessage = 'putComment error: ' + JSON.stringify(error);
-			logger.debugLog(errorMessage);
 			// This would be parse error message.
 			logger.logDiagnostics(correlationId, 'error', errorMessage);
 			return res.status(500).send(responseError);
@@ -91,14 +90,12 @@ module.exports.deleteComment = function(req, res) {
 			if (message == 'Not authorized') {
 				var errorMessage = 'deleteComment log. User:  ' + current.id 
 					+ ' is not allowed to delete commentId: ' + commentId;
-				logger.debugLog(errorMessage);
 				logger.logDiagnostics(correlationId, 'error', errorMessage);
 				return res.status(401).send(responseError);
 			}
     		return res.status(200).end();
     	}, function(error) {
     		var errorMessage = 'deleteComment log. error:  ' + JSON.stringify(error);
-    		logger.debugLog(errorMessage);
     		logger.logDiagnostics(correlationId, 'error', errorMessage);
     		return res.status(500).send(responseError);
     	});

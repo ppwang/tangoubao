@@ -11,7 +11,6 @@ module.exports.putStatus = function(req, res) {
 	if (!currentUser) {
 		// require user to log in
 		var errorMessage = 'message putStatus error: user not logged in';
-		logger.debugLog(errorMessage); 
 		logger.logDiagnostics(correlationId, 'error', errorMessage);
 		return res.status(401).send(responseError);
 	}
@@ -19,7 +18,6 @@ module.exports.putStatus = function(req, res) {
 	var messageId = req.params.messageId;
 	if (!messageId) {
 		var errorMessage = 'message putStatus error: no messageId provided in request';
-		logger.debugLog(errorMessage); 
 		logger.logDiagnostics(correlationId, 'error', errorMessage);
 		return res.status(404).send(responseError);
 	}
@@ -27,7 +25,6 @@ module.exports.putStatus = function(req, res) {
 	var status = req.query.status;
 	if (!status || (status != 'read' && status != 'unread')) {
 		var errorMessage = 'message putStatus error. wrong status. status:  ' + status;
-		logger.debugLog(errorMessage); 
 		logger.logDiagnostics(correlationId, 'error', errorMessage);
 		return res.status(404).send(responseError);
 	}
@@ -54,7 +51,6 @@ module.exports.putStatus = function(req, res) {
 			return res.status(200).send(message);
 		}, function(error) {
 			var errorMessage = 'message putStatus error: ' + JSON.stringify(error);
-			logger.debugLog(errorMessage);
 			logger.logDiagnostics(correlationId, 'error', errorMessage);
 			return res.status(500).send(responseError);
 		});

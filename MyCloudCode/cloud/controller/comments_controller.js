@@ -29,7 +29,6 @@ module.exports.getComments = function (req, res) {
 			return res.status(200).send(comments);
 		}, function(error) {
 			var errorMessage = 'getComments error. currentUser: ' + JSON.stringify(error);
-			logger.debugLog(errorMessage);
 			logger.logDiagnostics(correlationId, 'error', errorMessage);
 			return res.status(500).send(responseError);
 		});

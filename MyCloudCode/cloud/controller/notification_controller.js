@@ -64,7 +64,6 @@ module.exports.notifyBuyers = function (req, res) {
 					res.status(200).end();
 				}, function(error) {
 					var errorMessage = 'notifyBuyers error: ' + JSON.stringify(error);
-					logger.debugLog(errorMessage);
 					logger.logDiagnostics(correlationId, 'error', errorMessage);
 					res.status(500).send(responseError);
 				});
