@@ -7,10 +7,10 @@
     </div>
     
     <div class="row item-detail-row item-title-row">
-        <div class="col-md-6 col-xs-8">
+        <div class="col-md-6 col-xs-7">
             <span class="deal-title">{{deal.name}}</span>
         </div>
-        <div class="col-md-6 col-xs-4">
+        <div class="col-md-6 col-xs-5">
             <span>{{deal.orderCount || 0}}人购买 {{deal.followCount || 0}}人关注</span>
         </div>
     </div>
@@ -128,8 +128,9 @@
         </div>
     </div>
     
-    <div class="comments-area row" ng-repeat="comment in comments">
-        <img ng-src="{{comment.creatorHeadimgurl}}" class="col-md-1 col-xs-1 comment-head-icon"/>
+    <div class="comment-area row" ng-repeat="comment in comments">
+        <span ng-show="!comment.creatorHeadimgurl" class="glyphicon glyphicon-user col-md-1 col-xs-1 comment-head-icon"></span>
+        <img ng-show="comment.creatorHeadimgurl" ng-src="{{comment.creatorHeadimgurl}}" class="col-md-1 col-xs-1 comment-head-icon"/>
         <span>{{comment.nickname}}</span>
         <rating ng-model="comment.rating" max="5" readonly="true" rating-states="ratingStates"></rating>
         <span>{{comment.createdAt | date:'yyyy年MM月dd日'}}</span>
