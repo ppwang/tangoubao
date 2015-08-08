@@ -14,37 +14,30 @@
               </div>
           </div>
         </div>
-        <div class="sign-area">
-            <div class="row signup-input">
-              <div class="signup-input-row">
-                昵 称: <input type="text" autocapitalize="off" autocorrect="off" ng-model="user.username" ng-required="true"/>
-              </div>
+        <div class="signin-inputs">
+            <div class="row col-xs-offset-1">
+                <input type="text" autocapitalize="off" autocorrect="off" ng-model="user.username" ng-required="true" placeholder="用户名" class="col-xs-offset-1 col-xs-8 col-xs-offset-3 tgb-input"/>
             </div>
-            <div class="row signup-input">
-              <div class="signup-input-row">
-                邮 箱: <input type="email" ng-model="user.email" ng-required="true"/>
-              </div>
+            <div class="row col-xs-offset-1">
+                <input type="email" ng-model="user.email" ng-required="true" placeholder="邮 箱" class="col-xs-offset-1 col-xs-8 col-xs-offset-3 tgb-input"/>
             </div>
-            <div class="row signup-input">
-              <div class="signup-input-row">
-                密 码: <input type="password" ng-model="user.password" ng-required="true"/>
-              </div>
+            <div class="row col-xs-offset-1">
+                <input type="password" ng-model="user.password" ng-required="true" placeholder="密 码" class="col-xs-offset-1 col-xs-8 col-xs-offset-3 tgb-input"/>
             </div>
-            <div class="row signup-input">
-              <div class="signup-input-row">
-                <span class="confirm-password-label">确认密码:</span>
-                <input type="password" ng-model="passwordReentered" ng-required="true"/>
-              </div>
+            <div class="row col-xs-offset-1">
+                <input type="password" ng-model="passwordReentered" ng-required="true" placeholder="确认密码" class="col-xs-offset-1 col-xs-8 col-xs-offset-3 tgb-input"/>
             </div>
-            <div class="row signup-terms">点击注册，代表您已经同意北美团购宝 <a href="/terms.html">用户协议</a></div>
-            <div class="row signup-button-container">
-              <button class="weixin-signup-button" background-image="resources/wechat.png" ng-click="weixinSignin()">
-                
-              </button>
-              <button class="signup-button" ng-click="signUp(user)">注册</button>
+            <div class="row">
+                <span class="col-xs-offset-1 col-xs-8 signup-terms">点击注册，代表您已经同意北美团购宝 <a href="/terms.html">用户协议</a></span>
             </div>
-            <div class="login-reference">
-              Already got an account? Log in <a ng-click='scenario="Log in"'>&nbsp;here</a>
+            <div class="clearfix"></div>
+            <div class="row col-xs-offset-1 col-xs-8">
+                    <img ng-show="isWeixin" class="col-xs-1 weixin-signup-button" src="resources/wechat.png">
+                    <button ng-show="isWeixin" class="tgb-btn-default" ng-click="weixinSignin()">一键登录</button>
+                    <button class="pull-right tgb-btn-default" ng-click="signUp(user)">注册</button>
+            </div>
+            <div class="row">
+                <span class="col-xs-offset-1 col-xs-8">已经是注册用户? 点击<a href ng-click='scenario="Log in"'>&nbsp;这里&nbsp;</a>登录.</span>
             </div>
         </div>
     </form>

@@ -1740,7 +1740,7 @@ tgbApp.controller('contactController', ['$scope', 'messageDataService', 'modalDi
     };
 }]);
 
-tgbApp.controller('loginController', function($scope, $location, $state, $window, weixinAppId, serviceBaseUrl, userService, modalDialogService) {
+tgbApp.controller('loginController', function($scope, $location, $state, $window, weixinAppId, serviceBaseUrl, userService, modalDialogService, userAgentDetectionService) {
     if (!$scope.user)
     {
         $scope.user = {};
@@ -1757,6 +1757,7 @@ tgbApp.controller('loginController', function($scope, $location, $state, $window
     else {
         $scope.wechatWelcomeVisible = false;
     }
+    $scope.isWeixin = userAgentDetectionService.isWeixin();
     $scope.user.nickname = nickname;
     $scope.user.headimgurl = headimgurl;
 
