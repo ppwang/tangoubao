@@ -5,60 +5,76 @@ var ParseFollowDeal = Parse.Object.extend('FollowDeal');
 var utils = require('cloud/lib/utils');
 var dealModel = require('cloud/tuangoubao/deal');
 var orderModel = require('cloud/tuangoubao/order');
+var logger = require('cloud/lib/logger');
 
 module.exports.putDeal = function(req, res) {
+	var correlationId = logger.newCorrelationId();
+	var responseError = {correlationId: correlationId};
+
 	var currentUser = Parse.User.current();
-	console.log('currentUser: ' + JSON.stringify(currentUser));
+	logger.debugLog('putDeal log. currentUser: ' + JSON.stringify(currentUser));
 	if (!currentUser) {
 		// require user to log in
-		return res.status(401).send();
+		logger.logDiagnostics(correlationId, 'error', 'putDeal error (401): user not logged in.');
+		return res.status(401).send(responseError);
 	}
 
 	var objectId = req.body.id;
 	if (!objectId) {
 		// create a new deal
-		console.log('create deal');
+		logger.debugLog('putDeal log. create deal.');
 		return createDeal(req, currentUser)
 			.then(function(parseDeal) {
 				var deal = dealModel.convertToDealModel(parseDeal);
-				console.log('send deal: ' + JSON.stringify(deal));
+				logger.debugLog('putDeal log. send deal: ' + JSON.stringify(deal));
 				// Cannot use end to send data!! Must use send for json.
 				return res.status(201).send(deal);
 			}, function(error) {
-				console.log('error: ' + JSON.stringify(error));
-				return res.status(500).end();
+				var errorMessage = 'putDeal error: ' + JSON.stringify(error);
+				logger.debugLog(errorMessage);
+				logger.logDiagnostics(correlationId, 'error', errorMessage);
+				return res.status(500).send(responseError);
 			});
 	}
 
-	console.log('modify deal');
+	logger.debugLog('putDeal log. modify deal.');
 	return modifyDeal(objectId, req, currentUser)
 		.then(function(parseDeal) {
 			var deal = dealModel.convertToDealModel(parseDeal);
-			console.log('send deal: ' + JSON.stringify(deal));
+			logger.debugLog('putDeal log. send deal: ' + JSON.stringify(deal));
 			// Cannot use end to send data!! Must use send for json.
 			return res.status(201).send(deal);
 		}, function(error) {
-			console.log('error: ' + JSON.stringify(error));
-			return res.status(500).end();
+			var errorMessage = 'putDeal error: ' + JSON.stringify(error);
+			logger.debugLog(errorMessage);
+			logger.logDiagnostics(correlationId, 'error', errorMessage);
+			return res.status(500).send(responseError);
 		});
 };
 
 module.exports.putStatus = function(req, res) {
+	var correlationId = logger.newCorrelationId();
+	var responseError = {correlationId: correlationId};
+
 	var currentUser = Parse.User.current();
-	console.log('currentUser: ' + JSON.stringify(currentUser));
+	logger.debugLog('deal putStatus log. currentUser: ' + JSON.stringify(currentUser));
 	if (!currentUser) {
 		// require user to log in
-		return res.status(401).send();
+		logger.logDiagnostics(correlationId, 'error', 'deal putStatus error (401): user not logged in');
+		return res.status(401).send(responseError);
 	}
 
 	var dealId = req.params.dealId;
 	if (!dealId) {
-		return res.status(404).send();
+		logger.logDiagnostics(correlationId, 'error', 
+			'deal putStatus error (404): dealId not provided in request');
+		return res.status(404).send(responseError);
 	}
 
 	var status = req.query.status;
 	if (!status || (status != 'closed' && status != 'active')) {
-		return res.status(404).send();
+		logger.logDiagnostics(correlationId, 'error', 'deal putStatus error (404): status not correct: ' + status);
+		return res.status(404).send(responseError);
 	}
 
 	var parseDealPromise = new ParseDeal();
@@ -74,23 +90,31 @@ module.exports.putStatus = function(req, res) {
 		})
 		.then(function(savedPareseDeal) {
 			if (savedPareseDeal == 'Not authorized') {
-				return res.status(401).end();
+				logger.logDiagnostics(correlationId, 'error', 
+					'deal putStatus error (401): user not authorized, userId is not deal creatorId.');
+				return res.status(401).send(responseError);
 			}
 			var deal = dealModel.convertToDealModel(savedPareseDeal);
 			return res.status(200).send(deal);
 		}, function(error) {
-			console.log('error: ' + JSON.stringify(error));
-			return res.status(500).end();
+			var errorMessage = 'deal putStatus error: ' + JSON.stringify(error);
+			logger.debugLog(errorMessage);
+			logger.logDiagnostics(correlationId, 'error', errorMessage);
+			return res.status(500).send(responseError);
 		});
 };
 
 module.exports.getDeal = function(req, res) {
+	var correlationId = logger.newCorrelationId();
+	var responseError = {correlationId: correlationId};
+
 	var currentUser = Parse.User.current();
 
 	var dealId = req.params.dealId;
 	if (!dealId) {
 		// create a new deal
-		return res.send('no dealId');
+		logger.logDiagnostics(correlationId, 'error', 'getDeal error (404): dealId not provided in request.');
+		return res.status(404).send(responseError);
 	}
 	else {
 		var parseDealPromise = new ParseDeal();
@@ -101,7 +125,7 @@ module.exports.getDeal = function(req, res) {
 				var deal = dealModel.convertToDealModel(parseDeal);
 				deal.owned = true;
 				if (!currentUser || creator.id != currentUser.id) {
-					console.log('send deal: ' + JSON.stringify(deal));
+					logger.debugLog('getDeal log: ' + JSON.stringify(deal));
 					deal.owned = false;
 					return deal;
 				}
@@ -109,7 +133,7 @@ module.exports.getDeal = function(req, res) {
 				// return buyers list as well
 				return orderModel.getOrdersByPickupOption(deal)
 					.then(function(ordersByPickupOption) {
-						console.log('ordersByPickupOption: ' + JSON.stringify(ordersByPickupOption));
+						logger.debugLog('getDeal log. ordersByPickupOption: ' + JSON.stringify(ordersByPickupOption));
 						deal.summary = ordersByPickupOption.summary;
 						deal.pickupOptions = ordersByPickupOption.pickupOptions;
 						return deal;
@@ -122,7 +146,7 @@ module.exports.getDeal = function(req, res) {
 
 				// Adding followed information below.
 				var query = new Parse.Query(ParseFollowDeal);
-				console.log('query follow dealId:' + dealId + ' by userId: ' + currentUser.id);
+				logger.debugLog('getDeal log. query follow dealId:' + dealId + ' by userId: ' + currentUser.id);
 			    query.equalTo('dealId', dealId);
 			    query.equalTo('followerId', currentUser.id);
 			    return query.first()
@@ -138,7 +162,7 @@ module.exports.getDeal = function(req, res) {
 				
 				// Adding ordered information below.
 				var query = new Parse.Query(ParseOrder);
-				console.log('query order dealId:' + dealId + ' by userId: ' + currentUser.id);
+				logger.debugLog('getDeal log. query order dealId:' + dealId + ' by userId: ' + currentUser.id);
 			    query.equalTo('dealId', dealId);
 			    query.equalTo('creatorId', currentUser.id);
 			    return query.first()
@@ -156,8 +180,10 @@ module.exports.getDeal = function(req, res) {
 			.then(function(deal) {
 				return res.status(201).send(deal);
 			}, function(error) {
-				console.log('error: ' + JSON.stringify(error));
-				return res.status(500).end();
+				var errorMessage = 'getDeal error: ' + JSON.stringify(error);
+				logger.debugLog(errorMessage);
+				logger.logDiagnostics(correlationId, 'error', errorMessage);
+				return res.status(500).send(responseError);
 			});
 	}
 };
@@ -167,7 +193,7 @@ var modifyDeal = function(objectId, req, user) {
 	existingParseDeal.id = objectId;
     return existingParseDeal.fetch()
 	    .then( function(parseDeal) {
-	    	console.log('Current deal is: ' + JSON.stringify(parseDeal)); 
+	    	logger.debugLog('modifyDeal log. Current deal is: ' + JSON.stringify(parseDeal));
 	    	if (parseDeal) {
 	    		return saveDeal(parseDeal, req);
 	    	}
@@ -271,7 +297,7 @@ var saveDeal = function(parseDeal, req) {
 	}
 
 	var originalUnitPrice = req.body.originalUnitPrice;
-	if (originalUnitPrice) {
+	if (originalUnitPrice && originalUnitPrice > 0) {
 		parseDeal.set('originalUnitPrice', originalUnitPrice);
 	}
 	else {
@@ -279,7 +305,7 @@ var saveDeal = function(parseDeal, req) {
 	}
 
 	var quantityLimit = req.body.quantityLimit;
-	if (quantityLimit) {
+	if (quantityLimit && quantityLimit > 0) {
 		parseDeal.set('quantityLimit', quantityLimit);
 	}
 	else {
@@ -327,7 +353,7 @@ var saveDeal = function(parseDeal, req) {
 			imgFileName = 'deal_image.jpg';
 		}
 		else {
-			console.log('Unsupported image type: ' + imageType);
+			logger.debugLog('saveDeal log. Unsupported image type: ' + imageType);
 			throw new Error('Unsupported image type: ' + imageType);
 		}
 		var targetImageFile = new Parse.File(imgFileName, {base64: imageData}, imageType);
@@ -335,12 +361,12 @@ var saveDeal = function(parseDeal, req) {
 		return targetImageFile.save()
 			.then(function(imgFile) {
 				parseDeal.set('dealImage', imgFile);
-				console.log('deal is: ' + JSON.stringify(parseDeal));
+				logger.debugLog('saveDeal log. deal is: ' + JSON.stringify(parseDeal));
 				return parseDeal.save();
 			});
 	}
 	if (imageType && !imageData) {
-		console.log('save deal without image: ' + JSON.stringify(parseDeal));
+		logger.debugLog('saveDeal log. save deal without image: ' + JSON.stringify(parseDeal));
 		parseDeal.set('dealImage', null);
 	}
 	return parseDeal.save();

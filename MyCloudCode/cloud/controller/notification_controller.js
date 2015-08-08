@@ -8,26 +8,33 @@ var orderModel = require('cloud/tuangoubao/order');
 var messageModel = require('cloud/tuangoubao/message');
 var dealModel = require('cloud/tuangoubao/deal');
 var utils = require('cloud/lib/utils');
+var logger = require('cloud/lib/logger');
 
 module.exports.notifyBuyers = function (req, res) {
+    var correlationId = logger.newCorrelationId();
+    var responseError = {correlationId: correlationId};
+
 	var currentUser = Parse.User.current();
-	console.log('currentUser for notifyBuyers: ' + JSON.stringify(currentUser));
+	logger.debugLog('notifyBuyers log. currentUser: ' + JSON.stringify(currentUser));
 	if (!currentUser) {
-		return res.status(401).send();
+		logger.logDiagnostics(correlationId, 'error', 'notifyBuyers error (401): user not logged in');
+		return res.status(401).send(responseError);
 	}
 
 	var postData = req.body;
 	var dealId = postData.dealId;
-	console.log('notify buyers for dealId: ' + dealId);
+	logger.debugLog('notifyBuyers log. notify buyers for dealId: ' + dealId);
 	if (!dealId) {
 		// not found
-		return res.status(404).end();
+		logger.logDiagnostics(correlationId, 'error', 'notifyBuyers error (404): dealId not provided in request');
+		return res.status(404).send(responseError);
 	}
 
 	var messageType = postData.messageType;
 	var messageText = postData.messageText;
 	if (!messageType || (messageType != 'general' && messageType != 'productArrived')) {
-		return res.status(404).send();
+		logger.logDiagnostics(correlationId, 'error', 'notifyBuyers error (404): messageType not correct: ' + messageType);
+		return res.status(404).send(responseError);
 	}
 
 	var parseDealPromise = new ParseDeal();
@@ -35,9 +42,10 @@ module.exports.notifyBuyers = function (req, res) {
     return parseDealPromise.fetch()
     	.then(function(parseDeal) {
     		var deal = dealModel.convertToDealModel(parseDeal);
-    		console.log('notification fetch deal: ' + JSON.stringify(deal));
+    		logger.debugLog('notifyBuyers log. notification fetch deal: ' + JSON.stringify(deal));
     		if (deal.creatorId != currentUser.id) {
-    			return res.status(401).send();
+    			logger.logDiagnostics(correlationId, 'error', 'notifyBuyers error: deal creatorId not equal to currentUser id');
+    			return res.status(401).send(responseError);
     		}
 
     		var parseOrdersQuery = new Parse.Query(ParseOrder);
@@ -55,8 +63,10 @@ module.exports.notifyBuyers = function (req, res) {
 				.then(function() {
 					res.status(200).end();
 				}, function(error) {
-					console.log('notification buyers error: ' + JSON.stringify(error));
-					res.status(500).end();
+					var errorMessage = 'notifyBuyers error: ' + JSON.stringify(error);
+					logger.debugLog(errorMessage);
+					logger.logDiagnostics(correlationId, 'error', errorMessage);
+					res.status(500).send(responseError);
 				});
     	});
 };
@@ -67,31 +77,31 @@ module.exports.notifyBuyer = function(creatorId, creatorName, order, messageType
 
 var notifyBuyer = function(creatorId, creatorName, order, messageType, messageText) {
 	var receiverId = order.creatorId;
-	console.log('receiverId: ' + receiverId);
+	logger.debugLog('notifyBuyer log. receiverId: ' + receiverId);
 	var parseUserPromise = new Parse.Query(Parse.User);
 	parseUserPromise.equalTo('objectId', receiverId);
 	return parseUserPromise.first()
 		.then(function(parseUser) {
 			if (!parseUser) {
-				console.log('no parseUser');
+				logger.debugLog('notifyBuyer log. no parseUser');
 				return;
 			}
 			
 			var messageBody = messageModel.constructMessageBody(order, messageType, messageText);
 			var messageTitle = messageModel.constructMessageTitle(order, messageType, messageText);
-			console.log('messageBody: ' + messageBody + ', messageTitle: ' + messageTitle);
+			logger.debugLog('notifyBuyer log. receiverId: messageBody: ' + messageBody + ', messageTitle: ' + messageTitle);
 			
 			var promises = [];
 			
 			// Add to message
 			promises.push(messageModel.addMessage(creatorId, receiverId, creatorName, order, messageType, messageText));
 			
-			console.log('notifyBuyer parseUser: ' + JSON.stringify(parseUser));
+			logger.debugLog('notifyBuyer log. notifyBuyer parseUser: ' + JSON.stringify(parseUser));
 			// Send email
 			var emailNotify = parseUser.get('emailNotify');
 			if (emailNotify) {
 				var email = parseUser.get('email');
-				console.log('notify email: ' + email);
+				logger.debugLog('notifyBuyer log. notify email: ' + email);
 				if (email) {
 					promises.push(emailController.sendEmail(email, creatorName, order, messageType, messageText));
 				}
@@ -111,9 +121,9 @@ var sendWechatNotification = function(wechatId, order, messageType, messageText)
 		.then(function(accessToken) {
 			var url = 'https://api.weixin.qq.com/cgi-bin/message/template/send?'
 		        + 'access_token=' + accessToken.token;
-		    console.log('url: '+ url);
+		    logger.debugLog('sendWechatNotification log. url: ' + url);
 		    var postData = getWechatNotificationPostBody(wechatId, order, messageType, messageText);
-		    console.log('postData for wechat: ' + JSON.stringify(postData));
+		    logger.debugLog('sendWechatNotification log. url: postData for wechat: ' + JSON.stringify(postData));
 		    return Parse.Cloud.httpRequest( { 
 		    	method: 'POST', 
 		    	url: url, 
@@ -155,9 +165,9 @@ var getWechatNotificationPostBody = function(wechatId, order, messageType, messa
 	    };
 	}
 	else if (messageType == 'general') {
-		console.log('orderTime: ' + order.orderTime);
+		logger.debugLog('getWechatNotificationPostBody log. orderTime: ' + order.orderTime);
 		var creationDateString = utils.formatDateString(order.orderTime);
-		console.log('creationDateString: ' + creationDateString);
+		logger.debugLog('getWechatNotificationPostBody log. creationDateString: ' + creationDateString);
 		postData = {
 	    	"touser": wechatId,
 	    	"template_id": "YtP8hgjKBfiMdSfLhNnzg4Obj4DLsrt2yz50amnpWqg",

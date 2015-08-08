@@ -1,25 +1,38 @@
 var ParseMessage = Parse.Object.extend('Message');
 var messageModel = require('cloud/tuangoubao/message');
+var logger = require('cloud/lib/logger');
 
 module.exports.putStatus = function(req, res) {
+    var correlationId = logger.newCorrelationId();
+    var responseError = {correlationId: correlationId};
+
 	var currentUser = Parse.User.current();
-	console.log('currentUser for put message status: ' + JSON.stringify(currentUser));
+	logger.debugLog('message putStatus log. currentUser for put message status: ' + JSON.stringify(currentUser));
 	if (!currentUser) {
 		// require user to log in
-		return res.status(401).send();
+		var errorMessage = 'message putStatus error: user not logged in';
+		logger.debugLog(errorMessage); 
+		logger.logDiagnostics(correlationId, 'error', errorMessage);
+		return res.status(401).send(responseError);
 	}
 
 	var messageId = req.params.messageId;
 	if (!messageId) {
-		return res.status(404).send();
+		var errorMessage = 'message putStatus error: no messageId provided in request';
+		logger.debugLog(errorMessage); 
+		logger.logDiagnostics(correlationId, 'error', errorMessage);
+		return res.status(404).send(responseError);
 	}
 
 	var status = req.query.status;
 	if (!status || (status != 'read' && status != 'unread')) {
-		return res.status(404).send();
+		var errorMessage = 'message putStatus error. wrong status. status:  ' + status;
+		logger.debugLog(errorMessage); 
+		logger.logDiagnostics(correlationId, 'error', errorMessage);
+		return res.status(404).send(responseError);
 	}
 
-	console.log('put messageId: ' + messageId);
+	logger.debugLog('message putStatus log. put messageId: ' + messageId);
 	var parseMessagePromise = new ParseMessage();
 	parseMessagePromise.id = messageId;
 	return parseMessagePromise.fetch()
@@ -28,18 +41,21 @@ module.exports.putStatus = function(req, res) {
 			if (message.receiverId != currentUser.id) {
 				return 'Not authorized';
 			}
-			console.log('set status: ' + (status == 'read'));
+			logger.debugLog('message putStatus log. set status: ' + (status == 'read'));
 			parseMessage.set('isRead', status=='read');
 			return parseMessage.save();
 		})
 		.then(function(savedParseMessage) {
 			if (savedParseMessage == 'Not authorized') {
-				return res.status(401).end();
+				logger.logDiagnostics(correlationId, 'error', 'message putStatus error (401): not authorized');
+				return res.status(401).send(responseError);
 			}
 			var message = messageModel.convertToMessageModel(savedParseMessage);
 			return res.status(200).send(message);
 		}, function(error) {
-			console.log('error: ' + JSON.stringify(error));
-			return res.status(500).end();
+			var errorMessage = 'message putStatus error: ' + JSON.stringify(error);
+			logger.debugLog(errorMessage);
+			logger.logDiagnostics(correlationId, 'error', errorMessage);
+			return res.status(500).send(responseError);
 		});
 }

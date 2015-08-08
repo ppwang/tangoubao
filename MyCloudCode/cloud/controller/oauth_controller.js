@@ -5,15 +5,21 @@ var tgbWechatUser = require('cloud/tuangoubao/wechat_user');
 var userModel = require('cloud/tuangoubao/user');
 var _ = require('underscore');
 var Buffer = require('buffer').Buffer;
+var logger = require('cloud/lib/logger');
 
 module.exports.oauthConnect = function(req, res) {
+    var correlationId = logger.newCorrelationId();
+    var responseError = {correlationId: correlationId};
+
 	var authProvider = req.params.authProvider;
-	console.log('oauthConnect request: ' + req.url);
-	console.log('req query: ' + JSON.stringify(req.query));
+	logger.debugLog('oauthConnect logger. oauthConnect request: ' + req.url);
+	logger.debugLog('oauthConnect logger. req query: ' + JSON.stringify(req.query));
 
 	// We are supporting only wechat for now
 	if (authProvider != 'wechat' || !req.query.code) {
-		return res.status(401).end();
+		var errorMessage = 'oauthConnect error: authProvider not wechat or not code in request';
+		logger.logDiagnostics(correlationId, 'error', errorMessage);
+		return res.status(401).send(responseError);
 	}
 	var redirUrl = req.query.redir;
 
@@ -24,14 +30,14 @@ module.exports.oauthConnect = function(req, res) {
             + '&secret=' + wechatSetting.wechatAppSecret
             + '&code=' + wechatOAuthCode;
 
-    console.log('token request: ' + wechatTokenRequestUrl);
+	logger.debugLog('oauthConnect logger. token request: ' + wechatTokenRequestUrl);
     var now = new Date();
     return Parse.Cloud.httpRequest({
         	url: wechatTokenRequestUrl
     	})
     	.then(function(httpResponse) {
     		// TODO: error code check for refresh token ...
-	        console.log('got token: ' + httpResponse.text);
+			logger.debugLog('oauthConnect logger. got token: ' + httpResponse.text);
 	        var tokenResult = JSON.parse(httpResponse.text);
 	        var accessToken = {};
 	        accessToken.token = tokenResult.access_token;
@@ -49,7 +55,7 @@ module.exports.oauthConnect = function(req, res) {
 				return query.first({useMasterKey: true})
 					.then(function(parseWechatUser) {
 						if (!parseWechatUser) {
-							console.log('no parseWechatUser. We need to request oauth based user info');
+							logger.debugLog('oauthConnect logger. no parseWechatUser. We need to request oauth based user info');
 							var userInfoUrl = serviceSetting.baseUrl + '/api/user/wechat';
 							if (redirUrl) {
 								userInfoUrl += '?redir=' + redirUrl;
@@ -59,13 +65,14 @@ module.exports.oauthConnect = function(req, res) {
 					            + 'appid=' + wechatSetting.wechatAppId 
 					            + '&redirect_uri=' + encodeURIComponent(userInfoUrl)
 					            + '&response_type=code&scope=snsapi_userinfo#wechat_redirect';
-				            console.log('redirUrl wechatUserInfoOAuthUrl:' + wechatUserInfoOAuthUrl);
+							logger.debugLog('oauthConnect logger. no parseWechatUser. redirUrl wechatUserInfoOAuthUrl:' + wechatUserInfoOAuthUrl);
+
 				            result.action = 'redirect';
 				            result.redirUrl = wechatUserInfoOAuthUrl; 
 						}
 						else {
 							// We found the user, no need to ask user info again
-							console.log('We found the user, no need to ask user info again');
+							logger.debugLog('oauthConnect logger. no parseWechatUser. We found the user, no need to ask user info again');
 							result.action = 'done';
 							var wechatUser = tgbWechatUser.convertToWechatUserModel(parseWechatUser);
 							result.data = wechatUser;
@@ -75,7 +82,7 @@ module.exports.oauthConnect = function(req, res) {
 								.then(function(parseUser) {
 									if (parseUser) {
 										var parseUserName = parseUser.get('username');
-										console.log('found user: ' + parseUserName);
+										logger.debugLog('oauthConnect logger. found user: ' + parseUserName);
 
 										// log in on user's behalf now
 										if (parseUserName == 'wechat_' + accessToken.openid) {
@@ -87,17 +94,17 @@ module.exports.oauthConnect = function(req, res) {
 											var password = passwordBuffer.toString('base64');
 											parseUser.set('password', password);
 											parseUser.set('masterRequest', 'true');
-											console.log('reset password: ' + password);
+											logger.debugLog('oauthConnect logger. reset password: ' + password);
 											return parseUser.save(null, {useMasterKey: true})
 												.then(function(savedUser) {
-													console.log('log in user now');
+													logger.debugLog('oauthConnect log. log in user now.');
 													return Parse.User.logIn(parseUserName, password);
 												});
 										}
-										console.log('user name not matching wechat id');
+										logger.debugLog('oauthConnect logger. user name not matching wechat id');
 
 										var sessionToken = parseUser.getSessionToken();
-										console.log('Got sessionToken: ' + JSON.stringify(sessionToken));
+										logger.debugLog('oauthConnect logger. Got sessionToken: ' + JSON.stringify(sessionToken));
 										return Parse.User.become(sessionToken);
 									}
 									else {
@@ -109,7 +116,7 @@ module.exports.oauthConnect = function(req, res) {
 										});
 										var username = 'wechat_' + accessToken.openid;
 										var password = passwordBuffer.toString('base64')
-										console.log('create new user. username: ' + username + ', password: ' + password);
+										logger.debugLog('oauthConnect logger. create new user. username: ' + username + ', password: ' + password);
 									  	newUser.set('username', username);
 									  	newUser.set('password', password);
 									  	newUser.set('wechatId', wechatUser.wechatId);
@@ -132,22 +139,28 @@ module.exports.oauthConnect = function(req, res) {
 			return null;	
     	})
 		.then(function(result) {
+			var errorMessage;
 			if (!result) {
-				return res.status(500).end();
+				errorMessage = 'oauthConnect error: no result from token request';
+				logger.logDiagnostics(correlationId, 'error', errorMessage);
+				return res.status(500).send(responseError);
 			}
 			if (result.action == 'done') {
 				var endUrl = (redirUrl && redirUrl != 'null')? redirUrl : serviceSetting.baseUrl;
-				console.log('oauth controller redirect,' + redirUrl + ', redirect to: ' + endUrl + ', baseUrl: ' + serviceSetting.baseUrl);
+				logger.debugLog('oauthConnect logger. oauth controller redirect,' + redirUrl + ', redirect to: ' + endUrl + ', baseUrl: ' + serviceSetting.baseUrl);
 				return res.redirect(endUrl);
 			}
 			if (result.action == 'redirect') {
 				var endUrl = (result.redirUrl && result.redirUrl != 'null')? result.redirUrl : serviceSetting.baseUrl;
-				console.log('oauth controller redirect,' + result.redirUrl + ', redirect to: ' + endUrl + ', baseUrl: ' + serviceSetting.baseUrl);
+				logger.debugLog('oauthConnect logger. oauth controller redirect,' + result.redirUrl + ', redirect to: ' + endUrl + ', baseUrl: ' + serviceSetting.baseUrl);
 				return res.redirect(endUrl);
 			}
-			return res.status(401).end();
+			errorMessage = 'oauthConnect error: unknown result.action';
+			logger.logDiagnostics(correlationId, 'error', errorMessage);
+			return res.status(401).send(responseError);
 		}, function(error) {
-			console.log('error: ' + JSON.stringify(error));
-			return res.status(500).end();
+			var errorMessage = 'oauthConnect error: ' + JSON.stringify(error);
+			logger.logDiagnostics(correlationId, 'error', errorMessage);
+			return res.status(500).send(responseError);
 		});
 };

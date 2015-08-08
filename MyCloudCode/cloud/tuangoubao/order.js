@@ -1,9 +1,10 @@
 var ParseOrder= Parse.Object.extend('Order');
 var tgbUser = require('cloud/tuangoubao/user');
 var utils = require('cloud/lib/utils');
+var logger = require('cloud/lib/logger');
 
 module.exports.getOrders = function(deal) {
-	console.log('get deal orders, dealId: ' + deal.id);
+	logger.debugLog('getOrders log. get deal orders, dealId: ' + deal.id);
 	var query = new Parse.Query(ParseOrder);
 	query.equalTo('dealId', deal.id);
 	query.ascending('pickupOptionId');
@@ -12,7 +13,7 @@ module.exports.getOrders = function(deal) {
 	var pickupOptionsData = deal.pickupOptions;
 
 	if (pickupOptionsData) {
-		console.log('pickupOptionsData: ' + pickupOptionsData);
+		logger.debugLog('getOrders log. pickupOptionsData: ' + pickupOptionsData);
 		var pickupOptions = JSON.parse(pickupOptionsData);
 		if (pickupOptions.forEach) {
 			pickupOptions.forEach(function(pickupOption) {
@@ -29,7 +30,7 @@ module.exports.getOrders = function(deal) {
 			var userPromises = new Array();
 			parseOrders.forEach(function(parseOrder) {
 				var order = convertToOrderModel(parseOrder);
-				console.log('order: ' + JSON.stringify(order));
+				logger.debugLog('getOrders log. order: ' + JSON.stringify(order));
 				order.pickupOption = pickupOptionsDictionary[order.pickupOptionId];
 				orders.push(order);
 				if (!userPromises[order.creatorId]) {
@@ -65,7 +66,7 @@ module.exports.getOrders = function(deal) {
 };
 
 module.exports.getOrdersByPickupOption = function(deal) {
-	console.log('get deal orders, dealId: ' + deal.id);
+	logger.debugLog('getOrdersByPickupOption log. get deal orders, dealId: ' + deal.id);
 	var query = new Parse.Query(ParseOrder);
 	query.equalTo('dealId', deal.id);
 	query.ascending('pickupOptionId');
@@ -78,7 +79,7 @@ module.exports.getOrdersByPickupOption = function(deal) {
 	var pickupOptionBuyerOrderQuantity = [];
 	var pickupOptionsData = deal.pickupOptions;
 	if (pickupOptionsData) {
-		console.log('pickupOptionsData: ' + pickupOptionsData);
+		logger.debugLog('getOrdersByPickupOption log. pickupOptionsData: ' + pickupOptionsData);
 		var pickupOptions = JSON.parse(pickupOptionsData);
 		if (pickupOptions.forEach) {
 			pickupOptions.forEach(function(pickupOption) {
@@ -102,7 +103,7 @@ module.exports.getOrdersByPickupOption = function(deal) {
 			var promises = [];
 			parseOrders.forEach(function(parseOrder) {
 				var order = convertToOrderModel(parseOrder);
-				console.log('order: ' + JSON.stringify(order));
+				logger.debugLog('getOrdersByPickupOption log. order: ' + JSON.stringify(order));
 				order.pickupOption = pickupOptionsDictionary[order.pickupOptionId];
 				orders.push(order);
 
@@ -114,9 +115,9 @@ module.exports.getOrdersByPickupOption = function(deal) {
 
 				// stats
 				if (!buyerOrderQuantity[order.creatorId]) {
-					console.log('order creatorId: ' + order.creatorId + ' quantity: ' + order.quantity);
+					logger.debugLog('getOrdersByPickupOption log. order creatorId: ' + order.creatorId + ' quantity: ' + order.quantity);
 					buyerOrderQuantity[order.creatorId] = order.quantity;
-					console.log('Adding buyerorder: ' + JSON.stringify(buyerOrderQuantity));
+					logger.debugLog('getOrdersByPickupOption log. Adding buyerorder: ' + JSON.stringify(buyerOrderQuantity));
 				}
 				else {
 					buyerOrderQuantity[order.creatorId] += order.quantity;
@@ -157,7 +158,7 @@ module.exports.getOrdersByPickupOption = function(deal) {
 		})
 		.then(function() {
 			// assemble the result
-			console.log('buyerOrderQuantity: ' + JSON.stringify(buyerOrderQuantity));
+			logger.debugLog('getOrdersByPickupOption log. buyerOrderQuantity: ' + JSON.stringify(buyerOrderQuantity));
 			result.summary.buyerCount = utils.getArrayLength(buyerOrderQuantity);
 			result.summary.quantity = result.summary.buyerCount > 0 ? 
 				utils.getArraySum(buyerOrderQuantity) : 0; 

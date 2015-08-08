@@ -1,18 +1,19 @@
 // module for tuangoubao wechat user model
 var WechatUser = Parse.Object.extend('WechatUser');
 var utils = require('cloud/lib/utils');
+var logger = require('cloud/lib/logger');
 
 module.exports.activate = function(wechatId, wechatUserRawData) {
    	var query = new Parse.Query(WechatUser);
     query.equalTo('wechatId', wechatId);
     return query.first().then( function(wechatUser) {
         if (!wechatUser) {
-            console.log('New wechat user rejoined.');
+            logger.debugLog('New wechat user rejoined.');
             wechatUser = new WechatUser();
             initWechatUser(wechatUser, wechatId, wechatUserRawData, true);
         }
         else {
-        	console.log('Existing wechat user rejoined.');
+            logger.debugLog('Existing wechat user rejoined.');
             initWechatUser(wechatUser, wechatId, wechatUserRawData, true);
         }
 
@@ -26,12 +27,12 @@ module.exports.update = function(wechatId, wechatUserRawData, refreshClaimToken)
     query.equalTo('wechatId', wechatId);
     return query.first().then( function(wechatUser) {
         if (!wechatUser) {
-            console.log('Update new wechat user.');
+            logger.debugLog('Update new wechat user.');
             wechatUser = new WechatUser();
             initWechatUser(wechatUser, wechatId, wechatUserRawData, true);
         }
         else {
-            console.log('Update existing wechat user.');
+            logger.debugLog('Update existing wechat user.');
             initWechatUser(wechatUser, wechatId, wechatUserRawData, refreshClaimToken);
         }
 
@@ -47,12 +48,12 @@ module.exports.deactivate = function(wechatId) {
 
 	return query.first().then( function(wechatUser) {
         if (!wechatUser) {
-            console.log('Unexpected in querying existing wechat user: ' + wechatId);
+            logger.debugLog('wechatuser deactivate log. Unexpected in querying existing wechat user: ' + wechatId);
             wechatUser = new WechatUser();
             wechatUser.set('wechatId', wechatId);
         }
         else {
-        	console.log('Deactivate wechat user: ' + wechatId);
+            logger.debugLog('wechatuser deactivate log. Deactivate wechat user: ' + wechatId);
         }
 
         wechatUser.set('status', 'inactive');

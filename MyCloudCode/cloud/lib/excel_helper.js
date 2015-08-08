@@ -1,3 +1,4 @@
+var logger = require('cloud/lib/logger');
 
 // Deal type is in the following format:
 //    deal = {id, name, beginDate, endDate, dealImageUrl, description, email, phoneNumber, unitName, unitPrice, 
@@ -24,13 +25,11 @@ module.exports.exportDealToExcel = function (dealData) {
 		+ '$' + dealData.unitPrice + separator
 		+ dealData.unitsPerPackage + ' ' + escapeStr(dealData.unitName) + '\n';
 
-	console.log('unitPrice: ' + dealData.unitPrice + ' escapeStr: ' + escapeStr(dealData.unitPrice));
+	logger.debugLog('exportDealToExcel log. unitPrice: ' + dealData.unitPrice + ' escapeStr: ' + escapeStr(dealData.unitPrice));
 
 	result += '\n';
 	result += '\n';
 
-	console.log('order constructor: ' + dealData.orders.forEach);
-	console.log('orders: ' + JSON.stringify(dealData.orders));
 	if (dealData.orders && dealData.orders.forEach && dealData.length > 0) {
 		// Orders section
 		result += 'Orders Summary: \n';

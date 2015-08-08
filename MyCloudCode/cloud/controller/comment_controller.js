@@ -1,26 +1,31 @@
 var ParseComment = Parse.Object.extend('Comment');
 var userModel = require('cloud/tuangoubao/user');
 var commentModel = require('cloud/tuangoubao/comment');
+var logger = require('cloud/lib/logger');
 
 module.exports.putComment = function (req, res) {
+	var correlationId = logger.newCorrelationId();
+	var responseError = {correlationId: correlationId};
 	var currentUser = Parse.User.current();
-	console.log('currentUser: ' + JSON.stringify(currentUser));
+	logger.debugLog('putComment log. currentUser: ' + JSON.stringify(currentUser));
 	if (!currentUser) {
 		// require user to log in
 		// TODO: client side code asks user to sign in
-		return res.status(401).send();
+		logger.logDiagnostics(correlationId, 'error', 'putComment error (401): User not logged in.');
+		return res.status(401).send(responseError);
 	}
 
 	var dealId = req.params.dealId;
 	if (!dealId) {
 		// not found
-		return res.status(404).end();
+		logger.logDiagnostics(correlationId, 'error', 'putComment error (404): dealId not provided in request.');
+		return res.status(404).send(responseError);
 	}
 
 	// Add rating / commentText
-	console.log('req.body: ' + JSON.stringify(req.body));
+	logger.debugLog('putComment log. req.body: ' + JSON.stringify(req.body));
 	var rating = req.body.rating;
-	if (typeof rating != 'number') {
+	if (rating && typeof rating != 'number') {
 		rating = parseFloat(rating);
 	}
 	var commentText = req.body.commentText;
@@ -44,23 +49,32 @@ module.exports.putComment = function (req, res) {
 			var comment = commentModel.convertToCommentModel(parseComment);
 			return res.status(200).send(comment);
 		}, function(error) {
-			console.log('error: ' + JSON.stringify(error));
-			return res.status(500).end();
+			var errorMessage = 'putComment error: ' + JSON.stringify(error);
+			logger.debugLog(errorMessage);
+			// This would be parse error message.
+			logger.logDiagnostics(correlationId, 'error', errorMessage);
+			return res.status(500).send(responseError);
 		});
 }
 
 module.exports.deleteComment = function(req, res) {
+	var correlationId = logger.newCorrelationId();
+	var responseError = {correlationId: correlationId};
+
 	var currentUser = Parse.User.current();
-	console.log('currentUser: ' + JSON.stringify(currentUser));
+	logger.debugLog('deleteComment log. currentUser: ' + JSON.stringify(currentUser));
 	if (!currentUser) {
 		// require user to log in
 		// TODO: client side code asks user to sign in
-		return res.status(401).send();
+		logger.logDiagnostics(correlationId, 'error', 'deleteComment error (401): user not logged in.');
+		return res.status(401).send(responseError);
 	}
 	var commentId = req.params.commentId;
 	if (!commentId) {
 		// not found
-		return res.status(404).end();
+		logger.logDiagnostics(correlationId, 'error', 
+			'deleteComment error (404): commentId not provided from request');
+		return res.status(404).send(responseError);
 	}
 
 	var parseCommentPromise = new ParseComment();
@@ -68,19 +82,24 @@ module.exports.deleteComment = function(req, res) {
    	return parseCommentPromise.fetch()
 		.then( function(parseComment) {
 			if (parseComment && parseComment.creatorId == currentUser.id) {
-				console.log('Delete commentId:' + commentId + ' by userId: ' + currentUser.id);
+				logger.debugLog('deleteComment log. commentId: ' + commentId +  ', by userId: ' + currentUser.id);
 				return parseComment.destroy({});
 			}
 			return 'Not authorized';
 		})
 		.then(function(message) {
 			if (message == 'Not authorized') {
-				console.log('User:  ' + current.id + ' is not allowed to delete commentId: ' + commentId);
-				return res.status(401).end;
+				var errorMessage = 'deleteComment log. User:  ' + current.id 
+					+ ' is not allowed to delete commentId: ' + commentId;
+				logger.debugLog(errorMessage);
+				logger.logDiagnostics(correlationId, 'error', errorMessage);
+				return res.status(401).send(responseError);
 			}
     		return res.status(200).end();
     	}, function(error) {
-    		console.log('Delete comment error: ' + JSON.stringify(error));
-    		return res.status(500).end();
+    		var errorMessage = 'deleteComment log. error:  ' + JSON.stringify(error);
+    		logger.debugLog(errorMessage);
+    		logger.logDiagnostics(correlationId, 'error', errorMessage);
+    		return res.status(500).send(responseError);
     	});
 }

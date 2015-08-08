@@ -1,23 +1,26 @@
 var ParseRegion = Parse.Object.extend('Region');
+var logger = require('cloud/lib/logger');
 
 module.exports.getRegions = function(req, res) {
+    var correlationId = logger.newCorrelationId();
+    var responseError = {correlationId: correlationId};
+
 	var query = new Parse.Query(ParseRegion);
     return query.find()
     .then( function(parseRegions) {
     	// Collect one promise for each save into an array.
-    	console.log('found regions: ' + JSON.stringify(parseRegions));
 		var regions = [];
 		parseRegions.forEach(function(parseRegion) {
 			var region = convertToRegionModel(parseRegion);
-			console.log('Convert parseRegion to: ' + JSON.stringify(region));
 			regions.push(region);
 		});
 		var responseData = {};
 		responseData.regions = regions;
 		return res.status(200).send(JSON.stringify(responseData));
     }, function(error) {
-    	console.log('error is: ' + JSON.stringify(error));
-    	return res.status(500).end();
+    	var errorMessage = 'getRegions error: ' + JSON.stringify(error);
+    	logger.logDiagnostics(correlationId, 'error', errorMessage);
+    	return res.status(500).send(responseError);
     });
 };
 

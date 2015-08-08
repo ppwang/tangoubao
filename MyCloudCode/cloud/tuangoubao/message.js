@@ -1,3 +1,4 @@
+var logger = require('cloud/lib/logger');
 var serviceSetting = require('cloud/app.config.js').settings.webservice;
 var ParseMessage = Parse.Object.extend('Message');
 

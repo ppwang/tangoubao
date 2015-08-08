@@ -1,23 +1,29 @@
 var ParseFollowDeal = Parse.Object.extend('FollowDeal');
 var ParseFollowUser = Parse.Object.extend('FollowUser');
 var ParseDeal = Parse.Object.extend('Deal');
+var logger = require('cloud/lib/logger');
 
 module.exports.followDeal = function(req, res) {
+    var correlationId = logger.newCorrelationId();
+    var responseError = {correlationId: correlationId};
+
 	var currentUser = Parse.User.current();
-	console.log('currentUser: ' + JSON.stringify(currentUser));
+    logger.debugLog('followDeal log. currentUser: ' + JSON.stringify(currentUser));
 	if (!currentUser) {
 		// require user to log in
 		// TODO: client side code asks user to sign in
-		return res.status(401).send();
+        logger.logDiagnostics(correlationId, 'error', 'followDeal error (401): user not logged in.');
+		return res.status(401).send(responseError);
 	}
 
 	var dealId = req.params.dealId;
 	if (!dealId) {
 		// not found
-		return res.status(404).end();
+        logger.logDiagnostics(correlationId, 'error', 'followDeal error (404): dealId not provided in request');
+		return res.status(404).send(responseError);
 	}
 	var query = new Parse.Query(ParseFollowDeal);
-	console.log('follow dealId:' + dealId + ' by userId: ' + currentUser.id);
+    logger.debugLog('followDeal log. follow dealId:' + dealId + ' by userId: ' + currentUser.id);
     query.equalTo('dealId', dealId);
     query.equalTo('followerId', currentUser.id);
     return query.first()
@@ -58,33 +64,40 @@ module.exports.followDeal = function(req, res) {
 				followCount = 0;
 			}
 			parseDeal.set('followCount', followCount);
-			console.log('set followCount: ' + followCount);
+            logger.debugLog('followDeal log. set followCount: ' + followCount);
 			return parseDeal.save(null, {useMasterKey: true});
     	})
     	.then(function(savedDeal) {
     		return res.status(200).end();
     	}, function(error) {
-    		console.log('Follow deal error: ' + JSON.stringify(error));
-    		return res.status(500).end();
+            var errorMessage = 'followDeal error: ' + JSON.stringify(error);
+            logger.debugLog(errorMessage);
+            logger.logDiagnostics(correlationId, 'error', errorMessage);
+    		return res.status(500).send(responseError);
     	});
 };
 
 module.exports.unfollowDeal = function(req, res) {
+    var correlationId = logger.newCorrelationId();
+    var responseError = {correlationId: correlationId};
+
 	var currentUser = Parse.User.current();
-	console.log('currentUser: ' + JSON.stringify(currentUser));
+    logger.debugLog('unfollowDeal log. currentUser: ' + JSON.stringify(currentUser));
 	if (!currentUser) {
 		// require user to log in
 		// TODO: client side code asks user to sign in
-		return res.status(401).send();
+        logger.logDiagnostics(correlationId, 'error', 'unfollowDeal error: user not logged in');
+		return res.status(401).send(responseError);
 	}
 
 	var dealId = req.params.dealId;
 	if (!dealId) {
 		// not found
-		return res.status(404).end();
+        logger.logDiagnostics(correlationId, 'error', 'unfollowDeal error: dealId not provided in request');
+		return res.status(404).send(responseError);
 	}
 	var query = new Parse.Query(ParseFollowDeal);
-	console.log('unfollow dealId:' + dealId + ' by userId: ' + currentUser.id);
+    logger.debugLog('unfollowDeal log. dealId: ' + dealId + ' by userId: ' + currentUser.id);
     query.equalTo('dealId', dealId);
     query.equalTo('followerId', currentUser.id);
     return query.first()
@@ -117,31 +130,38 @@ module.exports.unfollowDeal = function(req, res) {
                 followCount = 0;
             }
 			parseDeal.set('followCount', followCount);
-			console.log('set followCount: ' + followCount);
+            logger.debugLog('unfollowDeal log. set followCount: ' + followCount);
 			return parseDeal.save(null, {useMasterKey: true});
     		
     	})
     	.then(function(savedDeal) {
     		return res.status(200).end();
     	}, function(error) {
-    		console.log('Delete followDeal error: ' + JSON.stringify(error));
-    		return res.status(500).end();
+            var errorMessage = 'unfollowDeal error: ' + JSON.stringify(error);
+            logger.debugLog(errorMessage);
+            logger.logDiagnostics(correlationId, 'error', errorMessage);
+    		return res.status(500).send(responseError);
     	});
 };
 
 module.exports.followUser = function(req, res) {
+    var correlationId = logger.newCorrelationId();
+    var responseError = {correlationId: correlationId};
+
 	var currentUser = Parse.User.current();
-	console.log('currentUser: ' + JSON.stringify(currentUser));
+    logger.debugLog('followUser log. currentUser: ' + JSON.stringify(currentUser));
 	if (!currentUser) {
 		// require user to log in
 		// TODO: client side code asks user to sign in
-		return res.status(401).send();
+        logger.logDiagnostics(correlationId, 'error', 'followUser error (401): user not logged in');
+		return res.status(401).send(responseError);
 	}
 
 	var userId = req.params.userId;
 	if (!userId) {
 		// not found
-		return res.status(404).end();
+        logger.logDiagnostics(correlationId, 'error', 'userId not provided in request');
+		return res.status(404).send(responseError);
 	}
 
 	var query = new Parse.Query(ParseFollowUser);
@@ -167,24 +187,33 @@ module.exports.followUser = function(req, res) {
     	.then(function() {
     		return res.status(200).end();
     	}, function(error) {
-    		console.log('Follow user error: ' + JSON.stringify(error));
-    		return res.status(500).end();
+            var errorMessage = 'followUser error: ' + JSON.stringify(error);
+            logger.debugLog(errorMessage);
+            logger.logDiagnostics(correlationId, 'error', errorMessage);
+    		return res.status(500).send(responseError);
     	});
 };
 
 module.exports.unfollowUser = function(req, res) {
+    var correlationId = logger.newCorrelationId();
+    var responseError = {correlationId: correlationId};
+
 	var currentUser = Parse.User.current();
-	console.log('currentUser: ' + JSON.stringify(currentUser));
+    logger.debugLog('unfollowUser log. currentUser: ' + JSON.stringify(currentUser));
 	if (!currentUser) {
 		// require user to log in
 		// TODO: client side code asks user to sign in
-		return res.status(401).send();
+        logger.logDiagnostics(correlationId, 'error', 'unfollowUser error (401): user not logged in');
+		return res.status(401).send(responseError);
 	}
 
 	var userId = req.params.userId;
 	if (!userId) {
 		// not found
-		return res.status(404).end();
+        var errorMessage = 'unfollowUser error: no userId provided from request'; 
+        logger.debugLog(errorMessage);
+        logger.logDiagnostics(correlationId, 'error', errorMessage);
+		return res.status(404).send(responseError);
 	}
 
 	var query = new Parse.Query(ParseFollowUser);
@@ -201,7 +230,9 @@ module.exports.unfollowUser = function(req, res) {
 		.then(function() {
     		return res.status(200).end();
     	}, function(error) {
-    		console.log('Delete followUser error: ' + JSON.stringify(error));
-    		return res.status(500).end();
+            var errorMessage = 'unfollowUser error: ' + JSON.stringify(error);
+            logger.debugLog(errorMessage);
+            logger.logDiagnostics(correlationId, 'error', errorMessage);
+    		return res.status(500).send(responseError);
     	});
 };

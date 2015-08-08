@@ -4,11 +4,12 @@ var sha1 = require('cloud/lib/sha1');
 var wcMsgHandlers = require('cloud/wechat/msg_handlers/message_handlers');
 var utils = require('cloud/lib/utils');
 var createMenus = require('cloud/wechat/create_menus');
+var logger = require('cloud/lib/logger');
 
 var authenticate = function (req) {
     var timestamp = req.query.timestamp;
     var nonce = req.query.nonce;
-    console.log('wechat authenticate. timestamp: ' + timestamp 
+    logger.debugLog('wechat authenticate. timestamp: ' + timestamp 
         + ', nonce: ' + nonce + ', signature' + req.query.signature);
     var signatureArray = new Array(wechatSetting.wechatAppToken, timestamp, nonce);
     signatureArray = signatureArray.sort();
@@ -34,7 +35,7 @@ module.exports.requestValidate = function (req, res) {
 
 // respond to host requests. route to different message handlers
 module.exports.reply = function(req, res) {
-    console.log('wechat service reply');
+    logger.debugLog('wechat service reply');
     if (authenticate(req)) {
         var msgType = req.body.xml.msgtype[0];
         var publicAccountId = req.body.xml.tousername[0]; // public account

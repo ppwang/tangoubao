@@ -1,14 +1,20 @@
 var orderModel = require('cloud/tuangoubao/order');
 var dealModel = require('cloud/tuangoubao/deal');
 var ParseOrder = Parse.Object.extend('Order');
+var logger = require('cloud/lib/logger');
 
 module.exports.getMyOrders = function(req, res) {
+    var correlationId = logger.newCorrelationId();
+    var responseError = {correlationId: correlationId};
+
 	var currentUser = Parse.User.current();
-	console.log('currentUser: ' + JSON.stringify(currentUser));
+	logger.debugLog('getMyOrders log. currentUser: ' + JSON.stringify(currentUser));
 	if (!currentUser) {
 		// require user to log in
 		// TODO: client side code asks user to sign in
-		return res.status(401).send();
+		logger.logDiagnostics(correlationId, 'error', 'getMyOrders error: user not logged in');
+
+		return res.status(401).send(responseError);
 	}
 
 	var query = new Parse.Query(ParseOrder);
@@ -17,12 +23,10 @@ module.exports.getMyOrders = function(req, res) {
 	query.addDescending('createdAt');
 	return query.find()
     	.then(function(parseOrders) {
-    		console.log('parseOrders: ' + JSON.stringify(parseOrders));
     		var orders = [];
 
     		parseOrders.forEach(function(parseOrder) {
 				var order = orderModel.convertToOrderModel(parseOrder);
-				console.log('Convert parseOrder to: ' + JSON.stringify(order));
 				orders.push(order);
 			});
 
@@ -33,19 +37,23 @@ module.exports.getMyOrders = function(req, res) {
 			responseData.orders = orders;
 			return res.status(200).send(JSON.stringify(responseData));
 	    }, function(error) {
-	    	console.log('error is: ' + JSON.stringify(error));
-	    	return res.status(500).end();
+	    	var errorMessage = 'getMyOrders error: ' + JSON.stringify(error);
+	    	logger.logDiagnostics(correlationId, 'error', errorMessage);
+	    	return res.status(500).send(responseError);
 	    });
 };
 
 module.exports.getOrders = function(req, res) {
+    var correlationId = logger.newCorrelationId();
+    var responseError = {correlationId: correlationId};
+
 	var dealId = req.params.dealId;
 	if (!dealId) {
+		logger.logDiagnostics(correlationId, 'error', 'getOrders error: no dealId provided in request');
 		return res.send('no dealId');
 	}
 
 	var parseDealPromise = new ParseDeal();
-	console.log('get orders call: ' + dealId);
 	parseDealPromise.id = dealId;
 	var query = new Parse.Query(ParseOrder);
 	query.equalTo('dealId', dealId);
@@ -53,12 +61,10 @@ module.exports.getOrders = function(req, res) {
 
 	return query.find()
 		.then(function(parseOrders) {
-			console.log('parseOrders: ' + JSON.stringify(parseOrders));
     		var orders = [];
 
     		parseOrders.forEach(function(parseOrder) {
 				var order = orderModel.convertToOrderModel(parseOrder);
-				console.log('Convert parseOrder to: ' + JSON.stringify(order));
 				orders.push(order);
 			});
 
@@ -69,6 +75,8 @@ module.exports.getOrders = function(req, res) {
 			responseData.orders = orders;
 			return res.status(200).send(JSON.stringify(responseData));
 		}, function(error) {
-	    	return res.status(404).end();
+			var errorMessage = 'getOrders error: ' + JSON.stringify(error);
+			logger.logDiagnostics(correlationId, 'error', errorMessage);
+	    	return res.status(404).send(responseError);
 	    });
 };

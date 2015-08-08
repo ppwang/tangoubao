@@ -102,15 +102,6 @@
         </div>
     </div>
 
-    <div class="row item-detail-row">
-        <div class="col-md-2 col-xs-3 item-detail-tag">
-            发货方式: 
-        </div>
-        <div class="col-md-10 col-xs-9">
-            自取
-        </div>
-    </div>
-
     <div class="row item-detail-row" ng-repeat="option in deal.pickupOptions">
         <div class="col-md-2 col-xs-3 item-detail-tag">
             <span class="item-detail-tag">取货地址 {{deal.pickupOptions.length > 1 ? $index+1 : ''}}:</span>

@@ -1,12 +1,17 @@
 var ParseComment = Parse.Object.extend('Comment');
 var userModel = require('cloud/tuangoubao/user');
 var commentModel = require('cloud/tuangoubao/comment');
+var logger = require('cloud/lib/logger');
 
 module.exports.getComments = function (req, res) {
+	var correlationId = logger.newCorrelationId();
+	var responseError = {correlationId: correlationId};
+
 	var dealId = req.params.dealId;
 	if (!dealId) {
 		// not found
-		return res.status(404).end();
+		logger.logDiagnostics(correlationId, 'error', 'getComments error (404): dealId not provided in request.');
+		return res.status(404).send(responseError);
 	}
 
 	var query = new Parse.Query(ParseComment);
@@ -23,7 +28,9 @@ module.exports.getComments = function (req, res) {
 			});
 			return res.status(200).send(comments);
 		}, function(error) {
-			console.log('error: ' + JSON.stringify(error));
-			return res.status(500).end();
+			var errorMessage = 'getComments error. currentUser: ' + JSON.stringify(error);
+			logger.debugLog(errorMessage);
+			logger.logDiagnostics(correlationId, 'error', errorMessage);
+			return res.status(500).send(responseError);
 		});
 }

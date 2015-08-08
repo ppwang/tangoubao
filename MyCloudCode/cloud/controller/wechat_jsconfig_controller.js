@@ -1,13 +1,18 @@
 var wechatJsTicket = require('cloud/wechat/utils/wechat_js_ticket');
 var jsSHA = require('cloud/lib/sha');
+var logger = require('cloud/lib/logger');
 
 module.exports.getConfigs = function(req, res) {
+    var correlationId = logger.newCorrelationId();
+    var responseError = {correlationId: correlationId};
+
 	var postData = req.body;
 	var url = postData.url;
-	console.log('get wechat js config for url: ' + url);
+	logger.debugLog('wechat jsConfig getConfigs log. get wechat js config for url: ' + url);
 	if (!url) {
 		// not found
-		return res.status(404).end();
+		logger.logDiagnostics(correlationId, 'error', 'wechatJsConfigs error: no url provided in request');
+		return res.status(404).send(responseError);
 	}
 	return wechatJsTicket.getJsTicket()
 		.then(function(jsTicket) {
@@ -19,8 +24,9 @@ module.exports.getConfigs = function(req, res) {
 
 			return res.status(200).send(jsConfig);
 		}, function(error) {
-			console.log('wechat jsconfig error: ' + JSON.stringify(error));
-			return res.status(500).end();
+			var errorMessage = 'wechatJsConfigs error: ' + JSON.stringify(error);
+			logger.logDiagnostics(correlationId, 'error', errorMessage);
+			return res.status(500).send(responseError);
 		});
 };
 
@@ -67,6 +73,6 @@ var raw = function (args) {
 		string += '&' + k + '=' + newArgs[k];
 	}
 	string = string.substr(1);
-	console.log('string to sign: ' + string);
+	logger.debugLog('string to sign: ' + string);
 	return string;
 };

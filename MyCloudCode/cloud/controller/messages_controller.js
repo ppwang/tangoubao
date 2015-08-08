@@ -1,12 +1,18 @@
 var ParseMessage = Parse.Object.extend('Message');
 var messageModel = require('cloud/tuangoubao/message');
+var logger = require('cloud/lib/logger');
 
 module.exports.getMessages = function(req, res) {
+    var correlationId = logger.newCorrelationId();
+    var responseError = {correlationId: correlationId};
+
 	var currentUser = Parse.User.current();
-	console.log('currentUser for getMessages: ' + JSON.stringify(currentUser));
+
+	logger.debugLog('getMessages log. currentUser: ' + JSON.stringify(currentUser));
 	if (!currentUser) {
 		// require user to log in
-		return res.status(401).send();
+		logger.logDiagnostics(correlationId, 'error', 'getMessages error (404): user not logged in');
+		return res.status(401).send(responseError);
 	}
 
 	var query = new Parse.Query(ParseMessage);
@@ -19,13 +25,14 @@ module.exports.getMessages = function(req, res) {
 			var messages = [];
 			parseMessages.forEach(function(parseMessage) {
 				var message = messageModel.convertToMessageModel(parseMessage);
-				console.log(JSON.stringify(message));
 				messages.push(message);
 			});
 			return res.status(200).send(messages);
 		}, function(error) {
-			console.log('getMessages error: ' + JSON.stringify(error));
-			return res.status(500).end();
+			var errorMessage = 'getMessages error: ' + JSON.stringify(error);
+			logger.debugLog(errorMessage);
+			logger.logDiagnostics(correlationId, 'error', errorMessage);
+			return res.status(500).send(responseError);
 		});
 
 }

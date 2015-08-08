@@ -1,29 +1,40 @@
+var logger = require('cloud/lib/logger');
 
 module.exports.getCurrentUserProfile = function(req, res) {
+    var correlationId = logger.newCorrelationId();
+    var responseError = {correlationId: correlationId};
+
 	var currentUser = Parse.User.current();
-	console.log('currentUser: ' + JSON.stringify(currentUser));
+	logger.debugLog('getCurrentUserProfile log. currentUser: ' + JSON.stringify(currentUser));
 	if (!currentUser) {
 		// require user to log in
-		return res.status(401).send();
+		logger.logDiagnostics(correlationId, 'error', 'getCurrentUserProfile error: usre not logged in');
+		return res.status(401).send(responseError);
 	}
 
 	return currentUser.fetch()
 		.then(function(parseUser) {
 			var userProfile = convertToUserProfileModel(parseUser);
-			console.log('get userProfile: ' + JSON.stringify(userProfile));
+			logger.debugLog('getCurrentUserProfile log. get userProfile: ' + JSON.stringify(userProfile));	
 			return res.status(200).send(userProfile);
 		}, function(error) {
-			console.log('get userProfile error: ' + JSON.stringify(error));
-			return res.status(500).end();
+			var errorMessage = 'getCurrentUserProfile error: ' + JSON.stringify(error);
+			logger.logDiagnostics(correlationId, 'error', errorMessage);
+			return res.status(500).send(responseError);
 		})
 }
 
 module.exports.putCurrentUserProfile = function(req, res) {
+    var correlationId = logger.newCorrelationId();
+    var responseError = {correlationId: correlationId};
+
 	var currentUser = Parse.User.current();
-	console.log('currentUser: ' + JSON.stringify(currentUser));
+	logger.debugLog('putCurrentUserProfile log. currentUser: ' + JSON.stringify(currentUser));
 	if (!currentUser) {
 		// require user to log in
-		return res.status(401).send();
+		var errorMessage = 'putCurrentUserProfile error: user not logged in';
+		logger.logDiagnostics(correlationId, 'error', errorMessage);
+		return res.status(401).send(responseError);
 	}
 
 	return currentUser.fetch()
@@ -37,7 +48,7 @@ module.exports.putCurrentUserProfile = function(req, res) {
 
 			var emailNotify = req.body.emailNotify;
 			if (emailNotify !== null && emailNotify !== undefined) {
-				console.log('emailNotify: ' + emailNotify);
+				logger.debugLog('putCurrentUserProfile log. emailNotify: ' + emailNotify);
 				var notify = emailNotify.toString() === 'true';
 				parseUser.set('emailNotify', notify);
 			}
@@ -56,8 +67,9 @@ module.exports.putCurrentUserProfile = function(req, res) {
 			var userProfile = convertToUserProfileModel(updatedUser);
 			return res.status(200).send(userProfile);
 		}, function(error) {
-			console.log('get userProfile error: ' + JSON.stringify(error));
-			return res.status(500).end();
+			var errorMessage = 'putCurrentUserProfile error: ' + JSON.stringify(error);
+			logger.logDiagnostics(correlationId, 'error', errorMessage);
+			return res.status(500).send(responseError);
 		});
 }
 
@@ -68,8 +80,6 @@ var convertToUserProfileModel = function(parseUser) {
 	userProfile.email = parseUser.get('email');
 	userProfile.phoneNumber = parseUser.get('phoneNumber');
 	userProfile.emailNotify = parseUser.get('emailNotify');
-	console.log('emailNotify: ' + userProfile.emailNotify);
 	userProfile.wechatNotify = parseUser.get('wechatNotify');
-	console.log('wechatNotify: ' + userProfile.wechatNotify);
 	return userProfile;
 };

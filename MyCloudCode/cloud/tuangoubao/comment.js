@@ -1,3 +1,4 @@
+var logger = require('cloud/lib/logger');
 var ParseComment = Parse.Object.extend('Comment');
 
 module.exports.convertToCommentModel = function(parseComment) {

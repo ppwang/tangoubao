@@ -1,11 +1,12 @@
 var wechatSetting = require('cloud/app.config.js').settings.wechat;
+var logger = require('cloud/lib/logger');
 
 module.exports.getUserInfo = function (accessToken, wechatId) {
         var url = 'https://api.weixin.qq.com/cgi-bin/user/info?'
             + 'access_token=' + accessToken
             + '&openid=' + wechatId
             + '&lang=en';
-        console.log('url: '+ url);
+        logger.debugLog('getUserInfo log. url: ' + url);
         return Parse.Cloud.httpRequest({
             url: url
     })
@@ -13,7 +14,7 @@ module.exports.getUserInfo = function (accessToken, wechatId) {
         var buffer = httpResponse.buffer;
 
         var text = buffer.toString('utf8');
-        console.log('response text (utf8): ' + text);
+        logger.debugLog('getUserInfo log. response text (utf8): ' + text);
 
         return text;
     });

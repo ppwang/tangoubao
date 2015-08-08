@@ -5,89 +5,103 @@ var ParseDeal = Parse.Object.extend('Deal');
 var tgbDeal = require('cloud/tuangoubao/deal');
 var notificationController = require('cloud/controller/notification_controller');
 var tgbAdminUser = require('cloud/app.config.js').settings.tgbAdminUser;
+var logger = require('cloud/lib/logger');
 
 module.exports.putOrder = function(req, res) {
+    var correlationId = logger.newCorrelationId();
+    var responseError = {correlationId: correlationId};
+
 	var currentUser = Parse.User.current();
-	console.log('currentUser: ' + JSON.stringify(currentUser));
+	logger.debugLog('putOrder log. currentUser: ' + JSON.stringify(currentUser));
 	if (!currentUser) {
 		// require user to log in
 		// TODO: client side code asks user to sign in
-		return res.status(401).send();
+		logger.logDiagnostics(correlationId, 'error', 'putOrder error (401): user not logged in.');
+		return res.status(404).send(responseError);
 	}
 
 	var dealId = req.body.dealId;
 	if (!dealId) {
 		// not found
-		return res.status(404).end();
+		logger.logDiagnostics(correlationId, 'error', 'putOrder error (404): dealId not provided in request.');
+		return res.status(404).send(responseError);
 	}
 
 	var orderId = req.body.id;
 	if (!orderId) {
-		return createOrder(dealId, currentUser, req)
+		return createOrder(correlationId, dealId, currentUser, req)
 			.then(function(parseOrder) {
-				console.log('after create order');
 				if (parseOrder == 'Invalid order') {
 					return 'Invalid order';
 				}
 				if (parseOrder) {
 					var order = orderModel.convertToOrderModel(parseOrder);
-					console.log('create order: ' + JSON.stringify(order));
+					logger.debugLog('putOrder log. create order: ' + JSON.stringify(order));
 					return order;
 				}
 				return;
 			})
 			.then(function(responseData) {
 				if (responseData == 'Invalid order') {
-					return res.status(404).send('Invalid order');
+					logger.logDiagnostics(correlationId, 'error', 'putOrder error: Invalid order');
+					return res.status(404).send(responseError);
 				}
 				return res.status(200).send(responseData);
 			}, function(error) {
-				console.log('create order: ' + JSON.stringify(error));
-				return res.status(500).end();
+				var errorMessage = 'Create order error: ' + JSON.stringify(error);
+				logger.log(correlationId, 'error', errorMessage);
+				return res.status(500).send(responseError);
 			});
 	}
-	return modifyOrder(orderId, currentUser, req)
+	return modifyOrder(correlationId, orderId, currentUser, req)
 		.then(function(parseOrder) {
 			if (parseOrder == 'Invalid order') {
 				return 'Invalid order';
 			}
 			if (parseOrder) {
 				var order = orderModel.convertToOrderModel(parseOrder);
-				console.log('modify order to: ' + JSON.stringify(order));
+				logger.debugLog('putOrder log. modify order to: ' + JSON.stringify(order));
 				return order;
 			}
 			return;
 		})
 		.then(function(responseData) {
 			if (responseData == 'Invalid order') {
-				return res.status(404).send('Invalid order');
+				logger.logDiagnostics(correlationId, 'error', 'putOrder error: Invalid order');
+				return res.status(404).send(responseError);
 			}
 			return res.status(200).send(responseData);
 		}, function(error) {
-			console.log('modify order: ' + JSON.stringify(error));
-			return res.status(500).end();
+			var errorMessage = 'modify order error: ' + JSON.stringify(error);
+			logger.logDiagnostics(correlationId, 'error', errorMessage);
+			return res.status(500).send(responseError);
 		});
 };
 
 module.exports.putStatus = function(req, res) {
+    var correlationId = logger.newCorrelationId();
+    var responseError = {correlationId: correlationId};
+
 	var currentUser = Parse.User.current();
-	console.log('currentUser: ' + JSON.stringify(currentUser));
+	logger.debugLog('putStatus log. currentUser: ' + JSON.stringify(currentUser));
 	if (!currentUser) {
 		// require user to log in
-		return res.status(401).send();
+		logger.logDiagnostics(correlationId, 'error', 'order putStatus error (401): user not logged in');
+		return res.status(401).send(responseError);
 	}
 
 	var orderId = req.params.orderId;
 	if (!orderId) {
-		return res.status(404).send();
+		logger.logDiagnostics(correlationId, 'error', 'order putStatus error (404): orderId not provided in request');
+		return res.status(404).send(responseError);
 	}
 
 	var status = req.query.status;
 	if (!status || (status != 'closed' && status != 'active')) {
-		return res.status(404).send();
+		logger.logDiagnostics(correlationId, 'error', 'order putStatus error (404): status not correct: ' + status);
+		return res.status(404).send(responseError);
 	}
 
-	console.log('put orderId: ' + orderId);
 	var parseOrderPromise = new ParseOrder();
 	parseOrderPromise.id = orderId;
 	return parseOrderPromise.fetch()
@@ -101,17 +115,23 @@ module.exports.putStatus = function(req, res) {
 		})
 		.then(function(savedParseOrder) {
 			if (savedParseOrder == 'Not authorized') {
-				return res.status(401).end();
+				var errorMessage = 'order putStatus error: not authorized';
+				logger.logDiagnostics(correlationId, 'error', errorMessage);
+				return res.status(401).send(responseError);
 			}
 			var order = orderModel.convertToOrderModel(savedParseOrder);
 			return res.status(200).send(order);
 		}, function(error) {
-			console.log('error: ' + JSON.stringify(error));
-			return res.status(500).end();
+			var errorMessage = 'order putStatus error: ' + JSON.stringify(error);
+			logger.logDiagnostics(correlationId, 'error', errorMessage);
+			return res.status(500).send(responseError);
 		});
 };
 
 module.exports.getOrder = function(req, res) {
+    var correlationId = logger.newCorrelationId();
+    var responseError = {correlationId: correlationId};
+
 	// TBD: do we need the user to log in?
 	// var currentUser = Parse.User.current();
 	// if (!currentUser) {
@@ -122,7 +142,8 @@ module.exports.getOrder = function(req, res) {
 	var orderId = req.params.orderId;
 	if (!orderId) {
 		// create a new deal
-		return res.send('no orderId');
+		logger.logDiagnostics(correlationId, 'error', 'getOrder error: no orderId provided in request');
+		return res.send(responseError);
 	}
 	else {
 		var tmpOrder = new ParseOrder();
@@ -134,7 +155,7 @@ module.exports.getOrder = function(req, res) {
 			.then(function(_parseOrder) {
 				parseOrder = _parseOrder;
 				var order = orderModel.convertToOrderModel(parseOrder);
-				console.log('save new order: ' + JSON.stringify(order));
+				logger.debugLog('getOrder log. save new order: ' + JSON.stringify(order));
 				var dealId = order.dealId;
 				var creatorId = order.creatorId;
 
@@ -150,34 +171,30 @@ module.exports.getOrder = function(req, res) {
 				return Parse.Promise.when(promises);
 			})
 			.then(function(parseDeal, parseUser) {
-				console.log('get fresh user: ' + JSON.stringify(parseUser));
+				logger.debugLog('getOrder log. get fresh user: ' + JSON.stringify(parseUser));
 				deal = tgbDeal.convertToDealModel(parseDeal);
 				creator = userModel.convertToUserModel(parseUser);
 				parseOrder.set('dealName', deal.name);
 				parseOrder.set('dealImageUrl', deal.dealImageUrl);
 				parseOrder.set('creatorName', creator.nickname);
 				parseOrder.set('creatorImageUrl', creator.headimgurl);
-				console.log('to save parseOrder: ' + JSON.stringify(parseOrder));
+				logger.debugLog('getOrder log. to save parseOrder: ' + JSON.stringify(parseOrder));
 				return parseOrder.save()
 			})
 			.then(function(savedParseOrder) {
 				var order = orderModel.convertToOrderModel(parseOrder);
-				console.log('sending back order model: ' + JSON.stringify(order));
-				console.log('sending back deal model: ' + JSON.stringify(deal));
-				console.log('sending back creator model: ' + JSON.stringify(creator));
 				order.deal = deal;
 				order.creator = creator;
 				return res.status(201).send(order);
 			}, function(error) {
-				console.log('error: ' + JSON.stringify(error));
-				return res.status(500).end();
+				var errorMessage = 'getOrder error: ' + JSON.stringify(error);
+				logger.logDiagnostics(correlationId, 'error', errorMessage);
+				return res.status(500).send(responseError);
 			});
 	}
 };
 
-var createOrder = function(dealId, currentUser, req) {
-	console.log('create order begin:' + JSON.stringify(currentUser));
-	console.log('create order begin:' + JSON.stringify(req.body));
+var createOrder = function(correlationId, dealId, currentUser, req) {
 
 	// Get all the fields from the post form data
 	var phoneNumber = req.body.phoneNumber;
@@ -188,10 +205,10 @@ var createOrder = function(dealId, currentUser, req) {
 	var email = req.body.email;
 
 	if (!phoneNumber || !quantity || (pickupOptionId == null)) {
-		console.log('phoneNumber: ' + phoneNumber + '; quantity: ' + quantity + '; pickupOptionId:' + pickupOptionId);
+		var errorMessage = 'createOrder error. Missing data:  phoneNumber: ' + phoneNumber + '; quantity: ' + quantity + '; pickupOptionId:' + pickupOptionId; 
+		logger.logDiagnostics(correlationId, 'error', errorMessage);
 		throw new Error('Missing data');
 	}
-	console.log('currentUser:' + JSON.stringify(currentUser));
 
 	var promises = [];
 	promises.push(currentUser.fetch());
@@ -211,13 +228,12 @@ var createOrder = function(dealId, currentUser, req) {
 
 			deal = tgbDeal.convertToDealModel(parseDeal);
 			if (!tgbDeal.isValidOrder(deal, new Date())) {
-				console.log('Invalid order');
+				logger.logDiagnostics(correlationId, 'error', 'Invalid order from deal validation');
 				return 'Invalid order';
 			}
 			
 			var userPhone = parseUser.get('phoneNumber');
 			if (!userPhone) {
-				console.log('set phoneNumber:' + phoneNumber);
 				parseUser.set('bypassClaim', 'true');
 				parseUser.set('phoneNumber', phoneNumber);
 				return parseUser.save();
@@ -228,7 +244,6 @@ var createOrder = function(dealId, currentUser, req) {
 			if (savedUser == 'Invalid order') {
 				return 'Invalid order';
 			}
-			console.log('create new order');
 			var parseOrder = new ParseOrder();
 			parseOrder.set('dealId', dealId);
 			parseOrder.set('creatorId', currentUser.id);
@@ -249,7 +264,6 @@ var createOrder = function(dealId, currentUser, req) {
 			if (savedParseOrder == 'Invalid order') {
 				return 'Invalid order';
 			}
-			console.log('save order');
 			savedOrder = savedParseOrder;
 			var orderCount = parseDeal.get('orderCount');
 			if (orderCount || orderCount == 0) {
@@ -259,19 +273,17 @@ var createOrder = function(dealId, currentUser, req) {
 				orderCount = 0;
 			}
 			parseDealPromise.set('orderCount', orderCount);
-			console.log('set orderCount: ' + orderCount);
 			return parseDealPromise.save(null, { useMasterKey: true });
 		})
 		.then(function(savedDeal) {
 			if (savedDeal == 'Invalid order') {
 				return 'Invalid order';
 			}
-			console.log('parseDealPromise save');
-			console.log('savedOrder: ' + JSON.stringify(savedOrder));
+			logger.debugLog('createOrder log. savedOrder: ' + JSON.stringify(savedOrder));
 			var messageCreatorId = tgbAdminUser.userId;
 			var messageCreatorName = tgbAdminUser.userName;
 			// TODO: add order message with more details
-			console.log('send notification from message creator id: ' + messageCreatorId + ', messageCreatorName: ' + messageCreatorName);
+			logger.debugLog('createOrder log. savedOrder: send notification from message creator id: ' + messageCreatorId + ', messageCreatorName: ' + messageCreatorName);
 			var orderToNotify = orderModel.convertToOrderModel(savedOrder);
 			return notificationController.notifyBuyer(messageCreatorId, messageCreatorName, orderToNotify, 'general', 'Your order is successful!')
 				.then(function() {
@@ -280,15 +292,18 @@ var createOrder = function(dealId, currentUser, req) {
 		});
 };
 
-var modifyOrder = function(orderId, currentUser, req) {
+var modifyOrder = function(correlationId, orderId, currentUser, req) {
 	var phoneNumber = req.body.phoneNumber;
 	var quantity = req.body.quantity;
 	var pickupOptionId = req.body.pickupOptionId;
 	var creatorName = req.body.creatorName;
 	var creatorImageUrl = req.body.creatorImageUrl;
     var dealId = req.body.dealId;
+    var email = req.body.email;
 
 	if (!phoneNumber || !quantity || (pickupOptionId == null)) {
+		var errorMessage = 'modifyOrder error. Missing data:  phoneNumber: ' + phoneNumber + '; quantity: ' + quantity + '; pickupOptionId:' + pickupOptionId; 
+		logger.logDiagnostics(correlationId, 'error', errorMessage);
 		throw new Error('Missing data');
 	}
 
@@ -303,7 +318,7 @@ var modifyOrder = function(orderId, currentUser, req) {
 		.then(function(instantiatedUser, instantiatedDeal) {
 			deal = tgbDeal.convertToDealModel(instantiatedDeal);
 			if (!tgbDeal.isValidOrder(deal, new Date())) {
-				console.log('Invalid order');
+				logger.logDiagnostics(correlationId, 'error', 'Invalid order from deal validation');
 				return 'Invalid order';
 			}
 			var userPhone = instantiatedUser.get('phoneNumber');
@@ -334,6 +349,7 @@ var modifyOrder = function(orderId, currentUser, req) {
 			parseOrder.set('dealImageUrl', deal.dealImageUrl);
 			parseOrder.set('creatorName', creatorName);
 			parseOrder.set('creatorImageUrl', creatorImageUrl);
+			parseOrder.set('email', email);
 			// TBD: do we allow deal unitprice change from seller?
 			// total order price:
 			var totalPrice = deal.unitPrice * quantity;
@@ -343,18 +359,22 @@ var modifyOrder = function(orderId, currentUser, req) {
 };
 
 module.exports.deleteOrder = function(req, res) {
+    var correlationId = logger.newCorrelationId();
+    var responseError = {correlationId: correlationId};
+
 	var currentUser = Parse.User.current();
-	console.log('currentUser: ' + JSON.stringify(currentUser));
 	if (!currentUser) {
 		// require user to log in
 		// TODO: client side code asks user to sign in
-		return res.status(401).send();
+		logger.logDiagnostics(correlationId, 'error', 'deleteOrder error (401): user not logged in');
+		return res.status(401).send(responseError);
 	}
 
 	var orderId = req.params.orderId;
 	if (!orderId) {
 		// not found
-		return res.status(404).end();
+		logger.logDiagnostics(correlationId, 'error', 'deleteOrder error (404): orderId not provided in request');
+		return res.status(404).send(responseError);
 	}
 
 	var existingParseOrder = new ParseOrder();
@@ -363,7 +383,7 @@ module.exports.deleteOrder = function(req, res) {
    	return existingParseOrder.fetch()
 		.then( function(parseOrder) {
 			if (parseOrder && parseOrder.creatorId == currentUser.id) {
-				console.log('Delete orderId:' + orderId + ' by userId: ' + currentUser.id);
+				logger.debugLog('deleteOrder log. Delete orderId:' + orderId + ' by userId: ' + currentUser.id);
 				dealId = parseOrder.get('dealId');
 				return existingParseOrder.destroy({});
 			}
@@ -389,16 +409,21 @@ module.exports.deleteOrder = function(req, res) {
 			else {
 				orderCount = 0;
 			}
-			parseDeal.set('orderCount', orderCount);
+			if (orderCount < 0) {
+				orderCount = 0;
+			}
+ 			parseDeal.set('orderCount', orderCount);
 			return parseDeal.save(null, {useMasterKey: true});
     	})
     	then(function(savedDeal) {
     		if (message == 'Not authorized') {
-				return res.status(401).end();
+    			logger.logDiagnostics(correlationId, 'error', 'deleteOrder error: not authorized');
+				return res.status(401).send(responseError);
 			}
 			return res.status(200).end();
     	}, function(error) {
-    		console.log('Delete order error: ' + JSON.stringify(error));
-    		return res.status(500).end();
+    		var errorMessage = 'deleteOrder error: ' + JSON.stringify(error);
+    		logger.logDiagnostics(correlationId, 'error', errorMessage)
+    		return res.status(500).send(responseError);
     	});
 };

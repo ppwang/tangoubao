@@ -1448,8 +1448,10 @@ tgbApp.controller('createOrderController', ['$scope', '$state', '$stateParams', 
         }
         
         var quantity = $scope.order.quantity;
-        if (!quantity || Number(quantity) !== quantity || quantity % 1 !== 0 || quantity <= 0 || quantity > $scope.order.deal.quantityLimit) {
-            return '请您填写正确的购买件数. 您最多能购买' + $scope.order.deal.quantityLimit + '件.';
+        if ( !quantity || Number(quantity) !== quantity 
+            || quantity % 1 !== 0 || quantity <= 0 
+            || ($scope.deal.quantityLimit && quantity > $scope.deal.quantityLimit) ) {
+            return '请您填写正确的购买件数. 您最多能购买' + $scope.deal.quantityLimit + '件.';
         };
     };
     

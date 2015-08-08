@@ -7,25 +7,33 @@ var ParseMessage = Parse.Object.extend('Message');
 var userModel = require('cloud/tuangoubao/user');
 var messageModel = require('cloud/tuangoubao/message');
 var emailController = require('cloud/controller/email_controller');
+var logger = require('cloud/lib/logger');
 
 module.exports.getCurrentUser = function(req, res) {
+    var correlationId = logger.newCorrelationId();
+    var responseError = {correlationId: correlationId};
+
 	var currentUser = Parse.User.current();
-	console.log('currentUser: ' + JSON.stringify(currentUser));
+	logger.debugLog('getCurrentUser log. currentUser: ' + JSON.stringify(currentUser));
 	if (!currentUser) {
 		// require user to log in
-		return res.status(401).send();
+		logger.logDiagnostics(correlationId, 'error', 'getCurrentUser error: user not logged in');
+		return res.status(401).send(responseError);
 	}
 	return convertToUserResponseData(currentUser)
 		.then(function(responseData) {
     		return res.status(200).send(responseData);
 		}, function(error) {
-			console.log('get currentUser error: ' + JSON.stringify(error));
-			return res.status(500).end();
+			var errorMessage = 'getCurrentUser error: ' + JSON.stringify(error);
+			logger.logDiagnostics(correlationId, 'error', errorMessage);
+			return res.status(500).send(responseError);
 		});
 }
 
 module.exports.signUp = function(req, res) {
-	console.log('signUp');
+    var correlationId = logger.newCorrelationId();
+    var responseError = {correlationId: correlationId};
+
 	var parseUser = new Parse.User();
 	var username = req.body.username;
 	var password = req.body.password;
@@ -54,18 +62,23 @@ module.exports.signUp = function(req, res) {
     				return convertToUserResponseData(signedUpUser);
     			})
     			.then(function(responseData) {
-		    		console.log('signUp user: ' + responseData);
+    				logger.debugLog('signUp log. signUp user: ' + responseData);
     				return res.status(200).send(responseData);
     			});
     	}, function(error) {
-			console.log('error: ' + JSON.stringify(error));
+			var errorMessage = 'Signup error: ' + JSON.stringify(error);
+			logger.logDiagnostics(correlationId, 'error', errorMessage);
 			Parse.User.logOut();
-			return res.status(500).end();
+			return res.status(500).send(responseError);
 		});
 };
 
 module.exports.logIn = function(req, res) {
-	console.log('log in: ' + JSON.stringify(req.body));
+    var correlationId = logger.newCorrelationId();
+    var responseError = {correlationId: correlationId};
+
+    logger.debugLog('logIn log. req.body: ' + JSON.stringify(req.body));
+
 	var username = req.body.username;
 	var password = req.body.password;
 	var wechatId = req.body.wechatId;
@@ -80,8 +93,9 @@ module.exports.logIn = function(req, res) {
             		return res.status(200).send(responseData);
 				});
 		}
-		console.log('no user');
-		return res.status(401).end();
+		var errorMessage = 'Login error: no user/password provided in request';
+		logger.logDiagnostics(correlationId, 'error', errorMessage); 
+		return res.status(401).send(responseError);
 	}
 
 	Parse.User.logIn(req.body.username, req.body.password)
@@ -103,15 +117,18 @@ module.exports.logIn = function(req, res) {
             		return res.status(200).send(responseData);
 				});
 		}
-		return res.status(401).end();
+		var errorMessage = 'Login error: no currentUser';
+		logger.logDiagnostics(correlationId, 'error', errorMessage);
+		return res.status(401).send(responseError);
 	},
 	function(error) {
-		console.log('error: ' + JSON.stringify(error));
+		var errorMessage = 'logIn error: ' + JSON.stringify(error);
+		logger.logDiagnostics(correlationId, 'error', errorMessage);
 		if (error.code == Parse.Error.INVALID_SESSION_TOKEN) {
 			Parse.User.logOut();
-			return res.status(401).end();
+			return res.status(401).send(responseError);
 		}
-		return res.status(401).end();
+		return res.status(401).send(responseError);
 	});	
 };
 
@@ -132,16 +149,19 @@ var convertToUserResponseData = function(parseUser) {
 	
 	return Parse.Promise.when(promises)
 		.then(function(instantiatedUser, unreadMessageCount) {
-			console.log('unreadMessageCount: ' + unreadMessageCount);
+			logger.debugLog('convertToUserResponseData log. unreadMessageCount: ' + unreadMessageCount);
 			var responseData = {};
 		    responseData.user = tgbUser.convertToUserModel(instantiatedUser);
 		    responseData.user.unreadMessageCount = unreadMessageCount;
-		    console.log('convertToUserResponseData: ' + JSON.stringify(responseData));
+		    logger.debugLog('convertToUserResponseData log. convertToUserResponseData: ' + JSON.stringify(responseData));
 		    return JSON.stringify(responseData);
 		});
 }
 
 module.exports.obtainUserInfo = function(req, res) {
+    var correlationId = logger.newCorrelationId();
+    var responseError = {correlationId: correlationId};
+
 	Parse.Cloud.useMasterKey();
 	var authProvider = req.params.authProvider;
 	
@@ -154,11 +174,13 @@ module.exports.obtainUserInfo = function(req, res) {
             		return res.status(200).send(responseData);
 				});
 		}
-		return res.status(401).end();
+		var errorMessage = 'obtainUserInfo error: user not logged in';
+		logger.logDiagnostics(correlationId, 'error', errorMessage);
+		return res.status(401).send(responseError);
 	}
 
 	var redirUrl = req.query.redir;
-	console.log('user controller obtainUserInfo redirUrl: ' + redirUrl);
+	logger.debugLog('obtainUserInfo log. user controller obtainUserInfo redirUrl: ' + redirUrl);
 
 	var wechatOAuthCode = req.query.code;
 	var wechatTokenRequestUrl = 
@@ -167,14 +189,14 @@ module.exports.obtainUserInfo = function(req, res) {
             + '&secret=' + wechatSetting.wechatAppSecret
             + '&code=' + wechatOAuthCode;
 
-    console.log('token request: ' + wechatTokenRequestUrl);
+    logger.debugLog('obtainUserInfo log. token request: ' + wechatTokenRequestUrl);
     var now = new Date();
     return Parse.Cloud.httpRequest({
         	url: wechatTokenRequestUrl
     	})
     	.then(function(httpResponse) {
     		// TODO: error code check for refresh token ...
-	        console.log('usercontroller got token: ' + httpResponse.text);
+    		logger.debugLog('obtainUserInfo log. token request: usercontroller got token: ' + httpResponse.text);
 	        var tokenResult = JSON.parse(httpResponse.text);
 	        var accessToken = {};
 	        accessToken.token = tokenResult.access_token;
@@ -191,7 +213,8 @@ module.exports.obtainUserInfo = function(req, res) {
 	    				+ 'access_token=' + accessToken.token
 	    				+ '&openid=' + accessToken.openid
 	    				+ '&lang=en';
-				console.log('user info request: ' + wechatUesrInfoUrl);
+
+				logger.debugLog('obtainUserInfo log. user info request: ' + wechatUesrInfoUrl);
 				return Parse.Cloud.httpRequest( {
 						url: wechatUesrInfoUrl
 					})
@@ -203,24 +226,24 @@ module.exports.obtainUserInfo = function(req, res) {
     	})
     	.then(function(parseWechatUser) {
     		if (parseWechatUser) {
-    			console.log('Got tgbWechatUser: ' + JSON.stringify(parseWechatUser));
+    			logger.debugLog('obtainUserInfo log. Got tgbWechatUser: ' + JSON.stringify(parseWechatUser));
 	    		return tgbWechatUser.convertToWechatUserModel(parseWechatUser);
 	    	}
 	    	return null;
 		})
 		.then(function(wechatUser) {
 			if (wechatUser) {
-				console.log('usercontroller querying parseUser');
+				logger.debugLog('obtainUserInfo log. usercontroller querying parseUser');
 				var parseUserQuery = new Parse.Query(Parse.User);
 				parseUserQuery.equalTo('wechatId', wechatUser.wechatId);
 				return parseUserQuery.first()
 					.then(function(parseUser) {
 						if (parseUser) {
-							console.log('Got parseUser');
+							logger.debugLog('obtainUserInfo log. Got parseUser');
 							var parseUserName = parseUser.get('username');
 							// log in on user's behalf now
 							if (parseUserName == 'wechat_' + wechatUser.wechatId) {
-								console.log('username: ' + parseUserName);
+								logger.debugLog('obtainUserInfo log. username: ' + parseUserName);
 								return Parse.User.logOut()
 									.then(function(loggedOutUser) {
 										// This is the wechat signed in user. It is OK to reset password
@@ -239,15 +262,15 @@ module.exports.obtainUserInfo = function(req, res) {
 							return parseUser;
 						}
 						else {
-							console.log('usercontroller create a new user');
+							logger.debugLog('obtainUserInfo log. create a new user');
 							var newUser = new Parse.User();
 						  	var passwordBuffer = new Buffer(24);
 						  	_.times(24, function(i) {
 							    passwordBuffer.set(i, _.random(0, 255));
 							});
 							var username = 'wechat_' + wechatUser.wechatId;
-							var password = passwordBuffer.toString('base64')
-							console.log('usercontroller create new user. username: ' + username + ', password: ' + password);
+							var password = passwordBuffer.toString('base64');
+							logger.debugLog('obtainUserInfo log. create a new user username: ' + username + ', password: ' + password);
 						  	newUser.set('username', username);
 						  	newUser.set('password', password);
 						  	newUser.set('wechatId', wechatUser.wechatId);
@@ -262,29 +285,38 @@ module.exports.obtainUserInfo = function(req, res) {
 					.then(function(loggedInUser) {
 						if (loggedInUser) {
 							var loggedInUserModel = userModel.convertToUserModel(loggedInUser);
-							console.log('send back user model: ' + JSON.stringify(loggedInUserModel));
-							console.log('usercontroller redirUrl: ' + redirUrl); 
+							logger.debugLog('obtainUserInfo log. send back user model: ' + JSON.stringify(loggedInUserModel));
+							logger.debugLog('obtainUserInfo log. usercontroller redirUrl: ' + redirUrl);
 							return res.redirect(redirUrl);
 						}
-						console.log('cannot find sessionToken for existing user');
-						return res.status(500).end();
+						logger.debugLog('obtainUserInfo log. usercontroller cannot find sessionToken for existing user');
+						var errorMessage = 'obtainUserInfo error: usercontroller cannot find sessionToken for existing user';
+						logger.logDiagnostics(correlationId, 'error', errorMessage);
+						return res.status(500).send(responseError);
 					});
 
 			}
-			console.log('Not valid wechat oauth request. Need to ask user to auth again.');
-			return res.status(401).end();
+			logger.debugLog('obtainUserInfo log. Not valid wechat oauth request. Need to ask user to auth again.');
+			logger.logDiagnostics(correlationId, 'error', 'obtainUserInfo error: Not valid wechat oauth request. Need to ask user to auth again.');
+			return res.status(401).send(responseError);
 		}, function(error) {
-			console.log('error: ' + JSON.stringify(error));
-			return res.status(500).end();
+			var errorMessage = 'obtainUserInfo error: ' + JSON.stringify(error);
+			logger.logDiagnostics(correlationId, 'error', errorMessage);
+			return res.status(500).send(responseError);
 		});
 };
 
 module.exports.sendEmailVerification = function(req, res) {
+    var correlationId = logger.newCorrelationId();
+    var responseError = {correlationId: correlationId};
+
 	var currentUser = Parse.User.current();
-	console.log('currentUser: ' + JSON.stringify(currentUser));
+	logger.debugLog('sendEmailVerification log. currentUser: ' + JSON.stringify(currentUser));
 	if (!currentUser) {
 		// require user to log in
-		return res.status(401).send();
+		var errorMessage = 'sendEmailVerification error: user not logged in';
+		logger.logDiagnostics(correlationId, 'error', errorMessage);
+		return res.status(401).send(responseError);
 	}
 	
 	var email;
@@ -292,29 +324,35 @@ module.exports.sendEmailVerification = function(req, res) {
 		.then(function(parseUser) {
 			var user = tgbUser.convertToUserModel(parseUser);
 			email = user.email;
-			console.log('set user email to empty');
+			logger.debugLog('sendEmailVerification log. set user emal to empty');
 			parseUser.set('email', '');
 			return parseUser.save(null, {useMasterKey: true});
 		})
 		.then(function(savedUser) {
-			console.log('reset email: ' + email);
+			logger.debugLog('sendEmailVerification log. reset email: ' + email);
 			savedUser.set('email', email);
 			return savedUser.save(null, {useMasterKey: true});
 		})
 		.then(function(updatedUser) {
 			return res.status(200).end();
 		}, function(error) {
-			console.log('sendEmailVerification error: ' + JSON.stringify(error));
-			return res.status(500).end();
+			var errorMessage = 'sendEmailVerification error: ' + JSON.stringify(error);
+			logger.logDiagnostics(correlationId, 'error', errorMessage);
+			return res.status(500).send(responseError);
 		});
 };
 
 module.exports.sendContactUsEmail = function (req, res) {
+    var correlationId = logger.newCorrelationId();
+    var responseError = {correlationId: correlationId};
+
 	var currentUser = Parse.User.current();
-	console.log('currentUser: ' + JSON.stringify(currentUser));
+	logger.debugLog('sendContactUsEmail log. currentUser: ' + JSON.stringify(currentUser));
 	if (!currentUser) {
 		// require user to log in
-		return res.status(401).send();
+		var errorMessage = 'sendEmailVerification error: ' + JSON.stringify(error);
+		logger.logDiagnostics(correlationId, 'error', errorMessage);
+		return res.status(401).send(responseError);
 	}
 
 	var message = req.body.message;
@@ -327,27 +365,32 @@ module.exports.sendContactUsEmail = function (req, res) {
 					'Message from user in contactus', message);
 			})
 			.then(function() {
-				console.log('sendContactUsEmail succeeded');
 				return res.status(200).end();
 			}, function(error) {
-				console.log('sendContactUsEmail error: ' + JSON.stringify(error));
-				return res.status(500).end();
+				var errorMessage = 'sendEmailVerification error: ' + JSON.stringify(error);
+				logger.logDiagnostics(correlationId, 'error', errorMessage);
+				return res.status(500).send(responseError);
 			});
 	}
-	return res.status(404).end();
+	logger.logDiagnostics(correlationId, 'error', 'sendContactUsEmail error: no message provided in request');
+	return res.status(404).send(responseError);
 };
 
 module.exports.resetPassword = function(req, res) {
+    var correlationId = logger.newCorrelationId();
+    var responseError = {correlationId: correlationId};
+
 	var currentUser = Parse.User.current();
-	
+
 	var email = req.body.email;
 	if (!email) {
-		console.log('No email provided');
-		return res.status(404).end();
+		var errorMessage = 'resetPassword error: No email provided';
+		logger.logDiagnostics(correlationId, 'error', errorMessage);
+		return res.status(404).send(responseError);
 	}
 	return Parse.User.requestPasswordReset(email)
 		.then(function() {
-			console.log('password reset email sent for: ' + email);
+			logger.debugLog('resetPassword log. password reset email sent for: ' + email);
 			if (currentUser) {
 				return Parse.User.logOut()
 					.then(function() {
@@ -356,7 +399,8 @@ module.exports.resetPassword = function(req, res) {
 			}
 			return res.status(200).end();
 		}, function(error) {
-			console.log('password reset email sent failure: ' + JSON.stringify(error));
-			return res.status(500).end();
+			var errorMessage = 'resetPassword error: ' + JSON.stringify(error);
+			logger.logDiagnostics(correlationId, 'error', errorMessage);
+			return res.status(500).send(responseError);
 		});
 };

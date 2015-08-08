@@ -1,4 +1,5 @@
 var ParseDeal = Parse.Object.extend('Deal');
+var logger = require('cloud/lib/logger');
 
 module.exports.convertToDealModel = function(parseDeal, type) {
 	var deal = {};
@@ -39,18 +40,17 @@ module.exports.convertToDealModel = function(parseDeal, type) {
 };
 
 module.exports.isValidOrder = function(dealModel, orderDate) {
-	console.log('check valid order: ' + JSON.stringify(dealModel));
-	console.log('deal status: ' + dealModel.status);
-	console.log('order date: ' + orderDate);
+	logger.debugLog('isValidOrder log. check valid order: ' + JSON.stringify(dealModel));
+	logger.debugLog('isValidOrder log. deal status: ' + dealModel.status);
+	logger.debugLog('isValidOrder log. order date: ' + orderDate);
 	if (dealModel.status == 'closed') {
-		console.log('invalid due to status');
+		logger.debugLog('isValidOrder log. invalid due to status');
 		return false;
 	}
 	var endDate = dealModel.endDate;
 	if (endDate) {
-		// TBD: Only date (no time) compare?
-		console.log('orderDate: ' + orderDate.getFullYear() + '/' + orderDate.getMonth() + '/' + orderDate.getDate());
-		console.log('endDate: ' + endDate.getFullYear() + '/' + endDate.getMonth() + '/' + endDate.getDate());
+		logger.debugLog('isValidOrder log. orderDate: ' + orderDate.getFullYear() + '/' + orderDate.getMonth() + '/' + orderDate.getDate());
+		logger.debugLog('isValidOrder log. endDate: ' + endDate.getFullYear() + '/' + endDate.getMonth() + '/' + endDate.getDate());
 		if (orderDate.getFullYear() == endDate.getFullYear() 
 			&& orderDate.getMonth() == endDate.getMonth()
 			&& orderDate.getDate() == endDate.getDate()) {

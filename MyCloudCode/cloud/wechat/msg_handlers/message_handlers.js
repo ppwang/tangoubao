@@ -7,11 +7,12 @@ var wechatAccessToken = require('cloud/wechat/utils/wechat_access_token');
 var wechatUserInfo = require('cloud/wechat/utils/wechat_user_info');
 var tgbWechatUser = require('cloud/tuangoubao/wechat_user');
 var messageUtils = require('cloud/wechat/utils/message_utils');
+var logger = require('cloud/lib/logger');
 
 module.exports.textMsgHandler = function (wechatId, publicAccountId, createTime, req, res) {
     var userMessage = req.body.xml.content.toString();
-    console.log('message: ' + JSON.stringify(req.body.xml));
-    console.log('userMessage: ' + userMessage);
+    logger.debugLog('textMsgHandler log. message: ' + JSON.stringify(req.body.xml));
+    logger.debugLog('textMsgHandler log. userMessage: ' + userMessage);
     var recreateWelcomeMessage = userMessage.indexOf('Recreate binding') === 0;
 
     wechatAccessToken.getAccessToken()
@@ -36,14 +37,14 @@ module.exports.textMsgHandler = function (wechatId, publicAccountId, createTime,
         res.send(message);
     })
     .fail( function(error) {
-        console.error('message handler error: ' + error.message);
+        logger.debugLog('textMsgHandler log. message handler error: ' + error.message);
         res.error();
     });
 }
 
 module.exports.eventMsgHandler = function (wechatId, publicAccountId, createTime, req, res) {
     var event = req.body.xml.event.toString();
-    console.log('event message: ' + JSON.stringify(req.body.xml));
+    logger.debugLog('eventMsgHandler log. event message: ' + JSON.stringify(req.body.xml));
     switch (event.trim())
     {
         case 'subscribe':

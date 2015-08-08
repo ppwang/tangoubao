@@ -1,5 +1,6 @@
 var wechatSetting = require('cloud/app.config.js').settings.wechat;
 var WechatAccessToken = Parse.Object.extend('WechatAccessToken');
+var logger = require('cloud/lib/logger');
 
 module.exports.getAccessToken = function() {
     var query = new Parse.Query(WechatAccessToken);
@@ -24,20 +25,20 @@ module.exports.getAccessToken = function() {
         if (fetch) {
             return fetchFreshToken(accessToken, now);
         }
-        console.log('return token: ' + accessToken);
+        logger.debugLog('getAccessToken log. return token: ' + accessToken);
         return accessToken;
     });
 }
 
 var fetchFreshToken = function (accessToken, now) {
-    console.log('request token');
+    logger.debugLog('fetchFreshToken log. request token');
     var url = 'https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential'
         + '&appid=' + wechatSetting.wechatAppId 
         + '&secret=' + wechatSetting.wechatAppSecret;
-    console.log('token request: ' + url);
+    logger.debugLog('fetchFreshToken log. token request: ' + url);
     return Parse.Cloud.httpRequest({ url: url })
         .then(function(httpResponse) {
-            console.log('got token: ' + httpResponse.text);
+            logger.debugLog('fetchFreshToken log. got token: ' + httpResponse.text);
             var tokenResult = JSON.parse(httpResponse.text);
             accessToken.token = tokenResult.access_token;
             accessToken.expiry = now;

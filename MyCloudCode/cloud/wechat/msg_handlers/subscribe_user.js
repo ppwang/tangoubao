@@ -5,9 +5,10 @@ var tgbWechatUser = require('cloud/tuangoubao/wechat_user');
 var wechatAccessToken = require('cloud/wechat/utils/wechat_access_token');
 var wechatUserInfo = require('cloud/wechat/utils/wechat_user_info');
 var messageUtils = require('cloud/wechat/utils/message_utils');
+var logger = require('cloud/lib/logger');
 
 module.exports = function (wechatId, publicAccountId, createTime, res) {
-    console.log('subscribe: ' + wechatId);
+    logger.debugLog('subscribeUser log. subscribe: ' + wechatId);
     wechatAccessToken.getAccessToken()
     .then( function(accessToken) {
         return wechatUserInfo.getUserInfo(accessToken.token, wechatId);
@@ -23,7 +24,7 @@ module.exports = function (wechatId, publicAccountId, createTime, res) {
         res.send(message);
     })
     .fail( function(error) {
-        console.error('subscribe user error: ' + error.message);
+        logger.debugLog('subscribe wechat user error: ' + error.message);
         res.error();
     });
 };

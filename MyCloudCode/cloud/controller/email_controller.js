@@ -5,17 +5,20 @@ var messageModel = require('cloud/tuangoubao/message');
 var excelHelper = require('cloud/lib/excel_helper');
 var Buffer = require('buffer').Buffer;
 var tgbContact = require('cloud/app.config.js').settings.tgbContact;
+var logger = require('cloud/lib/logger');
 
 var mandrillSetting = require('cloud/app.config.js').settings.mandrill;
 var mandrill = require('mandrill');
 mandrill.initialize(mandrillSetting.apiKey);
 
 module.exports.sendEmail = function(emailAddress, sendeeName, order, messageType, messageText) {
+	var correlationId = logger.newCorrelationId();
+	var responseError = {correlationId: correlationId};
+
 	var messageTitle = messageModel.constructMessageTitle(order, messageType, messageText);
 	var messageBody = messageModel.constructHtmlMessageBody(order, messageType, messageText);
 	
-	console.log('messageTitle: ' + messageTitle);
-	console.log('messageBody: ' + messageBody);
+	logger.debugLog('sendEmail log. messageTitle: ' + messageTitle + ', messageBody: ' + messageBody);
 	return mandrill.sendEmail({
 		message: {
 			html: messageBody,
@@ -31,16 +34,24 @@ module.exports.sendEmail = function(emailAddress, sendeeName, order, messageType
 	    },
 	    async: true
 	  }, {
-	    success: function() { console.log("Email sent!"); },
-	    error: function() { console.log("Uh oh, something went wrong"); }
+		success: function() { 
+			logger.debugLog('sendEmail log. Email sent.');
+		},
+		error: function() { 
+			var errorMessage = 'sendEmail log. Email sent error.';
+			logger.logDiagnostics(correlationId, 'error', errorMessage)
+			logger.debugLog(errorMessage);
+		}
 	  });
 };
 
 module.exports.sendContactUsEmail = function(senderName, messageTitle, messageBody) {
+	var correlationId = logger.newCorrelationId();
+	var responseError = {correlationId: correlationId};
+
 	var emailAddress = tgbContact.email;
 	var sendeeName = 'Tuan Gou Bao Admin';
-	console.log('messageTitle: ' + messageTitle);
-	console.log('messageBody: ' + messageBody);
+	logger.debugLog('sendContactUsEmail log. messageTitle: ' + messageTitle + ', messageBody: ' + messageBody);
 	return mandrill.sendEmail({
 		message: {
 			html: messageBody,
@@ -54,16 +65,26 @@ module.exports.sendContactUsEmail = function(senderName, messageTitle, messageBo
 	    },
 	    async: true
 	  }, {
-	    success: function() { console.log("Email sent!"); },
-	    error: function() { console.log("Uh oh, something went wrong"); }
+	    success: function() { 
+	    	logger.debugLog('sendContactUsEmail log. Email sent.');
+	    },
+	    error: function() { 
+	    	var errorMessage = 'sendEmail log. Email sent error.';
+			logger.logDiagnostics(correlationId, 'error', errorMessage)
+			logger.debugLog(errorMessage);
+	    }
 	  });
 };
 
 module.exports.sendDealReport = function(req, res) {
+	var correlationId = logger.newCorrelationId();
+	var responseError = {correlationId: correlationId};
+
 	var currentUser = Parse.User.current();
 	if (!currentUser) {
 		// require user to log in
-		return res.status(401).send();
+		logger.logDiagnostics(correlationId, 'error', 'sendDealReport error (401): user not logged in.');
+		return res.status(401).send(responseError);
 	}
 
 	var dealId = req.params.dealId;
@@ -81,7 +102,7 @@ module.exports.sendDealReport = function(req, res) {
 			var creator = parseDeal.get('createdBy');
 			var deal = dealModel.convertToDealModel(parseDeal);
 			if (creator.id != currentUser.id) {
-				console.log('send deal: ' + JSON.stringify(deal));
+				logger.debugLog('sendDealReport log. send deal: ' + JSON.stringify(deal));
 				return deal;
 			}
 			// return buyers list as well
@@ -92,20 +113,19 @@ module.exports.sendDealReport = function(req, res) {
 				});
 		})
 		.then(function(deal) {
-			console.log('deal data: ' + JSON.stringify(deal));
-			console.log('deal order data: ' + JSON.stringify(deal.orders));
+			logger.debugLog('sendDealReport log. deal data: ' + JSON.stringify(deal));
+			logger.debugLog('sendDealReport log. deal order data: ' + JSON.stringify(deal.orders));
 			dealName = deal.name;
 			var excelData = excelHelper.exportDealToExcel(deal);
 
 			var buffer = new Buffer(excelData);
 			emailData = buffer.toString('base64');
-			console.log('emailData: ' + emailData);
 			return currentUser.fetch();
 		})
 		.then(function(instantiatedUser) {
 			var emailAddress = instantiatedUser.get('email');
 			var sendeeName = instantiatedUser.get('username');
-			console.log('emailData: ' + emailData);
+			logger.debugLog('sendDealReport log. emailData: ' + emailData);
 			// Add 
 			return mandrill.sendEmail({
 				message: {
@@ -129,14 +149,22 @@ module.exports.sendDealReport = function(req, res) {
 			    },
 			    async: true
 			  }, {
-			    success: function() { console.log("Email sent!"); },
-			    error: function() { console.log("Uh oh, something went wrong"); }
+			    success: function() { 
+			    	logger.debugLog('sendDealReport log. Email sent.');
+			    },
+			    error: function() { 
+			    	var errorMessage = 'sendEmail log. Email sent error.';
+					logger.logDiagnostics(correlationId, 'error', errorMessage)
+					logger.debugLog(errorMessage);
+			    }
 			  });
 		})
 		.then(function() {
 			res.status(200).end();
 		}, function(error) {
-			console.log('error: ' + JSON.stringify(error));
-			return res.status(500).end();
+			var errorMessage = 'sendDealReport error: ' + JSON.stringify(error);
+			logger.debugLog(errorMessage);
+			logger.logDiagnostics(correlationId, 'error', errorMessage);
+			return res.status(500).send(errorMessage);
 		});
 };

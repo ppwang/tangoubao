@@ -1,6 +1,7 @@
 var wechatSetting = require('cloud/app.config.js').settings.wechat;
 var WechatJsTicket = Parse.Object.extend('WechatJsTicket');
 var wechatAccessTokenUtil = require('cloud/wechat/utils/wechat_access_token');
+var logger = require('cloud/lib/logger');
 
 module.exports.getJsTicket = function() {
     var query = new Parse.Query(WechatJsTicket);
@@ -25,13 +26,13 @@ module.exports.getJsTicket = function() {
         if (fetch) {
             return fetchFreshJsTicket(jsTicket, now);
         }
-        console.log('return ticket: ' + jsTicket);
+        logger.debugLog('getJsTicket log. return ticket: ' + jsTicket);
         return jsTicket;
     });
 }
 
 var fetchFreshJsTicket = function (jsTicket, now) {
-    console.log('request ticket');
+    logger.debugLog('fetchFreshJsTicket log. request ticket');
     return wechatAccessTokenUtil.getAccessToken()
         .then(function(accessToken) {
             var url = 'https://api.weixin.qq.com/cgi-bin/ticket/getticket?access_token='
@@ -40,7 +41,7 @@ var fetchFreshJsTicket = function (jsTicket, now) {
             return Parse.Cloud.httpRequest({ url: url });
         })
         .then(function(httpResponse) {
-            console.log('got ticket: ' + httpResponse.text);
+            logger.debugLog('fetchFreshJsTicket log. got ticket: ' + httpResponse.text);
             var ticketResult = JSON.parse(httpResponse.text);
             jsTicket.ticket = ticketResult.ticket;
             jsTicket.expiry = now;
