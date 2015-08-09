@@ -130,8 +130,8 @@ app.get('/api/userProfile', userProfileController.getCurrentUserProfile);
 app.put('/api/userProfile', express.bodyParser(), userProfileController.putCurrentUserProfile);
 
 // Entry points for payments
-var paymentController = require('cloud/controller/payment_controller');
-app.post('/api/payOrder', express.bodyparser(), paymentController.payOrder);
+var stripeController = require('cloud/controller/stripe_controller');
+app.get('/api/stripeConnect', express.bodyParser(), stripeController.stripeConnect);
 
 // Custom menus
 app.get('/wechat/create_menus', wechatServices.createMenus);
