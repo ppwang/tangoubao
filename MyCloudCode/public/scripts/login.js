@@ -1180,7 +1180,7 @@ tgbApp.controller('dealDetailController', ['$scope', '$state', '$stateParams', '
 //                    title: deal.name,
 //                    desc: deal.description,
 //                    link: $location.absUrl(),
-//                    imgUrl: deal.dealImageUrl || $location.protocol() + '://' + $location.host() + ':' + $location.port() + '/resources/placeholder.png',
+//                    imgUrl: deal.dealImageUrl || $location.protocol() + '://' + $location.host() + ':' + $location.port() + '/resources/logo.png',
 //                });
 //            });
 //        });

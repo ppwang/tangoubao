@@ -5,7 +5,7 @@
 	width: 10em;
 	height: 10em;
 	line-height: 10em;
-	border-radius: 50%;
+	border-radius: 2px;
 	color: white;
 	font-size: 1.2em;
 	text-shadow: 2px 1px #050505;
@@ -28,7 +28,7 @@
 }
 
 .signup-terms {
-	font-size: 0.7em;
+    text-align: center;
 }
 
 .weixin-signup-button {
@@ -47,10 +47,6 @@
     color: @tgb-secondary-text-color;
     span, input, button, img {
         margin-top: 1em;
-    }
-    
-    span {
-        text-align: right;
     }
 }
 
@@ -79,4 +75,19 @@
 	.modal-body {
 		font-size: 1.2em;
 	}
+}
+
+.tgb-centerline {
+    line-height: 0.1;
+    margin-top: 2em;
+    margin-bottom: 2em;
+    text-align: center;
+    border-bottom: 1px solid @tgb-secondary-text-color;
+    border-top: 1px solid @tgb-secondary-text-color;
+    
+}
+.tgb-centerline span {
+    position: relative;
+    background:#fff; 
+    padding:0 10px;
 }
