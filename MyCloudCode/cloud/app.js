@@ -131,7 +131,7 @@ app.put('/api/userProfile', express.bodyParser(), userProfileController.putCurre
 
 // Entry points for payments
 var paymentController = require('cloud/controller/payment_controller');
-app.post('/api/payOrder', express.bodyparser(), paymentController.payOrder);
+app.post('/api/payOrder', express.bodyParser(), paymentController.payOrder);
 
 // Custom menus
 app.get('/wechat/create_menus', wechatServices.createMenus);
