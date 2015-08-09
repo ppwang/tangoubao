@@ -42,37 +42,43 @@
         </div>
     </form>
     <div ng-show="scenario == 'Log in'">
-      <div class="row"> 
-        <div class="col-sm-12 signin-welcome-msg tgb-site-title">
-          <h1>
-            GSG 北美团购宝
-          </h1>
+        <div class="row">
+            <img src="resources/logo.png" class="col-xs-offset-2 col-xs-8 col-md-offset-4 col-md-4"></img>
         </div>
-      </div>
-      <div class="sign-area">
         <div class="signin-inputs">
-          <div class="row signin-input-row">
-            <input type="text" autocapitalize="off" autocorrect="off" ng-model="user.username" ng-required="true" placeholder="用户名"/>
-          </div>
-          <div class="row signin-input-row">
-            <input type="password" ng-model="user.password" ng-required="true" placeholder="密码"/>
-          </div>
+            <div class="row">
+                <input type="text" autocapitalize="off" autocorrect="off" ng-model="user.username" ng-required="true" placeholder="用户名" class="col-xs-offset-1 col-xs-10 col-xs-offset-3 tgb-input"/>
+            </div>
+            <div class="row">
+                <input type="password" ng-model="user.password" ng-required="true" placeholder="密 码" class="col-xs-offset-1 col-xs-10 col-xs-offset-3 tgb-input"/>
+            </div>
+            <div class="row">
+                <div class="col-xs-offset-1 col-xs-10" style="text-align: center">
+                    <button class="tgb-btn-default" ng-click="logIn(user)">登录</button>
+                </div>
+            </div>
+            <div class="row" style="text-align: center; margin-top: 2em">
+                <span class="col-xs-offset-1 col-xs-10">忘记密码？您可以<a href ng-click='scenario="passwordReset"'>&nbsp;重置密码&nbsp;</a>.</span>
+            </div>
+            <div class="row" style="text-align: center; margin-top: 2em">
+                <span class="col-xs-offset-1 col-xs-10">还没有注册账户？点击<a href ng-click='scenario="Sign up"'>&nbsp;这里&nbsp;</a>注册.</span>
+            </div>
         </div>
-        <div class="row signin-button-container">
-          <button class="signin-button" ng-click="logIn(user)">登录</button>
-        </div>
-        <div class="row signin-button-container">
-          <button class="signin-button" ng-click="scenario='passwordReset'">忘记密码?</button>
-        </div>
-        <div class="signup-reference">
-          New to TuanGouBao? Sign up <a ng-click='scenario="Sign up"'>&nbsp;here</a>
-        </div>
-      </div>
     </div>
     <div ng-show="scenario === 'passwordReset'">
-        <input type="email" ng-model="passwordResetEmail" placeholder="邮箱地址">
-        <br>
-        <button ng-click="resetPassword()">重置密码!</button>
+        <div class="row">
+            <img src="resources/logo.png" class="col-xs-offset-2 col-xs-8 col-md-offset-4 col-md-4"></img>
+        </div>
+        <div class="signin-inputs">
+            <div class="row">
+                <input type="email" ng-model="passwordResetEmail" placeholder="邮箱地址" class="col-xs-offset-1 col-xs-10 col-xs-offset-3 tgb-input">
+            </div>
+            <div class="row">
+                <div class="col-xs-offset-1 col-xs-10" style="text-align: center">
+                    <button ng-click="resetPassword()">重置密码!</button>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 <div ng-show="currentUser">
