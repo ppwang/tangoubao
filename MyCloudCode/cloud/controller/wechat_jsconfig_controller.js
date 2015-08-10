@@ -12,7 +12,7 @@ module.exports.getConfigs = function(req, res) {
 	if (!url) {
 		// not found
 		logger.logDiagnostics(correlationId, 'error', 'wechatJsConfigs error: no url provided in request');
-		return res.status(404).send(responseError);
+		return res.status(400).send(responseError);
 	}
 	return wechatJsTicket.getJsTicket()
 		.then(function(jsTicket) {

@@ -77,6 +77,6 @@ module.exports.getOrders = function(req, res) {
 		}, function(error) {
 			var errorMessage = 'getOrders error: ' + JSON.stringify(error);
 			logger.logDiagnostics(correlationId, 'error', errorMessage);
-	    	return res.status(404).send(responseError);
+	    	return res.status(500).send(responseError);
 	    });
 };

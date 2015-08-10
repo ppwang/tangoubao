@@ -372,7 +372,7 @@ module.exports.sendContactUsEmail = function (req, res) {
 			});
 	}
 	logger.logDiagnostics(correlationId, 'error', 'sendContactUsEmail error: no message provided in request');
-	return res.status(404).send(responseError);
+	return res.status(400).send(responseError);
 };
 
 module.exports.resetPassword = function(req, res) {
@@ -385,7 +385,7 @@ module.exports.resetPassword = function(req, res) {
 	if (!email) {
 		var errorMessage = 'resetPassword error: No email provided';
 		logger.logDiagnostics(correlationId, 'error', errorMessage);
-		return res.status(404).send(responseError);
+		return res.status(400).send(responseError);
 	}
 	return Parse.User.requestPasswordReset(email)
 		.then(function() {

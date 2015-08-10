@@ -19,8 +19,8 @@ module.exports.followDeal = function(req, res) {
 	var dealId = req.params.dealId;
 	if (!dealId) {
 		// not found
-        logger.logDiagnostics(correlationId, 'error', 'followDeal error (404): dealId not provided in request');
-		return res.status(404).send(responseError);
+        logger.logDiagnostics(correlationId, 'error', 'followDeal error (400): dealId not provided in request');
+		return res.status(400).send(responseError);
 	}
 	var query = new Parse.Query(ParseFollowDeal);
     logger.debugLog('followDeal log. follow dealId:' + dealId + ' by userId: ' + currentUser.id);
@@ -93,7 +93,7 @@ module.exports.unfollowDeal = function(req, res) {
 	if (!dealId) {
 		// not found
         logger.logDiagnostics(correlationId, 'error', 'unfollowDeal error: dealId not provided in request');
-		return res.status(404).send(responseError);
+		return res.status(400).send(responseError);
 	}
 	var query = new Parse.Query(ParseFollowDeal);
     logger.debugLog('unfollowDeal log. dealId: ' + dealId + ' by userId: ' + currentUser.id);
@@ -159,7 +159,7 @@ module.exports.followUser = function(req, res) {
 	if (!userId) {
 		// not found
         logger.logDiagnostics(correlationId, 'error', 'userId not provided in request');
-		return res.status(404).send(responseError);
+		return res.status(400).send(responseError);
 	}
 
 	var query = new Parse.Query(ParseFollowUser);
@@ -209,7 +209,7 @@ module.exports.unfollowUser = function(req, res) {
 		// not found
         var errorMessage = 'unfollowUser error: no userId provided from request'; 
         logger.logDiagnostics(correlationId, 'error', errorMessage);
-		return res.status(404).send(responseError);
+		return res.status(400).send(responseError);
 	}
 
 	var query = new Parse.Query(ParseFollowUser);

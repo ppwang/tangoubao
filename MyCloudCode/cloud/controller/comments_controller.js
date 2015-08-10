@@ -10,8 +10,8 @@ module.exports.getComments = function (req, res) {
 	var dealId = req.params.dealId;
 	if (!dealId) {
 		// not found
-		logger.logDiagnostics(correlationId, 'error', 'getComments error (404): dealId not provided in request.');
-		return res.status(404).send(responseError);
+		logger.logDiagnostics(correlationId, 'error', 'getComments error (400): dealId not provided in request.');
+		return res.status(400).send(responseError);
 	}
 
 	var query = new Parse.Query(ParseComment);

@@ -1831,7 +1831,7 @@ tgbApp.controller('loginController', function($scope, $location, $state, $window
                 $scope.scenario = 'Log in';
             });
         }, function(error) {
-            if(error === 404) {
+            if(error === 400) {
                 modalDialogService.show({
                     message: '对不起, 您的账号没有设置电子邮件, 我们将无法给您发送密码重置的邮件. 如果您已经和我们的微信公众平台绑定, 您可以从我们的公众平台使用微信一键登录的功能.',
                     showCancelButton: false,

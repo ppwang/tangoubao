@@ -19,14 +19,14 @@ module.exports.putStatus = function(req, res) {
 	if (!messageId) {
 		var errorMessage = 'message putStatus error: no messageId provided in request';
 		logger.logDiagnostics(correlationId, 'error', errorMessage);
-		return res.status(404).send(responseError);
+		return res.status(400).send(responseError);
 	}
 
 	var status = req.query.status;
 	if (!status || (status != 'read' && status != 'unread')) {
 		var errorMessage = 'message putStatus error. wrong status. status:  ' + status;
 		logger.logDiagnostics(correlationId, 'error', errorMessage);
-		return res.status(404).send(responseError);
+		return res.status(400).send(responseError);
 	}
 
 	logger.debugLog('message putStatus log. put messageId: ' + messageId);

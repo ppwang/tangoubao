@@ -11,7 +11,7 @@ module.exports.getMessages = function(req, res) {
 	logger.debugLog('getMessages log. currentUser: ' + JSON.stringify(currentUser));
 	if (!currentUser) {
 		// require user to log in
-		logger.logDiagnostics(correlationId, 'error', 'getMessages error (404): user not logged in');
+		logger.logDiagnostics(correlationId, 'error', 'getMessages error (401): user not logged in');
 		return res.status(401).send(responseError);
 	}
 

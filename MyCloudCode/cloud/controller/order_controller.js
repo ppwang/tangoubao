@@ -17,14 +17,14 @@ module.exports.putOrder = function(req, res) {
 		// require user to log in
 		// TODO: client side code asks user to sign in
 		logger.logDiagnostics(correlationId, 'error', 'putOrder error (401): user not logged in.');
-		return res.status(404).send(responseError);
+		return res.status(400).send(responseError);
 	}
 
 	var dealId = req.body.dealId;
 	if (!dealId) {
 		// not found
-		logger.logDiagnostics(correlationId, 'error', 'putOrder error (404): dealId not provided in request.');
-		return res.status(404).send(responseError);
+		logger.logDiagnostics(correlationId, 'error', 'putOrder error (400): dealId not provided in request.');
+		return res.status(400).send(responseError);
 	}
 
 	var orderId = req.body.id;
@@ -44,7 +44,7 @@ module.exports.putOrder = function(req, res) {
 			.then(function(responseData) {
 				if (responseData == 'Invalid order') {
 					logger.logDiagnostics(correlationId, 'error', 'putOrder error: Invalid order');
-					return res.status(404).send(responseError);
+					return res.status(400).send(responseError);
 				}
 				return res.status(200).send(responseData);
 			}, function(error) {
@@ -68,7 +68,7 @@ module.exports.putOrder = function(req, res) {
 		.then(function(responseData) {
 			if (responseData == 'Invalid order') {
 				logger.logDiagnostics(correlationId, 'error', 'putOrder error: Invalid order');
-				return res.status(404).send(responseError);
+				return res.status(400).send(responseError);
 			}
 			return res.status(200).send(responseData);
 		}, function(error) {
@@ -92,14 +92,14 @@ module.exports.putStatus = function(req, res) {
 
 	var orderId = req.params.orderId;
 	if (!orderId) {
-		logger.logDiagnostics(correlationId, 'error', 'order putStatus error (404): orderId not provided in request');
-		return res.status(404).send(responseError);
+		logger.logDiagnostics(correlationId, 'error', 'order putStatus error (400): orderId not provided in request');
+		return res.status(400).send(responseError);
 	}
 
 	var status = req.query.status;
 	if (!status || (status != 'closed' && status != 'active')) {
-		logger.logDiagnostics(correlationId, 'error', 'order putStatus error (404): status not correct: ' + status);
-		return res.status(404).send(responseError);
+		logger.logDiagnostics(correlationId, 'error', 'order putStatus error (400): status not correct: ' + status);
+		return res.status(400).send(responseError);
 	}
 
 	var parseOrderPromise = new ParseOrder();
@@ -373,8 +373,8 @@ module.exports.deleteOrder = function(req, res) {
 	var orderId = req.params.orderId;
 	if (!orderId) {
 		// not found
-		logger.logDiagnostics(correlationId, 'error', 'deleteOrder error (404): orderId not provided in request');
-		return res.status(404).send(responseError);
+		logger.logDiagnostics(correlationId, 'error', 'deleteOrder error (400): orderId not provided in request');
+		return res.status(400).send(responseError);
 	}
 
 	var existingParseOrder = new ParseOrder();

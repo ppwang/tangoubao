@@ -26,15 +26,15 @@ module.exports.notifyBuyers = function (req, res) {
 	logger.debugLog('notifyBuyers log. notify buyers for dealId: ' + dealId);
 	if (!dealId) {
 		// not found
-		logger.logDiagnostics(correlationId, 'error', 'notifyBuyers error (404): dealId not provided in request');
-		return res.status(404).send(responseError);
+		logger.logDiagnostics(correlationId, 'error', 'notifyBuyers error (400): dealId not provided in request');
+		return res.status(400).send(responseError);
 	}
 
 	var messageType = postData.messageType;
 	var messageText = postData.messageText;
 	if (!messageType || (messageType != 'general' && messageType != 'productArrived')) {
-		logger.logDiagnostics(correlationId, 'error', 'notifyBuyers error (404): messageType not correct: ' + messageType);
-		return res.status(404).send(responseError);
+		logger.logDiagnostics(correlationId, 'error', 'notifyBuyers error (400): messageType not correct: ' + messageType);
+		return res.status(400).send(responseError);
 	}
 
 	var parseDealPromise = new ParseDeal();

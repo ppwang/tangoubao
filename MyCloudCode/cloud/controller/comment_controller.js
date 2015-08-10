@@ -18,8 +18,8 @@ module.exports.putComment = function (req, res) {
 	var dealId = req.params.dealId;
 	if (!dealId) {
 		// not found
-		logger.logDiagnostics(correlationId, 'error', 'putComment error (404): dealId not provided in request.');
-		return res.status(404).send(responseError);
+		logger.logDiagnostics(correlationId, 'error', 'putComment error (400): dealId not provided in request.');
+		return res.status(400).send(responseError);
 	}
 
 	// Add rating / commentText
@@ -72,8 +72,8 @@ module.exports.deleteComment = function(req, res) {
 	if (!commentId) {
 		// not found
 		logger.logDiagnostics(correlationId, 'error', 
-			'deleteComment error (404): commentId not provided from request');
-		return res.status(404).send(responseError);
+			'deleteComment error (400): commentId not provided from request');
+		return res.status(400).send(responseError);
 	}
 
 	var parseCommentPromise = new ParseComment();

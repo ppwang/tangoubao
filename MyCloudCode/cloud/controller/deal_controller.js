@@ -65,14 +65,14 @@ module.exports.putStatus = function(req, res) {
 	var dealId = req.params.dealId;
 	if (!dealId) {
 		logger.logDiagnostics(correlationId, 'error', 
-			'deal putStatus error (404): dealId not provided in request');
-		return res.status(404).send(responseError);
+			'deal putStatus error (400): dealId not provided in request');
+		return res.status(400).send(responseError);
 	}
 
 	var status = req.query.status;
 	if (!status || (status != 'closed' && status != 'active')) {
-		logger.logDiagnostics(correlationId, 'error', 'deal putStatus error (404): status not correct: ' + status);
-		return res.status(404).send(responseError);
+		logger.logDiagnostics(correlationId, 'error', 'deal putStatus error (400): status not correct: ' + status);
+		return res.status(400).send(responseError);
 	}
 
 	var parseDealPromise = new ParseDeal();
@@ -110,8 +110,8 @@ module.exports.getDeal = function(req, res) {
 	var dealId = req.params.dealId;
 	if (!dealId) {
 		// create a new deal
-		logger.logDiagnostics(correlationId, 'error', 'getDeal error (404): dealId not provided in request.');
-		return res.status(404).send(responseError);
+		logger.logDiagnostics(correlationId, 'error', 'getDeal error (400): dealId not provided in request.');
+		return res.status(400).send(responseError);
 	}
 	else {
 		var parseDealPromise = new ParseDeal();
