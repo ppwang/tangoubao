@@ -1,4 +1,4 @@
-<div ng-hide="currentUser">
+<div ng-hide="currentUser" cg-busy="{promise: transparentBusyPromise, backdrop: true, templateUrl:'views/busy.html', backdropClass: 'tgb-busy-backdrop-transparent'}">
     <form ng-show="scenario == 'Sign up'">
         <div class="row" ng-show="isWeixin || wechatWelcomeVisible" style="margin-top: 1em">
             <img class="col-xs-offset-1 col-xs-2" ng-src="{{(user && user.headimgurl) ? user.headimgurl : 'resources/headPlaceholder.png'}}"></img>

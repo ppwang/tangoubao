@@ -279,11 +279,10 @@ tgbApp.factory('userService', ['$http', '$q', 'serviceBaseUrl', '$rootScope', '$
             })
             .error(function(data, status, headers, config) {
                 setCurrentUser(null);
-                resultDeferred.reject(
-                    {
-                        data: data,
-                        status: status,
-                    });
+                resultDeferred.reject({
+                    data: data,
+                    status: status,
+                });
                 console.log('error code:' + status);
             });
 
@@ -387,9 +386,12 @@ tgbApp.factory('userService', ['$http', '$q', 'serviceBaseUrl', '$rootScope', '$
             $http.post(serviceBaseUrl + '/api/user/resetPassword', {
                 email: email,
             }).success(function(data, status, headers, config) {
-                    resultDeferred.resolve();
+                resultDeferred.resolve();
             }).error(function(data, status, headers, config) {
-                resultDeferred.reject(status);
+                resultDeferred.reject({
+                    data: data,
+                    status: status,
+                });
                 console.log('error code:' + status);
             });
             return resultDeferred.promise;                        
@@ -984,6 +986,19 @@ tgbApp.factory('modalDialogService', ['$modal', function($modal) {
         });
         
         return modalInstance;
+    };
+    
+    // failedMessage is a custom message. This method will append static strings so do not
+    // terminate failed message with punctuation.
+    modalDialogService.showServiceError = function(failedMessage, response) {
+        var message = failedMessage + '，请您刷新页面或者稍后再试试。'
+        if (response && response.data && response.data.correlationId) {
+            message += '如您需要我们协助请在邮件或信息中附上此码: ' + response.data.correlationId;
+        }
+        
+        modalDialogService.show({
+            message: message,
+        });
     };
     
     return modalDialogService;
@@ -1779,10 +1794,15 @@ tgbApp.controller('loginController', function($scope, $location, $state, $window
         }
         user.wechatId = $scope.user.wechatId;
         user.claimtoken = $scope.user.claimtoken;
-        userService.signUp(user).then(
+        
+        var busyPromise = userService.signUp(user);
+        $scope.transparentBusyPromise = busyPromise;
+        busyPromise.then(
             function() {
-                if ($state.previousState && $state.previousState.name) {
+                if ($state.previousState  && $state.previousState.name) {
                     $state.go($state.previousState, $state.previousParams);
+                } else {
+                    $state.go('publicDeals');
                 }
             },
             function(response) {
@@ -1792,7 +1812,7 @@ tgbApp.controller('loginController', function($scope, $location, $state, $window
                     });
                 }
                 else {
-                    $scope.statusMessage = "Unable to sign up: " + response.status + " " + response.data;                    
+                    modalDialogService.showServiceError('我们的系统出了点小问题', response);                   
                 }
             });
     };
@@ -1801,22 +1821,28 @@ tgbApp.controller('loginController', function($scope, $location, $state, $window
         clearStatusMessage();
         user.wechatId = $scope.user.wechatId;
         user.claimtoken = $scope.user.claimtoken;
-        userService.logIn(user).then(
+        var busyPromise = userService.logIn(user);
+        $scope.transparentBusyPromise = busyPromise;
+        busyPromise.then(
             function(user) {
                 if ($state.previousState  && $state.previousState.name) {
                     $state.go($state.previousState, $state.previousParams);
                 } else {
-                    $state.go('welcome');
+                    $state.go('publicDeals');
                 }
             },
             function(response) {
-                if (response.data == "Email not verified!") {
+                if (response.status === 401) {
+                    modalDialogService.show({
+                        message: '登录信息有误，请重新填写。',
+                    });
+                } else if (response.data == "Email not verified!") {
                     $('#email-confirm-modal').modal({
                         keyboard: false
                     });
                 }
                 else {
-                    $scope.statusMessage = "Unable to log in: " + response.status + " " + response.data;
+                    modalDialogService.showServiceError('我们的系统出了点小问题', response);
                 }
             });
     };
@@ -1828,24 +1854,22 @@ tgbApp.controller('loginController', function($scope, $location, $state, $window
     
     $scope.resetPassword = function() {
         clearStatusMessage();
-        userService.resetPassword($scope.passwordResetEmail).then(function() {
+        var busyPromise = userService.resetPassword($scope.passwordResetEmail);
+        $scope.transparentBusyPromise = busyPromise;
+        busyPromise.then(function() {
             modalDialogService.show({
                 message: '密码重置的链接已发至您的邮箱, 请您及时查看您的邮件.',
                 showCancelButton: false,
             }).result.then(function() {
                 $scope.scenario = 'Log in';
             });
-        }, function(error) {
-            if(error === 404) {
+        }, function(response) {
+            if(response.status === 404) {
                 modalDialogService.show({
                     message: '对不起, 您的账号没有设置电子邮件, 我们将无法给您发送密码重置的邮件. 如果您已经和我们的微信公众平台绑定, 您可以从我们的公众平台使用微信一键登录的功能.',
-                    showCancelButton: false,
                 });
             } else {
-                modalDialogService.show({
-                    message: '对不起, 密码重置邮件没能发送成功, 请稍后再试试或联系我们.',
-                    showCancelButton: false,
-                });                
+                modalDialogService.showServiceError('对不起, 密码重置邮件没能发送成功', response);
             }
         });
     };
@@ -1874,6 +1898,4 @@ tgbApp.run(['$rootScope', '$state', 'weixinService', function($rootScope, $state
         $state.previousState = fromState;
         $state.previousParams = fromParams;
     });
-    
-//    weixinService.configCurrentUrl();
 }]);
