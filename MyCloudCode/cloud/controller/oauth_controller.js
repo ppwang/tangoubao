@@ -148,11 +148,13 @@ module.exports.oauthConnect = function(req, res) {
 			if (result.action == 'done') {
 				var endUrl = (redirUrl && redirUrl != 'null')? redirUrl : serviceSetting.baseUrl;
 				logger.debugLog('oauthConnect logger. oauth controller redirect,' + redirUrl + ', redirect to: ' + endUrl + ', baseUrl: ' + serviceSetting.baseUrl);
+				logger.logUsage(authProvider, 'oauthConnect done', endUrl, '');
 				return res.redirect(endUrl);
 			}
 			if (result.action == 'redirect') {
 				var endUrl = (result.redirUrl && result.redirUrl != 'null')? result.redirUrl : serviceSetting.baseUrl;
 				logger.debugLog('oauthConnect logger. oauth controller redirect,' + result.redirUrl + ', redirect to: ' + endUrl + ', baseUrl: ' + serviceSetting.baseUrl);
+				logger.logUsage(authProvider, 'oauthConnect redir', endUrl, '');
 				return res.redirect(endUrl);
 			}
 			errorMessage = 'oauthConnect error: unknown result.action';

@@ -16,6 +16,9 @@ module.exports.getRegions = function(req, res) {
 		});
 		var responseData = {};
 		responseData.regions = regions;
+		var currentUser = Parse.User.current();
+		var userId = currentUser? currentUser.id : 'anonymous';
+		logger.logUsage(userId, 'getRegions', '', '');
 		return res.status(200).send(JSON.stringify(responseData));
     }, function(error) {
     	var errorMessage = 'getRegions error: ' + JSON.stringify(error);

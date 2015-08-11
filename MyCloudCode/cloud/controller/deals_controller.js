@@ -27,6 +27,9 @@ module.exports.getPublicDeals = function(req, res) {
     	.then(function(deals) {
     		var responseData = {};
 			responseData.deals = deals;
+			var currentUser = Parse.User.current();
+			var userId = currentUser? currentUser.id : 'anonymous';
+			logger.logUsage(userId, 'getPublicDeals', '', '');
 			return res.status(200).send(JSON.stringify(responseData));
 	    }, function(error) {
 	    	var errorMessage = 'getPublicDeals error: ' + JSON.stringify(error);
@@ -85,6 +88,7 @@ module.exports.getDeals = function(req, res) {
 		.then(function(allDeals) {
 			var responseData = {};
 			responseData.deals = allDeals;
+			logger.logUsage(currentUser.id, 'getDeals', '', '');
 			return res.status(200).send(JSON.stringify(responseData));
 	    }, function(error) {
 	    	var errorMessage = 'getDeals error: ' + JSON.stringify(error);

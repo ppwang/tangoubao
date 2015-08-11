@@ -35,6 +35,7 @@ module.exports.getMyOrders = function(req, res) {
     	.then(function(orders) {
     		var responseData = {};
 			responseData.orders = orders;
+			logger.logUsage(currentUser.id, 'getMyOrders', '', '');
 			return res.status(200).send(JSON.stringify(responseData));
 	    }, function(error) {
 	    	var errorMessage = 'getMyOrders error: ' + JSON.stringify(error);
@@ -73,6 +74,9 @@ module.exports.getOrders = function(req, res) {
 		.then(function(orders) {
 			var responseData = {};
 			responseData.orders = orders;
+			var currentUser = Parse.User.current();
+			var userId = currentUser? currentUser.id : 'anonymous';
+			logger.logUsage(userId, 'getOrders', dealId, '');
 			return res.status(200).send(JSON.stringify(responseData));
 		}, function(error) {
 			var errorMessage = 'getOrders error: ' + JSON.stringify(error);

@@ -4,8 +4,9 @@ var logger = require('cloud/lib/logger');
 
 module.exports = function (wechatId, publicAccountId, createTime, res) {
     tgbWechatUser.deactivate(wechatId)
-    .then()
-    .fail( function(error) {
+    .then(function() {
+    	logger.logUsage('wechatUser_' + wechatId, 'unsubscribe', '', '');
+    }, function(error) {
     	logger.debugLog('unsubscribe error: ' + error.message);
         res.error();
     });

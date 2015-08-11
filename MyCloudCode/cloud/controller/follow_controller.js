@@ -68,6 +68,7 @@ module.exports.followDeal = function(req, res) {
 			return parseDeal.save(null, {useMasterKey: true});
     	})
     	.then(function(savedDeal) {
+            logger.logUsage(currentUser.id, 'followDeal', dealId, '');
     		return res.status(200).end();
     	}, function(error) {
             var errorMessage = 'followDeal error: ' + JSON.stringify(error);
@@ -134,6 +135,7 @@ module.exports.unfollowDeal = function(req, res) {
     		
     	})
     	.then(function(savedDeal) {
+            logger.logUsage(currentUser.id, 'unfollowDeal', dealId, '');
     		return res.status(200).end();
     	}, function(error) {
             var errorMessage = 'unfollowDeal error: ' + JSON.stringify(error);
@@ -183,6 +185,7 @@ module.exports.followUser = function(req, res) {
     		return;
     	})
     	.then(function() {
+            logger.logUsage(currentUser.id, 'followUser', userId, '');
     		return res.status(200).end();
     	}, function(error) {
             var errorMessage = 'followUser error: ' + JSON.stringify(error);
@@ -224,6 +227,7 @@ module.exports.unfollowUser = function(req, res) {
 			return;
 		})
 		.then(function() {
+            logger.logUsage(currentUser.id, 'unfollowUser', userId, '');
     		return res.status(200).end();
     	}, function(error) {
             var errorMessage = 'unfollowUser error: ' + JSON.stringify(error);

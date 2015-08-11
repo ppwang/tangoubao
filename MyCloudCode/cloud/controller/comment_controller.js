@@ -47,6 +47,7 @@ module.exports.putComment = function (req, res) {
 		})
 		.then(function(parseComment) {
 			var comment = commentModel.convertToCommentModel(parseComment);
+			logger.logUsage(currentUser.id, 'createComment', comment.id, JSON.stringify(comment));
 			return res.status(200).send(comment);
 		}, function(error) {
 			var errorMessage = 'putComment error: ' + JSON.stringify(error);
@@ -93,6 +94,7 @@ module.exports.deleteComment = function(req, res) {
 				logger.logDiagnostics(correlationId, 'error', errorMessage);
 				return res.status(401).send(responseError);
 			}
+			logger.logUsage(currentUser.id, 'deleteComment', commentId, '');
     		return res.status(200).end();
     	}, function(error) {
     		var errorMessage = 'deleteComment log. error:  ' + JSON.stringify(error);

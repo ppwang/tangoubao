@@ -26,7 +26,9 @@ module.exports.putDeal = function(req, res) {
 		return createDeal(req, currentUser)
 			.then(function(parseDeal) {
 				var deal = dealModel.convertToDealModel(parseDeal);
-				logger.debugLog('putDeal log. send deal: ' + JSON.stringify(deal));
+				var dealData = JSON.stringify(deal);
+				logger.debugLog('putDeal log. send deal: ' + dealData);
+				logger.logUsage(currentUser.id, 'createDeal', deal.id, dealData);
 				// Cannot use end to send data!! Must use send for json.
 				return res.status(201).send(deal);
 			}, function(error) {
@@ -40,7 +42,9 @@ module.exports.putDeal = function(req, res) {
 	return modifyDeal(objectId, req, currentUser)
 		.then(function(parseDeal) {
 			var deal = dealModel.convertToDealModel(parseDeal);
-			logger.debugLog('putDeal log. send deal: ' + JSON.stringify(deal));
+			var dealData = JSON.stringify(deal);
+			logger.debugLog('putDeal log. send deal: ' + dealData);
+			logger.logUsage(currentUser.id, 'modifyDeal', dealData);
 			// Cannot use end to send data!! Must use send for json.
 			return res.status(201).send(deal);
 		}, function(error) {
@@ -93,6 +97,8 @@ module.exports.putStatus = function(req, res) {
 				return res.status(401).send(responseError);
 			}
 			var deal = dealModel.convertToDealModel(savedPareseDeal);
+			var data = {status: status};
+			logger.logUsage(currentUser.id, 'deal putStatus', dealId, JSON.stringify(data));
 			return res.status(200).send(deal);
 		}, function(error) {
 			var errorMessage = 'deal putStatus error: ' + JSON.stringify(error);
@@ -175,7 +181,9 @@ module.exports.getDeal = function(req, res) {
 			    	});
 			})
 			.then(function(deal) {
-				return res.status(201).send(deal);
+				var userId = currentUser? currentUser.id : 'anonymous'; 
+				logger.logUsage(userId, 'getDeal', deal.id, JSON.stringify(deal));
+				return res.status(200).send(deal);
 			}, function(error) {
 				var errorMessage = 'getDeal error: ' + JSON.stringify(error);
 				logger.logDiagnostics(correlationId, 'error', errorMessage);

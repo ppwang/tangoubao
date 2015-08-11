@@ -61,6 +61,7 @@ module.exports.notifyBuyers = function (req, res) {
 					return Parse.Promise.when(promises);
 				})
 				.then(function() {
+					logger.logUsage(currentUser.id, 'notifyBuyers', dealId, '');
 					res.status(200).end();
 				}, function(error) {
 					var errorMessage = 'notifyBuyers error: ' + JSON.stringify(error);

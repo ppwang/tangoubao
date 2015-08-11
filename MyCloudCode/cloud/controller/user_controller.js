@@ -22,6 +22,7 @@ module.exports.getCurrentUser = function(req, res) {
 	}
 	return convertToUserResponseData(currentUser)
 		.then(function(responseData) {
+			logger.logUsage(currentUser.id, 'getCurrentUser', currentUser.id, responseData);
     		return res.status(200).send(responseData);
 		}, function(error) {
 			var errorMessage = 'getCurrentUser error: ' + JSON.stringify(error);
@@ -63,6 +64,7 @@ module.exports.signUp = function(req, res) {
     			})
     			.then(function(responseData) {
     				logger.debugLog('signUp log. signUp user: ' + responseData);
+    				logger.logUsage(signedUpUser.id, 'signUp', signedUpUser.id, responseData);
     				return res.status(200).send(responseData);
     			});
     	}, function(error) {
@@ -114,6 +116,7 @@ module.exports.logIn = function(req, res) {
 		if (currentUser) {
 			return convertToUserResponseData(currentUser)
 				.then(function(responseData) {
+					logger.logUsage(currentUser.id, 'logIn', currentUser.id, responseData);
             		return res.status(200).send(responseData);
 				});
 		}
@@ -134,6 +137,9 @@ module.exports.logIn = function(req, res) {
 
 module.exports.logOut = function(req, res) {
 	Parse.User.logOut();
+	var currentUser = Parse.User.current();
+	var userId = currentUser? currentUser.id : 'anonymous';
+	logger.logUsage(userId, 'logOut', userId, '');
 	return res.redirect('/');
 };
 
@@ -171,6 +177,7 @@ module.exports.obtainUserInfo = function(req, res) {
 		if (currentUser) {
 			return convertToUserResponseData(currentUser)
 				.then(function(responseData) {
+					logger.logUsage(authProvider, 'obtainUserInfo', currentUser.id, responseData);
             		return res.status(200).send(responseData);
 				});
 		}
@@ -287,6 +294,7 @@ module.exports.obtainUserInfo = function(req, res) {
 							var loggedInUserModel = userModel.convertToUserModel(loggedInUser);
 							logger.debugLog('obtainUserInfo log. send back user model: ' + JSON.stringify(loggedInUserModel));
 							logger.debugLog('obtainUserInfo log. usercontroller redirUrl: ' + redirUrl);
+							logger.logUsage(authProvider, 'obtainUserInfo', loggedInUserModel.id, redirUrl);
 							return res.redirect(redirUrl);
 						}
 						logger.debugLog('obtainUserInfo log. usercontroller cannot find sessionToken for existing user');
@@ -333,6 +341,7 @@ module.exports.sendEmailVerification = function(req, res) {
 			return savedUser.save(null, {useMasterKey: true});
 		})
 		.then(function(updatedUser) {
+			logger.logUsage(currentUser.id, 'sendEmailVerification', currentUser.id, email);
 			return res.status(200).end();
 		}, function(error) {
 			var errorMessage = 'sendEmailVerification error: ' + JSON.stringify(error);
@@ -364,6 +373,7 @@ module.exports.sendContactUsEmail = function (req, res) {
 					'Message from user in contactus', message);
 			})
 			.then(function() {
+				logger.logUsage(currentUser.id, 'sendContactUsEmail', '', message);
 				return res.status(200).end();
 			}, function(error) {
 				var errorMessage = 'sendEmailVerification error: ' + JSON.stringify(error);
@@ -393,9 +403,11 @@ module.exports.resetPassword = function(req, res) {
 			if (currentUser) {
 				return Parse.User.logOut()
 					.then(function() {
+						logger.logUsage(currentUser.id, 'resetPassword', email, '');
 						return res.status(200).end();
 					});
 			}
+			logger.logUsage('anonymous', 'resetPassword', email, '');
 			return res.status(200).end();
 		}, function(error) {
 			var errorMessage = 'resetPassword error: ' + JSON.stringify(error);

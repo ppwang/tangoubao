@@ -21,9 +21,9 @@ module.exports = function (wechatId, publicAccountId, createTime, res) {
             wechatUser.nickname, wechatUser.headimgurl, wechatUser.claimtoken);
         // send response
         res.contentType('application/xml');
+        logger.logUsage('wechatUser_' + wechatUser.id, 'subscribe', '', message);
         res.send(message);
-    })
-    .fail( function(error) {
+    }, function(error) {
         logger.debugLog('subscribe wechat user error: ' + error.message);
         res.error();
     });

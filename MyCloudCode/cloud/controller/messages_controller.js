@@ -27,6 +27,7 @@ module.exports.getMessages = function(req, res) {
 				var message = messageModel.convertToMessageModel(parseMessage);
 				messages.push(message);
 			});
+			logger.logUsage(currentUser.id, 'getMessages', '', '');
 			return res.status(200).send(messages);
 		}, function(error) {
 			var errorMessage = 'getMessages error: ' + JSON.stringify(error);

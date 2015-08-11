@@ -21,7 +21,7 @@ module.exports.getConfigs = function(req, res) {
 			jsConfig.timestamp = config.timestamp;
 			jsConfig.nonceStr = config.nonceStr;
 			jsConfig.signature = config.signature;
-
+			
 			return res.status(200).send(jsConfig);
 		}, function(error) {
 			var errorMessage = 'wechatJsConfigs error: ' + JSON.stringify(error);

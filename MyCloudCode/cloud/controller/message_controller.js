@@ -48,6 +48,7 @@ module.exports.putStatus = function(req, res) {
 				return res.status(401).send(responseError);
 			}
 			var message = messageModel.convertToMessageModel(savedParseMessage);
+			logger.logUsage(currentUser.id, 'message putStatus', dealId, '');
 			return res.status(200).send(message);
 		}, function(error) {
 			var errorMessage = 'message putStatus error: ' + JSON.stringify(error);

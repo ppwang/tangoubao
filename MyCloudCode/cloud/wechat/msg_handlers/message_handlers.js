@@ -34,9 +34,9 @@ module.exports.textMsgHandler = function (wechatId, publicAccountId, createTime,
         }
         // send response
         res.contentType('application/xml');
+        logger.logUsage('wechatUser_' + wechatUser.id, 'textMsg', userMessage, message);
         res.send(message);
-    })
-    .fail( function(error) {
+    }, function(error) {
         logger.debugLog('textMsgHandler log. message handler error: ' + error.message);
         res.error();
     });

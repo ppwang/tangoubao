@@ -15,7 +15,9 @@ module.exports.getCurrentUserProfile = function(req, res) {
 	return currentUser.fetch()
 		.then(function(parseUser) {
 			var userProfile = convertToUserProfileModel(parseUser);
-			logger.debugLog('getCurrentUserProfile log. get userProfile: ' + JSON.stringify(userProfile));	
+			var userProfileData = JSON.stringify(userProfile);
+			logger.debugLog('getCurrentUserProfile log. get userProfile: ' + userProfileData);	
+			logger.logUsage(currentUser.id, 'getCurrentUserProfile', currentUser.id, userProfileData);
 			return res.status(200).send(userProfile);
 		}, function(error) {
 			var errorMessage = 'getCurrentUserProfile error: ' + JSON.stringify(error);
@@ -65,6 +67,7 @@ module.exports.putCurrentUserProfile = function(req, res) {
 		})
 		.then(function(updatedUser) {
 			var userProfile = convertToUserProfileModel(updatedUser);
+			logger.logUsage(currentUser.id, 'putCurrentUserProfile', currentUser.id, JSON.stringify(userProfile));
 			return res.status(200).send(userProfile);
 		}, function(error) {
 			var errorMessage = 'putCurrentUserProfile error: ' + JSON.stringify(error);

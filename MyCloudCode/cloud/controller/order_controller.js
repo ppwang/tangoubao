@@ -46,6 +46,7 @@ module.exports.putOrder = function(req, res) {
 					logger.logDiagnostics(correlationId, 'error', 'putOrder error: Invalid order');
 					return res.status(400).send(responseError);
 				}
+				logger.logUsage(currentUser.id, 'createOrder', responseData.id, JSON.stringify(responseData));
 				return res.status(200).send(responseData);
 			}, function(error) {
 				var errorMessage = 'Create order error: ' + JSON.stringify(error);
@@ -70,6 +71,7 @@ module.exports.putOrder = function(req, res) {
 				logger.logDiagnostics(correlationId, 'error', 'putOrder error: Invalid order');
 				return res.status(400).send(responseError);
 			}
+			logger.logUsage(currentUser.id, 'modifyOrder', responseData.id, JSON.stringify(responseData));
 			return res.status(200).send(responseData);
 		}, function(error) {
 			var errorMessage = 'modify order error: ' + JSON.stringify(error);
@@ -120,6 +122,7 @@ module.exports.putStatus = function(req, res) {
 				return res.status(401).send(responseError);
 			}
 			var order = orderModel.convertToOrderModel(savedParseOrder);
+			logger.logUsage(currentUser.id, 'putStatus', order.id, status);
 			return res.status(200).send(order);
 		}, function(error) {
 			var errorMessage = 'order putStatus error: ' + JSON.stringify(error);
@@ -185,6 +188,9 @@ module.exports.getOrder = function(req, res) {
 				var order = orderModel.convertToOrderModel(parseOrder);
 				order.deal = deal;
 				order.creator = creator;
+				var currentUser = Parse.User.current();
+				var userId = currentUser? currentUser.id : 'anonymous';
+				logger.logUsage(userId, 'getOrder', orderId, JSON.stringify(order));
 				return res.status(201).send(order);
 			}, function(error) {
 				var errorMessage = 'getOrder error: ' + JSON.stringify(error);
@@ -420,6 +426,7 @@ module.exports.deleteOrder = function(req, res) {
     			logger.logDiagnostics(correlationId, 'error', 'deleteOrder error: not authorized');
 				return res.status(401).send(responseError);
 			}
+			logger.logUsage(currentUser.id, 'deleteOrder', orderId, '');
 			return res.status(200).end();
     	}, function(error) {
     		var errorMessage = 'deleteOrder error: ' + JSON.stringify(error);
