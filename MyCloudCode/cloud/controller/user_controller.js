@@ -358,7 +358,7 @@ module.exports.sendContactUsEmail = function (req, res) {
 	logger.debugLog('sendContactUsEmail log. currentUser: ' + JSON.stringify(currentUser));
 	if (!currentUser) {
 		// require user to log in
-		var errorMessage = 'sendEmailVerification error: ' + JSON.stringify(error);
+		var errorMessage = 'sendEmailVerification error: usrer not logged in';
 		logger.logDiagnostics(correlationId, 'error', errorMessage);
 		return res.status(401).send(responseError);
 	}
