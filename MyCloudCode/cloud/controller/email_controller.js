@@ -24,7 +24,7 @@ module.exports.sendEmail = function(emailAddress, sendeeName, order, messageType
 			html: messageBody,
 			subject: messageTitle,
 			from_email: "info@tuangoubao.parseapps.com",
-			from_name: "Your friend at Tuan Gou Bao",
+			from_name: "来自微蜂网的消息",
 			to: [
 				{
 				  email: emailAddress,
@@ -49,13 +49,13 @@ module.exports.sendContactUsEmail = function(senderName, messageTitle, messageBo
 	var responseError = {correlationId: correlationId};
 
 	var emailAddress = tgbContact.email;
-	var sendeeName = 'Tuan Gou Bao Admin';
+	var sendeeName = '微蜂网';
 	logger.debugLog('sendContactUsEmail log. messageTitle: ' + messageTitle + ', messageBody: ' + messageBody);
 	return mandrill.sendEmail({
 		message: {
 			html: messageBody,
 			subject: messageTitle,
-			from_email: "info@tuangoubao.parseapps.com",
+			from_email: "info@wephoon.com",
 			from_name: senderName,
 			to: [ {
 				  email: emailAddress,
@@ -127,10 +127,10 @@ module.exports.sendDealReport = function(req, res) {
 			// Add 
 			return mandrill.sendEmail({
 				message: {
-					text: "Deal summary for " + dealName,
-					subject: "Your tuangoubao deal summary file is attached",
-					from_email: "info@tuangoubao.parseapps.com",
-					from_name: "Your friend at Tuan Gou Bao",
+					text: "微蜂网 Deal: " + dealName,
+					subject: "微蜂网团购",
+					from_email: "info@wephoon.com",
+					from_name: "微蜂网",
 					to: [
 						{
 						  email: emailAddress,
