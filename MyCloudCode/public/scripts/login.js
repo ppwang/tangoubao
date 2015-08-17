@@ -1749,12 +1749,10 @@ tgbApp.controller('contactController', ['$scope', 'messageDataService', 'modalDi
         promise.then(function() {
             modalDialogService.show({
                 message: '信息发送成功!',
-                showCancelButton: false,
             });
         }, function(error) {
             modalDialogService.show({
                 message: '对不起, 刚才没能成功发送信息, 请稍后再试试.',
-                showCancelButton: false,
             });
         });
     };
