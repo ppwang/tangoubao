@@ -1,4 +1,10 @@
-<div class="container deal-detail-box-shadow">
+<div class="container">
+    <div class="row deal-img-row">
+        <div class="col-md-12 col-xs-12">
+            <img class="deal-image" ng-src="{{order.deal.dealImageUrl || 'resources/logo.png'}}" onerror="this.src = 'resources/logo.png'"/>
+        </div>
+    </div>
+
     <div class="row item-detail-row">
         <div class="col-md-12 col-xs-12 order-detail-deal-name">
             <div class="deal-title">{{order.deal.name}}</div>
@@ -60,72 +66,55 @@
         </div>
     </div>
 
-    <div class="row item-detail-row order-buyer-firstrow">
-        <div class="col-md-12 col-xs-12 order-buyer-detail">
-            <img class="buyer-icons" src="resources/name.png"/>
-            {{order.creator.nickname}}
-        </div>
-    </div>
-
-    <div class="row item-detail-row order-buyer-row">
-        <div class="col-md-12 col-xs-12 order-buyer-detail">
-            <img class="buyer-icons" src="resources/telephone.png"/>
-            {{order.creator.phoneNumber}}
-        </div>
-    </div>
-
-    <div class="row item-detail-row order-buyer-row">
-        <div class="col-md-12 col-xs-12 order-buyer-detail">
-            <img class="buyer-icons" src="resources/email.png"/>
-            {{order.creator.email}}
-        </div>
-    </div>
-
-    <div class="row item-detail-row order-buyer-row">
-        <div class="col-md-12 col-xs-12 order-buyer-detail">
-            <img class="buyer-icons" src="resources/quantity.png"/>
-            {{order.quantity}}件, {{order.quantity * order.deal.unitsPerPackage}}{{order.deal.unitName}}, 共计{{ order.quantity * order.deal.unitsPerPackage * order.deal.unitPrice | currency:'$'}}
-        </div>
-    </div>
-
-     <div class="row item-detail-row order-buyer-row">
-        <div class="col-md-12 col-xs-12 order-buyer-detail">
-            <img class="buyer-icons" src="resources/deliver.png"/>
-            发货方式: 自取
-        </div>
-    </div>
-
-     <div class="row item-detail-row">
+    <div class="row item-detail-row">
         <div class="col-md-2 col-xs-3 item-detail-tag">
-            发起人: 
+            发货方式: 
         </div>
         <div class="col-md-10 col-xs-9">
-            {{order.deal.creatorName}}
+            自取
         </div>
     </div>
 
     <div class="row item-detail-row">
-        <div class="col-md-3 col-xs-4">
-            <span class="item-detail-tag">发货人员: </span><br>{{pickupOption.contactName}}
+        <div class="col-md-2 col-xs-3 item-detail-tag">
+            发货地址: 
         </div>
-        <div class="col-md-3 col-xs-4">
-            <span class="item-detail-tag">联系电话: </span><br>{{pickupOption.phoneNumber}}
-        </div>
-        <div class="col-md-3 col-xs-4 deal-pickup-options">
-            <span class="item-detail-tag">发货地址: </span><br>{{pickupOption.address}}
+        <div class="col-md-10 col-xs-9">
+            {{pickupOption.address}}
         </div>
     </div>
 
-    <div class="row item-detail-row order-success-row">
-        <div class="col-md-3 col-xs-4">
-            
+    <div class="row item-detail-row">
+        <div class="col-md-2 col-xs-3 item-detail-tag">
+            联系人: 
         </div>
-        <div class="col-md-3 col-xs-6">
-            <span class="tgb-btn-default order-succes-label">团购成功</span>
-            <img class="edit-icon" src="resources/edit.png" ng-click="modifyOrder()"/>
+        <div class="col-md-10 col-xs-9">
+            {{pickupOption.contactName}}
         </div>
-        <div class="col-md-3 col-xs-4">
+    </div>
 
+    <div class="row item-detail-row">
+        <div class="col-md-2 col-xs-3 item-detail-tag">
+            联系电话: 
         </div>
+        <div class="col-md-10 col-xs-9">
+            {{pickupOption.phoneNumber}}
+        </div>
+    </div>
+
+    <div class="row item-detail-row">
+        <div class="col-md-2 col-xs-3 item-detail-tag">
+            应付款: 
+        </div>
+        <div class="col-md-10 col-xs-9">
+            <span style="font-weight: bold;">{{order.quantity * order.deal.unitsPerPackage * order.deal.unitPrice | currency:'$'}}</span>
+            <span>({{order.quantity}}件 * {{order.deal.unitPrice | currency:'$'}}/{{order.deal.unitName}} * {{order.deal.unitsPerPackage}}{{order.deal.unitName}}/件)</span>
+        </div>
+    </div>
+
+    <div class="row item-detail-row order-button-row">
+        <button class="btn tgb-btn-default pull-right" ng-show="order.deal.status !== 'closed'" ng-click="modifyOrder()">修改订单</button>
+        <button class="btn tgb-btn-info pull-right" ng-disabled="true" ng-show="order.deal.status === 'closed'">已结束</button>
+        <button class="btn tgb-btn-info pull-right" ng-disabled="true">团购成功</button>
     </div>
 </div>
