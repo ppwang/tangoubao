@@ -379,6 +379,7 @@ module.exports.deleteOrder = function(req, res) {
 	var orderId = req.params.orderId;
 	if (!orderId) {
 		// not found
+		logger.debugLog('deleteOrder log. orderId not provided in request');
 		logger.logDiagnostics(correlationId, 'error', 'deleteOrder error (400): orderId not provided in request');
 		return res.status(400).send(responseError);
 	}
@@ -387,15 +388,19 @@ module.exports.deleteOrder = function(req, res) {
    	existingParseOrder.id = orderId;
    	var dealId;
    	return existingParseOrder.fetch()
-		.then( function(parseOrder) {
-			if (parseOrder && parseOrder.creatorId == currentUser.id) {
+		.then(function(parseOrder) {
+			logger.debugLog('deleteOrder log. parseOrder: ' + JSON.stringify(parseOrder));
+			logger.debugLog('deleteOrder log. currentUser id: ' + currentUser.id);
+			if (parseOrder && parseOrder.get('creatorId') == currentUser.id) {
 				logger.debugLog('deleteOrder log. Delete orderId:' + orderId + ' by userId: ' + currentUser.id);
 				dealId = parseOrder.get('dealId');
 				return existingParseOrder.destroy({});
 			}
+			logger.debugLog('deleteOrder log. Not authorized.');
 			return 'Not authorized';
 		})
 		.then(function(message) {
+			logger.debugLog('deleteOrder log. after destroy, message: ' + JSON.stringify(message));
 			if (message == 'Not authorized') {
 				return message;
 			}
@@ -404,8 +409,8 @@ module.exports.deleteOrder = function(req, res) {
 			return parseDealPromise.fetch();
     	})
     	.then(function(parseDeal) {
-    		if (message == 'Not authorized') {
-				return message;
+    		if (parseDeal == 'Not authorized') {
+				return parseDeal;
 			}
 
     		var orderCount = parseDeal.get('orderCount');
@@ -419,17 +424,22 @@ module.exports.deleteOrder = function(req, res) {
 				orderCount = 0;
 			}
  			parseDeal.set('orderCount', orderCount);
+ 			logger.debugLog('deleteOrder log. save orderCount: ' + orderCount);
 			return parseDeal.save(null, {useMasterKey: true});
     	})
-    	then(function(savedDeal) {
-    		if (message == 'Not authorized') {
+    	.then(function(savedDeal) {
+    		logger.debugLog('deleteOrder log. savedDeal: ' + JSON.stringify(savedDeal));
+    		if (savedDeal == 'Not authorized') {
+    			logger.debugLog('deleteOrder log. not authorized');
     			logger.logDiagnostics(correlationId, 'error', 'deleteOrder error: not authorized');
 				return res.status(401).send(responseError);
 			}
+			logger.debugLog('deleteOrder log. ' + currentUser.id + ' deleteOrder ' + orderId);
 			logger.logUsage(currentUser.id, 'deleteOrder', orderId, '');
 			return res.status(200).end();
     	}, function(error) {
     		var errorMessage = 'deleteOrder error: ' + JSON.stringify(error);
+    		logger.debugLog(errorMessage);
     		logger.logDiagnostics(correlationId, 'error', errorMessage)
     		return res.status(500).send(responseError);
     	});
