@@ -735,6 +735,25 @@ tgbApp.factory('orderDataService', ['$http', 'serviceBaseUrl', '$q', 'dealDataSe
         return resultDeferred.promise;
     };
     
+    orderDataService.cancelOrder = function(id) {
+        resultDeferred = $q.defer();
+        
+        $http.delete(serviceBaseUrl + '/api/order/' + id)
+        .success(function(data, status, headers, config) {
+            resultDeferred.resolve();
+            dirtyCache();
+        })
+        .error(function(data, status, headers, config) {
+            console.log('error code:' + status);
+            resultDeferred.reject({
+                data: data,
+                status: status,
+            });
+        });
+        
+        return resultDeferred.promise;
+    };
+    
     return orderDataService;
 }]);
 
@@ -1375,7 +1394,7 @@ tgbApp.controller('createDealController', ['$scope', '$state', '$stateParams', '
     };
 }]);
 
-tgbApp.controller('orderDetailController', ['$scope', '$state', '$stateParams', 'userService', 'orderDataService', 'regionDataService', 'busyIndicatorService', function($scope, $state, $stateParams, userService, orderDataService, regionDataService, busyIndicatorService) {
+tgbApp.controller('orderDetailController', ['$scope', '$state', '$stateParams', 'userService', 'orderDataService', 'regionDataService', 'modalDialogService', 'busyIndicatorService', function($scope, $state, $stateParams, userService, orderDataService, regionDataService, modalDialogService, busyIndicatorService) {
     var promise = userService.ensureUserLoggedIn().then(function() {
         var id = $stateParams.id;
         orderDataService.getOrder(id).then(function(order) {
@@ -1383,6 +1402,7 @@ tgbApp.controller('orderDetailController', ['$scope', '$state', '$stateParams', 
             $scope.pickupOption = _.find($scope.order.deal.pickupOptions, function(o){
                 return o.id === order.pickupOptionId;
             });
+            $scope.modifiable = order.deal.status !== 'closed' && order.deal.endDate >= Date.now();
         });
     });
     
@@ -1397,6 +1417,18 @@ tgbApp.controller('orderDetailController', ['$scope', '$state', '$stateParams', 
                   orderId: $scope.order.id,
                   order: $scope.order,
               });
+    };
+    
+    $scope.cancelOrder = function() {
+        orderDataService.cancelOrder($scope.order.id).then(function() {
+            modalDialogService.show({
+                message: '订单取消成功!',
+            }).result.then(function() {
+                $state.go('buyerAccount.orders', {status: 'active'});
+            });
+        }, function(response) {
+            modalDialogService.showServiceError('对不起, 没能为您取消订单', response);
+        });
     };
 }]);
 

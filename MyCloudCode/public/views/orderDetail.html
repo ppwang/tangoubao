@@ -113,8 +113,9 @@
     </div>
 
     <div class="row item-detail-row order-button-row">
-        <button class="btn tgb-btn-default pull-right" ng-show="order.deal.status !== 'closed'" ng-click="modifyOrder()">修改订单</button>
-        <button class="btn tgb-btn-info pull-right" ng-disabled="true" ng-show="order.deal.status === 'closed'">已结束</button>
+        <button class="btn tgb-btn-default pull-right" ng-show="modifiable" ng-click="cancelOrder()">取消订单</button>
+        <button class="btn tgb-btn-default pull-right" ng-show="modifiable" ng-click="modifyOrder()">修改订单</button>
+        <button class="btn tgb-btn-info pull-right" ng-disabled="true" ng-show="!modifiable">已结束</button>
         <button class="btn tgb-btn-info pull-right" ng-disabled="true">团购成功</button>
     </div>
 </div>
