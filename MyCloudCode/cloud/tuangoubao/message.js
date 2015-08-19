@@ -62,7 +62,7 @@ module.exports.constructHtmlMessageBody = function(order, messageType, messageTe
 			+ messageBody;
 	}
 	if (messageType == 'general') {
-		return 'We have a new message for the deal you ordered, ' 
+		return '您的微蜂网团购消息, ' 
 			+ '<a href="' + orderUrl + '">'
 			+      order.dealName 
 			+ '</a>\n';
@@ -89,7 +89,7 @@ var constructMessageTitle = function(order, messageType, messageText) {
 		return 'Your order for ' + order.dealName + ' is ready to pick up';
 	}
 	if (messageType == 'general') {
-		return 'We have a new message for the deal you ordered, ' + order.dealName + '.';
+		return '您的微蜂网团购消息, ' + order.dealName + '.';
 	}
 	return null;
 };
