@@ -1,42 +1,37 @@
 <div class="container-fluid" cg-busy="{promise: transparentBusyPromise, backdrop: true, templateUrl:'views/busy.html', backdropClass: 'tgb-busy-backdrop-transparent'}">
-    <div class="row tgb-input-group">
-        <div class="col-md-2 col-xs-3 tgb-input-label">订货人:</div>
+    <div class="row item-detail-row">
+        <div class="col-md-2 col-xs-3 item-detail-tag">订货人:</div>
         <div class="col-md-10 col-xs-9">
             {{user.nickname}}
         </div>
     </div>
 
-    <div class="row tgb-input-group">
-        <div class="col-md-2 col-xs-3 tgb-input-label">电话: </div>
-        <div class="col-md-10 col-xs-9 input-box">
-        	<input class="input-box-shadow" ng-model="order.phoneNumber" ng-required="true"/>
-        </div>
+    <div class="row item-detail-row">
+        <div class="col-md-2 col-xs-3 item-detail-tag">电话:</div>
+        <input class="col-md-10 col-xs-9 tgb-input" ng-model="order.phoneNumber" ng-required="true"/>
 	</div>
 
-    <div class="row tgb-input-group">
-        <div class="col-md-2 col-xs-3 tgb-input-label">电子邮件: </div>
-        <div class="col-md-10 col-xs-9 input-box">
-        	<input class="input-box-shadow" type="email" ng-model="order.email" ng-required="true"/>
-        </div>
+    <div class="row item-detail-row">
+        <div class="col-md-2 col-xs-3 item-detail-tag">电子邮件:</div>
+        <input class="col-md-10 col-xs-9 tgb-input" type="email" ng-model="order.email" ng-required="true"/>
 	</div>
 
-    <div class="row tgb-input-group">
-        <div class="col-md-2 col-xs-3 tgb-input-label">数量: </div>
-        <div class="col-md-10 col-xs-9 input-box">
-        	<input class="input-box-shadow-small" type="number" ng-model="order.quantity" ng-pattern="/^\d*$/"  ng-required="true"/>
-			<span>件 * {{deal.unitPrice | currency:'$'}}/{{deal.unitName}} * {{deal.unitsPerPackage}}{{deal.unitName}}/件 (最多{{deal.quantityLimit}}件)</span>
-        </div>
+    <div class="row item-detail-row">
+        <div class="col-md-2 col-xs-3 item-detail-tag">数量:</div>
+        <input class="col-md-2 col-xs-3 tgb-input" type="number" ng-model="order.quantity" ng-pattern="/^\d*$/" ng-required="true"/>
+        <span>件 * {{deal.unitPrice | currency:'$'}}/{{deal.unitName}} * {{deal.unitsPerPackage}}{{deal.unitName}}/件 (最多{{deal.quantityLimit}}件)</span>
 	</div>
 
-	<div class="row tgb-input-group">
-        <div class="col-md-2 col-xs-3 tgb-input-label">共计: </div>
-        <div class="col-md-10 col-xs-9 input-box">
+	<div class="row item-detail-row">
+        <div class="col-md-2 col-xs-3 item-detail-tag">共计:</div>
+        <div class="col-md-10 col-xs-9">
         	{{ order.quantity * deal.unitsPerPackage * deal.unitPrice | currency:'$'}}
         </div>
 	</div>
 
-	<div class="row tgb-input-group">
-        <div class="col-md-12 col-xs-12 tgb-input-label">发货方式: 自取</div>
+	<div class="row item-detail-row">
+        <div class="col-md-2 col-xs-3 item-detail-tag">发货方式:</div>
+        <div class="col-md-10 col-xs-9">自取</div>
 	</div>
 
 	<div class="row tgb-input-group" ng-repeat="pickupOption in deal.pickupOptions">
