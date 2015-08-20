@@ -291,7 +291,8 @@ var createOrder = function(correlationId, dealId, currentUser, req) {
 			// TODO: add order message with more details
 			logger.debugLog('createOrder log. savedOrder: send notification from message creator id: ' + messageCreatorId + ', messageCreatorName: ' + messageCreatorName);
 			var orderToNotify = orderModel.convertToOrderModel(savedOrder);
-			return notificationController.notifyBuyer(messageCreatorId, messageCreatorName, orderToNotify, 'general', 'Your order is successful!')
+			var receiverId = orderToNotify.creatorId;
+			return notificationController.notifyBuyer(messageCreatorId, messageCreatorName, receiverId, orderToNotify, 'general', '订单成功!')
 				.then(function() {
 					return savedOrder;
 				});
@@ -361,6 +362,22 @@ var modifyOrder = function(correlationId, orderId, currentUser, req) {
 			var totalPrice = deal.unitPrice * quantity;
 			parseOrder.set('price', totalPrice);
 			return parseOrder.save();
+		})
+		.then(function(savedOrder) {
+			if (savedOrder == 'Invalid order') {
+				return 'Invalid order';
+			}
+			logger.debugLog('modifyOrder log. savedOrder: ' + JSON.stringify(savedOrder));
+			var messageCreatorId = tgbAdminUser.userId;
+			var messageCreatorName = tgbAdminUser.userName;
+			// TODO: add order message with more details
+			logger.debugLog('modifyOrder log. savedOrder: send notification from message creator id: ' + messageCreatorId + ', messageCreatorName: ' + messageCreatorName);
+			var orderToNotify = orderModel.convertToOrderModel(savedOrder);
+			var receiverId = orderToNotify.creatorId;
+			return notificationController.notifyBuyer(messageCreatorId, messageCreatorName, receiverId, orderToNotify, 'general', '订单修改成功!')
+				.then(function() {
+					return savedOrder;
+				});
 		});
 };
 
@@ -426,6 +443,20 @@ module.exports.deleteOrder = function(req, res) {
  			parseDeal.set('orderCount', orderCount);
  			logger.debugLog('deleteOrder log. save orderCount: ' + orderCount);
 			return parseDeal.save(null, {useMasterKey: true});
+    	})
+    	.then(function(savedDeal) {
+    		if (savedDeal == 'Invalid order') {
+				return 'Invalid order';
+			}
+			logger.debugLog('deleteOrder log. savedDeal: ' + JSON.stringify(savedDeal));
+			var messageCreatorId = tgbAdminUser.userId;
+			var messageCreatorName = tgbAdminUser.userName;
+			// TODO: add order message with more details
+			logger.debugLog('deleteOrder log. send notification from message creator id: ' + messageCreatorId + ', messageCreatorName: ' + messageCreatorName);
+			return notificationController.notifyBuyer(messageCreatorId, messageCreatorName, currentUser.id, null, 'general', '订单取消成功!')
+				.then(function() {
+					return savedDeal;
+				});
     	})
     	.then(function(savedDeal) {
     		logger.debugLog('deleteOrder log. savedDeal: ' + JSON.stringify(savedDeal));

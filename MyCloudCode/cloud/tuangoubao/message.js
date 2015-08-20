@@ -34,7 +34,7 @@ module.exports.addWelcomeMessage = function(signedUpUser) {
 	var parseMessage = new ParseMessage();
 	parseMessage.set('creatorId', 'parse_admin');
 	parseMessage.set('receiverId', signedUpUser.id);
-	parseMessage.set('creatorName', 'Your friend at Tuan Gou Bao');
+	parseMessage.set('creatorName', '微蜂网');
 	parseMessage.set('messageType', 'sendEmailVerification');
 	parseMessage.set('messageTitle', '');
 	parseMessage.set('messageBody', '');
@@ -51,8 +51,8 @@ module.exports.constructMessageBody = function(order, messageType, messageText) 
 };
 
 module.exports.constructHtmlMessageBody = function(order, messageType, messageText) {
-	var orderUrl = serviceSetting.baseUrl + '/#/orderDetail/' + order.id;
-	var messageBody = messageText? 'Message from seller:\n' + messageText : '';
+	var orderUrl = order? serviceSetting.baseUrl + '/#/orderDetail/' + order.id : '';
+	var messageBody = messageText? '卖家信息:\n' + messageText : '';
 	if (messageType == 'productArrived') {
 		return 'Your order for ' 
 			+ '<a href="' + orderUrl + '">'
@@ -62,18 +62,21 @@ module.exports.constructHtmlMessageBody = function(order, messageType, messageTe
 			+ messageBody;
 	}
 	if (messageType == 'general') {
-		return '您的微蜂网团购消息, ' 
+		return order? 
+			'您的微蜂网团购消息, ' 
 			+ '<a href="' + orderUrl + '">'
 			+      order.dealName 
-			+ '</a>\n';
-			+ messageBody;
+			+ '</a>\n'
+			+ messageBody 
+			: 
+			'您的微蜂网团购取消消息';
 	}
 	return null; 
 };
 
 var constructMessageBody = function(order, messageType, messageText) {
 	// TBD: add message similar to what we show on UI for order
-	var messageBody = messageText? 'Message from seller:\n' + messageText : '';
+	var messageBody = messageText? '卖家信息:\n' + messageText : '';
 	if (messageType == 'productArrived') {
 		return messageBody;
 	}
@@ -89,7 +92,7 @@ var constructMessageTitle = function(order, messageType, messageText) {
 		return 'Your order for ' + order.dealName + ' is ready to pick up';
 	}
 	if (messageType == 'general') {
-		return '您的微蜂网团购消息, ' + order.dealName + '.';
+		return order? '您的微蜂网团购消息, ' + order.dealName + '.' : '您的微蜂网团购取消消息';
 	}
 	return null;
 };

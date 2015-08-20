@@ -56,7 +56,7 @@ module.exports.notifyBuyers = function (req, res) {
 					var promises = [];
 					parseOrders.forEach(function(parseOrder) {
 						var order = orderModel.convertToOrderModel(parseOrder);
-						promises.push(notifyBuyer(currentUser.id, deal.creatorName, order, messageType, messageText));
+						promises.push(notifyBuyer(currentUser.id, deal.creatorName, order.creatorId, order, messageType, messageText));
 					});
 					return Parse.Promise.when(promises);
 				})
@@ -71,12 +71,11 @@ module.exports.notifyBuyers = function (req, res) {
     	});
 };
 
-module.exports.notifyBuyer = function(creatorId, creatorName, order, messageType, messageText) {
-	return notifyBuyer(creatorId, creatorName, order, messageType, messageText);
+module.exports.notifyBuyer = function(creatorId, creatorName, receiverId, order, messageType, messageText) {
+	return notifyBuyer(creatorId, creatorName, receiverId, order, messageType, messageText);
 };
 
-var notifyBuyer = function(creatorId, creatorName, order, messageType, messageText) {
-	var receiverId = order.creatorId;
+var notifyBuyer = function(creatorId, creatorName, receiverId, order, messageType, messageText) {
 	logger.debugLog('notifyBuyer log. receiverId: ' + receiverId);
 	var parseUserPromise = new Parse.Query(Parse.User);
 	parseUserPromise.equalTo('objectId', receiverId);
@@ -136,7 +135,7 @@ var sendWechatNotification = function(wechatId, order, messageType, messageText)
 };
 
 var getWechatNotificationPostBody = function(wechatId, order, messageType, messageText) {
-    var orderUrl = serviceSetting.baseUrl + '/#/orderDetail/' + order.id;
+    var orderUrl = order? serviceSetting.baseUrl + '/#/orderDetail/' + order.id : serviceSetting.baseUrl;
 	var postData = null;
 	if (messageType == 'productArrived') {
 		postData = {
@@ -165,8 +164,13 @@ var getWechatNotificationPostBody = function(wechatId, order, messageType, messa
 	    };
 	}
 	else if (messageType == 'general') {
-		logger.debugLog('getWechatNotificationPostBody log. orderTime: ' + order.orderTime);
-		var creationDateString = utils.formatDateString(order.orderTime);
+		if (order) {
+			logger.debugLog('getWechatNotificationPostBody log. orderTime: ' + order.orderTime);
+		}
+		else {
+			logger.debugLog('getWechatNotificationPostBody log.');	
+		}
+		var creationDateString = order? utils.formatDateString(order.orderTime): '';
 		logger.debugLog('getWechatNotificationPostBody log. creationDateString: ' + creationDateString);
 		postData = {
 	    	"touser": wechatId,
@@ -179,7 +183,7 @@ var getWechatNotificationPostBody = function(wechatId, order, messageType, messa
 	               "color":"#173177"
 	           },
 	           "keyword1":{
-	               "value":order.dealName, 
+	               "value": order? order.dealName : '', 
 	               "color":"#173177"
 	           },
 	           "keyword2":{
@@ -187,7 +191,7 @@ var getWechatNotificationPostBody = function(wechatId, order, messageType, messa
 	               "color":"#173177"
 	           },
 	           "keyword3":{
-	               "value":order.id,
+	               "value": order? order.id : '',
 	               "color":"#173177"
 	           },
 	           "keyword4":{
@@ -195,7 +199,7 @@ var getWechatNotificationPostBody = function(wechatId, order, messageType, messa
 	               "color":"#173177"
 	           },
 	           "keyword5":{
-	               "value":order.price,
+	               "value": order? order.price : '',
 	               "color":"#173177"
 	           },
 	           "remark":{
