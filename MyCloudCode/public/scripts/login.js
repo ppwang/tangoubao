@@ -1420,14 +1420,19 @@ tgbApp.controller('orderDetailController', ['$scope', '$state', '$stateParams', 
     };
     
     $scope.cancelOrder = function() {
-        orderDataService.cancelOrder($scope.order.id).then(function() {
-            modalDialogService.show({
-                message: '订单取消成功!',
-            }).result.then(function() {
-                $state.go('buyerAccount.orders', {status: 'active'});
+        modalDialogService.show({
+            message: '您即将取消' + $scope.order.deal.name + '的团购, 请按确认提交.',
+            showCancelButton: true,
+        }).result.then(function() {
+            orderDataService.cancelOrder($scope.order.id).then(function() {
+                modalDialogService.show({
+                    message: '订单取消成功!',
+                }).result.then(function() {
+                    $state.go('buyerAccount.orders', {status: 'active'});
+                });
+            }, function(response) {
+                modalDialogService.showServiceError('对不起, 没能为您取消订单', response);
             });
-        }, function(response) {
-            modalDialogService.showServiceError('对不起, 没能为您取消订单', response);
         });
     };
 }]);
