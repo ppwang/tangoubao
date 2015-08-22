@@ -1,34 +1,36 @@
 <div cg-busy="{promise: transparentBusyPromise, message: 'Loading', backdrop: true, templateUrl:'views/busy.html', delay: 0, minDuration: 0, backdropClass: 'tgb-busy-backdrop-transparent'}" class="tgb-profile-page">
     <div class="row">
-        <img ng-src="{{user.headimgurl}}" class="pull-left col-xs-4"></img>
-        <div class="col-xs-8">
-            <span style="font-weight: bold; font-size: 1.5em;">{{user.nickname}}</span>
-            <br>
-            <span>{{user.email}}</span>
+        <div class="row col-xs-offset-2 col-xs-8" style="margin-top: 1em;">
+            <img ng-src="{{user.headimgurl}}" class="col-xs-offset-4 col-xs-4"></img>
         </div>
     </div>
-    <div class="row" class="row col-xs-offset-1 col-xs-10">
-        <input ng-model="profile.nickname" placeholder="昵称" class="col-xs-offset-1 col-xs-8 col-xs-offset-3 tgb-input"></input>
-        <input ng-model="profile.email" type="email" placeholder="Email" class="col-xs-offset-1 col-xs-8 col-xs-offset-3 tgb-input"></input>
-        <input ng-model="profile.phoneNumber" placeholder="电话" class="col-xs-offset-1 col-xs-8 col-xs-offset-3 tgb-input"></input>
+    <div class="row">
+        <div class="row col-xs-offset-2 col-xs-8" style="margin-top: 1em; text-align: center;">
+            <span style="font-weight: bold; font-size: 1.5em;">{{user.nickname}}</span>
+        </div>
     </div>
-    <div class="row col-xs-offset-1 col-xs-8" style="margin-top: 1em;">
+    <div class="row" class="row col-xs-offset-2 col-xs-10">
+        <input ng-model="profile.nickname" placeholder="昵称" class="col-xs-offset-2 col-xs-8 col-xs-offset-3 tgb-input"></input>
+        <input ng-model="profile.email" type="email" placeholder="Email" class="col-xs-offset-2 col-xs-8 col-xs-offset-3 tgb-input"></input>
+        <input ng-model="profile.phoneNumber" placeholder="电话" class="col-xs-offset-2 col-xs-8 col-xs-offset-3 tgb-input"></input>
+    </div>
+    <div class="row col-xs-offset-2 col-xs-8" style="margin-top: 1em;">
         <span class="tgb-primary-text">请选择您的联系方式，我们可以通过下面三种方式为您推送最新的团购商品，您的订单信息，取货信息等:</span>
     </div>
     <div class="clearfix"></div>
-    <div class="row col-xs-offset-1">
+    <div class="row col-xs-offset-2">
         <input type="checkbox" ng-model="profile.emailNotify"></input>
         电子邮件
     </div>
-    <div class="row col-xs-offset-1">
+    <div class="row col-xs-offset-2">
         <input type="checkbox" ng-model="profile.wechatNotify"></input>
         微信推送
     </div>
-    <div class="row col-xs-offset-1">
+    <div class="row col-xs-offset-2">
         <input type="checkbox" checked ng-disabled="true"></input>
         团购宝消息
     </div>
-    <div class="row col-xs-offset-1 col-xs-8">
+    <div class="row col-xs-offset-2 col-xs-8">
         <button ng-click="saveProfile()" class="pull-right tgb-btn-default">保存</button>
     </div>
 </div>
