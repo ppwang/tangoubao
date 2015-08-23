@@ -118,9 +118,7 @@
     </div>
     
     <div class="comment-area row" ng-repeat="comment in comments">
-        <span ng-show="!comment.creatorHeadimgurl" class="glyphicon glyphicon-user col-md-1 col-xs-1 comment-head-icon"></span>
-        <img ng-show="comment.creatorHeadimgurl" ng-src="{{comment.creatorHeadimgurl}}" class="col-md-1 col-xs-1 comment-head-icon"/>
-        <span>{{comment.nickname}}</span>
+        <span class="deal-comment-nickname">{{comment.nickname}}</span>
         <rating ng-model="comment.rating" max="5" readonly="true" rating-states="ratingStates"></rating>
         <span>{{comment.createdAt | date:'yyyy年MM月dd日'}}</span>
         <br>
