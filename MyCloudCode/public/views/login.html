@@ -2,7 +2,7 @@
     <form ng-show="scenario == 'Sign up'">
         <div class="row" ng-show="isWeixin || wechatWelcomeVisible" style="margin-top: 1em">
             <img class="col-xs-offset-1 col-xs-2" ng-src="{{(user && user.headimgurl) ? user.headimgurl : 'resources/headPlaceholder.png'}}"></img>
-            <span class="col-xs-offset-1 col-xs-7" ng-show="wechatWelcomeVisible">欢迎<span class="tgb-primary-text">{{user.nickname}}</span>, 您刚刚通过微信关联了北美团购宝. 请您完成以下注册信息, 即可参与团购或发起团购.</span>
+            <span class="col-xs-offset-1 col-xs-7" ng-show="wechatWelcomeVisible">欢迎<span class="tgb-primary-text">{{user.nickname}}</span>, 您刚刚通过微信关联了微蜂网. 请您完成以下注册信息, 即可参与团购或发起团购.</span>
             <span class="col-xs-offset-1 col-xs-7" ng-show="!wechatWelcomeVisible">请您完成以下注册信息或登录, 即可参与团购或发起团购.</span>
         </div>
         <div ng-show="isWeixin" class="row" style="margin-top: 2em">

@@ -30,9 +30,9 @@
 
         // TGB: custom resize mode
         var crop = options.crop || options.crop === "" || false;
-        // Most common smart phone image size is 4:3.
-        var cropHeight = options.cropHeight || 300;
-        var cropWidth = options.cropWidth || 400;
+        // Most common smart phone image size is 480:320.
+        var cropHeight = options.cropHeight || 320;
+        var cropWidth = options.cropWidth || 480;
         
         var canvas = getResizeArea();
 

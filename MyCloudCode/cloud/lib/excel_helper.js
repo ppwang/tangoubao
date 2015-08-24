@@ -30,25 +30,33 @@ module.exports.exportDealToExcel = function (dealData) {
 	result += '\n';
 	result += '\n';
 
-	if (dealData.orders && dealData.orders.forEach && dealData.length > 0) {
+	if (dealData.orders && dealData.orders.forEach && dealData.orders.length > 0) {
 		// Orders section
 		result += 'Orders Summary: \n';
-		result += 'Name' + separator 
+		result += 'Order time' + separator
+			+ 'Name' + separator 
 			+ 'PhoneNumber' + separator
 			+ 'Email' + separator
 			+ 'Pickup contact' + separator
 			+ 'Pickup address' + separator
-			+ 'Pickup phone\n';
+			+ 'Pickup phone' + separator
+			+ 'Quantity' + separator
+			+ 'Price' + separator
+			+ 'Order status\n';
 
 		dealData.orders.forEach(function(order) {
 			var buyer = order.buyer;
 			var pickupOption = order.pickupOption;
-			result += escapeStr(buyer.nickname) + separator 
+			result += escapeStr(order.orderTime.toString()) + separator
+				+ escapeStr(buyer.nickname) + separator
 				+ buyer.phoneNumber + separator
 				+ escapeStr(buyer.email) + separator
 				+ escapeStr(pickupOption.contactName) + separator
 				+ escapeStr(pickupOption.address) + separator
-				+ escapeStr(pickupOption.phoneNumber) + '\n';
+				+ escapeStr(pickupOption.phoneNumber) + separator
+				+ escapeStr(order.quantity.toString()) + separator
+				+ escapeStr(order.price.toString()) + separator
+				+ escapeStr(order.status) + '\n';
 		});
 	}
 	else {

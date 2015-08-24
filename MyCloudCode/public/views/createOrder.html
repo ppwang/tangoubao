@@ -1,25 +1,34 @@
 <div class="container-fluid" cg-busy="{promise: transparentBusyPromise, backdrop: true, templateUrl:'views/busy.html', backdropClass: 'tgb-busy-backdrop-transparent'}">
-    <div class="row item-detail-row">
+    <div class="row deal-img-row">
+        <div class="col-md-12 col-xs-12" style="text-align:center;">
+            <img class="deal-image" ng-src="{{deal.dealImageUrl || 'resources/logo.png'}}" onerror="this.src = 'resources/logo.png'"/>
+        </div>
+    </div>
+    <div class="row item-detail-row item-title-row">
+        <div class="col-md-12 col-xs-12" style="text-align:center;">
+            <span class="deal-title">{{deal.name}}</span>
+        </div>
+    </div>
+
+    <div class="row item-detail-row" style="margin-top:1em;">
         <div class="col-md-2 col-xs-3 item-detail-tag">订货人:</div>
         <div class="col-md-10 col-xs-9">
             {{user.nickname}}
         </div>
     </div>
-
+    <div class="row item-detail-row">
+        <div class="col-md-2 col-xs-3 item-detail-tag">电子邮件:</div>
+        <input class="col-md-10 col-xs-9 tgb-input" type="email" ng-model="order.email" ng-required="true"/>
+    </div>
     <div class="row item-detail-row">
         <div class="col-md-2 col-xs-3 item-detail-tag">电话:</div>
         <input class="col-md-10 col-xs-9 tgb-input" ng-model="order.phoneNumber" ng-required="true"/>
 	</div>
 
     <div class="row item-detail-row">
-        <div class="col-md-2 col-xs-3 item-detail-tag">电子邮件:</div>
-        <input class="col-md-10 col-xs-9 tgb-input" type="email" ng-model="order.email" ng-required="true"/>
-	</div>
-
-    <div class="row item-detail-row">
         <div class="col-md-2 col-xs-3 item-detail-tag">数量:</div>
         <input class="col-md-2 col-xs-3 tgb-input" type="number" ng-model="order.quantity" ng-pattern="/^\d*$/" ng-required="true"/>
-        <span>件 * {{deal.unitPrice | currency:'$'}}/{{deal.unitName}} * {{deal.unitsPerPackage}}{{deal.unitName}}/件 (最多{{deal.quantityLimit}}件)</span>
+        <span>(最多{{deal.quantityLimit}}件)</span>
 	</div>
 
 	<div class="row item-detail-row">
