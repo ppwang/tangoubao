@@ -262,7 +262,7 @@ var createOrder = function(correlationId, dealId, currentUser, req) {
 			parseOrder.set('creatorName', creatorName);
 			parseOrder.set('creatorImageUrl', creatorImageUrl);
 			// total order price:
-			var totalPrice = deal.unitPrice * quantity;
+			var totalPrice = deal.unitPrice * deal.unitsPerPackage * quantity;
 			parseOrder.set('price', totalPrice);
 			return parseOrder.save();
 		})
