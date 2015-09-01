@@ -39,7 +39,7 @@
     <base href="/" />
 </head>
 <body ng-app="tuanGouBao">
-   <nav role="navigation" class="navbar navbar-default" style="padding-top: 6px;" ng-controller="topNavController">
+   <nav role="navigation" class="navbar navbar-default" ng-controller="topNavController">
       <div class="container">
         <!-- Title -->
         <div class="navbar-header">
@@ -48,15 +48,15 @@
         </div>
         
         <!-- 'Sticky' (non-collapsing) right-side menu item(s) -->
-        <div class="navbar-header pull-right" style="position: absolute; top: 0px; right: 0px; padding-top: 6px;">
+        <div class="navbar-header pull-right" style="position: absolute; top: 0px; right: 0px; padding-top: 3px;">
           <ul class="nav pull-left">
             <!-- This works well for static text, like a username -->
-              <li ng-click="onClickSiteName()" class="navbar-text pull-left tgb-navbar-icon" style="margin-top: 0; margin-right: 20px; cursor: pointer;">
+              <li ng-click="onClickSiteName()" class="navbar-text pull-left tgb-navbar-icon" style="margin-top: 0; margin-right: 50px; cursor: pointer;">
               <img id="site-logo" src="resources/wephoon_logo.png"></img>
               </li>
             <!-- Add any additional bootstrap header items.  This is a drop-down from an icon -->
             <li class="dropdown pull-right" >
-              <a href data-toggle="dropdown" class="dropdown-toggle tgb-navbar-icon"  style="margin-top: 2px;"><span class="glyphicon glyphicon-user"></span><b class="caret"></b></a>
+              <a href data-toggle="dropdown" class="dropdown-toggle tgb-navbar-icon"><span class="glyphicon glyphicon-user"></span><b class="caret"></b></a>
               <ul class="dropdown-menu">
                 <li><a ui-sref="buyerAccount.orders({status: 'active'})" class="pull-right navbar-nav ">我的微蜂网</a></li>
                 <!--TODO: I am seller design -->

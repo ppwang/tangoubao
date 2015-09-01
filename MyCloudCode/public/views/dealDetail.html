@@ -29,7 +29,7 @@
 
     <div class="row item-detail-row">
         <div class="col-md-2 col-xs-3 item-detail-tag">
-            地 区: 
+            地&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 区: 
         </div>
         <div class="col-md-10 col-xs-9">
             {{deal.region}}
@@ -38,7 +38,7 @@
 
     <div class="row item-detail-row">
         <div class="col-md-2 col-xs-3 item-detail-tag">
-            价 格: 
+            价&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 格: 
         </div>
         <div class="col-md-10 col-xs-9">
             <span style="font-weight: bold;">{{deal.unitPrice | currency:'$'}}/{{deal.unitName}} </span>
@@ -75,7 +75,7 @@
 
     <div class="row item-detail-row">
         <div class="col-md-2 col-xs-3 item-detail-tag">
-            发起人: 
+            发&nbsp;&nbsp;起&nbsp;&nbsp;人: 
         </div>
         <div class="col-md-10 col-xs-9">
             {{deal.creatorName}}
@@ -93,7 +93,7 @@
 
     <div class="row item-detail-row" ng-repeat="option in deal.pickupOptions">
         <div class="col-md-2 col-xs-3 item-detail-tag">
-            <span class="item-detail-tag">取货地址 {{deal.pickupOptions.length > 1 ? $index+1 : ''}}:</span>
+            <span class="item-detail-tag">取货地址{{deal.pickupOptions.length > 1 ? $index+1 : ''}}:</span>
         </div>
         <div class="col-md-10 col-xs-9">
             {{option.address}}
@@ -111,7 +111,7 @@
 
     <div class="row item-detail-row">
         <div class="col-md-2 col-xs-3 item-detail-tag">
-            评论: 
+            评&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 论: 
         </div>
         <div class="col-md-10 col-xs-9">
         </div>
@@ -135,9 +135,13 @@
             </div>
         </div>
         <div class="row item-detail-row"> 
-            <div class="col-md-12 col-xs-12">
+            <div class="col-md-10 col-xs-9 col-md-offset-2 col-xs-offset-3">
                 <textarea class="form-control comment-submission-text" rows="5" ng-model="comment" maxlength="500" placeholder="请填入您的评论，限500字">
                 </textarea>
+            </div>
+        </div>
+        <div class="row item-detail-row"> 
+            <div class="col-md-4 col-xs-2x col-md-offset-8 col-xs-offset-10">
                 <button class="btn tgb-btn-default btn-comment-submission" ng-click="addComment()" ng-disabled="!rating && !comment">提交</button>
             </div>
         </div>
