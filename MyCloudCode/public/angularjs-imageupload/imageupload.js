@@ -18,12 +18,12 @@
     })
     .factory("resizeImage", function(getResizeArea){
       return function (origImage, options) {
-        var maxHeight = options.resizeMaxHeight || 300;
-        var maxWidth = options.resizeMaxWidth || 250;
+        var maxHeight = options.resizeMaxHeight || 320;
+        var maxWidth = options.resizeMaxWidth || 480;
         var quality = options.resizeQuality || 0.7;
         var cover = options.cover || options.cover === "" || false;
-        var coverHeight = options.coverHeight || 300;
-        var coverWidth = options.coverWidth || 250;
+        var coverHeight = options.coverHeight || 320;
+        var coverWidth = options.coverWidth || 480;
         var coverX = options.coverX || "left";
         var coverY = options.coverY || "top";
         var type = options.resizeType || "image/jpg";
@@ -89,7 +89,7 @@
             } else {
                 sw = width;
                 sx = 0;
-                sh = height - width / ratio;
+                sh = width / ratio;
                 sy = (height - sh) / 2;
             }
             

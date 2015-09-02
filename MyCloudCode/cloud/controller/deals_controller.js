@@ -9,6 +9,7 @@ module.exports.getPublicDeals = function(req, res) {
 	var responseError = {correlationId: correlationId};
 
 	var query = new Parse.Query(ParseDeal);
+	query.equalTo('status', 'active');
 	// we are sorting the results by creation date
 	query.addDescending('createdAt');
 	return query.find()
