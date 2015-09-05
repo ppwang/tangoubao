@@ -255,7 +255,7 @@ tgbApp.factory('userService', ['$http', '$q', 'serviceBaseUrl', '$rootScope', '$
             })
             .error(function(data, status, headers, config) {
                 setCurrentUser(null);
-                resultDeferred.reject("Unable to log in: " + status + " " + data);
+                resultDeferred.reject({data: data});
                 console.log('error code:' + status);
             });
             
@@ -691,7 +691,7 @@ tgbApp.factory('orderDataService', ['$http', 'serviceBaseUrl', '$q', 'dealDataSe
         })
         .error(function(data, status, headers, config) {
             console.log('error code:' + status);
-            resultDeferred.reject(status);
+            resultDeferred.reject(data);
         });
         
         return resultDeferred.promise;
@@ -1010,9 +1010,15 @@ tgbApp.factory('modalDialogService', ['$modal', function($modal) {
     // failedMessage is a custom message. This method will append static strings so do not
     // terminate failed message with punctuation.
     modalDialogService.showServiceError = function(failedMessage, response) {
-        var message = failedMessage + '，请您刷新页面或者稍后再试试。'
-        if (response && response.data && response.data.correlationId) {
-            message += '如您需要我们协助请在邮件或信息中附上此码: ' + response.data.correlationId;
+        var message;
+        if (response && response.data && response.data.message) {
+            message = response.data.message;
+        }
+        else {
+            message = failedMessage + '，请您刷新页面或者稍后再试试。'
+            if (response && response.data && response.data.correlationId) {
+                message += '如您需要我们协助请在邮件或信息中附上此码: ' + response.data.correlationId;
+            }
         }
         
         modalDialogService.show({
@@ -1548,7 +1554,13 @@ tgbApp.controller('createOrderController', ['$scope', '$state', '$stateParams', 
 
                 $state.go('buyerAccount.orders', { status: 'active' });
             }, function(error) {
-                var orderFailedMessage = '您的订单提交不成功,　请稍后再试试.';
+                var orderFailedMessage;
+                if (error && error.message) {
+                    orderFailedMessage = error.message;
+                }
+                else {
+                    orderFailedMessage = '您的订单提交不成功,　请稍后再试试.';
+                }
                 modalDialogService.show({
                     message: orderFailedMessage,
                     showCancelButton: false,

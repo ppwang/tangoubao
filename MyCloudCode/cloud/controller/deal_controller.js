@@ -316,6 +316,14 @@ var saveDeal = function(parseDeal, req) {
 		parseDeal.set('quantityLimit', null);
 	}
 
+	var totalQuantityLimit = req.body.totalQuantityLimit;
+	if (totalQuantityLimit && totalQuantityLimit > 0) {
+		parseDeal.set('totalQuantityLimit', totalQuantityLimit);
+	}
+	else {
+		parseDeal.set('totalQuantityLimit', null);
+	}
+
 	var remarks = req.body.remarks;
 	if (remarks) {
 		parseDeal.set('remarks', remarks);

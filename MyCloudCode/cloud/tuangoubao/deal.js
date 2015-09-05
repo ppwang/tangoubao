@@ -24,12 +24,14 @@ module.exports.convertToDealModel = function(parseDeal, type) {
 	deal.unitPrice = parseDeal.get('unitPrice');
 	deal.originalUnitPrice = parseDeal.get('originalUnitPrice');
 	deal.quantityLimit = parseDeal.get('quantityLimit');
+	deal.totalQuantityLimit = parseDeal.get('totalQuantityLimit');
 	deal.createdAt = parseDeal.createdAt;
 	deal.creatorName = parseDeal.get('creatorName');
 	deal.pickupOptions = parseDeal.get('pickupOptions');
 	deal.regionId = parseDeal.get('regionId');
 	deal.unitsPerPackage = parseDeal.get('unitsPerPackage');
 	deal.orderCount = parseDeal.get('orderCount');
+	deal.orderQuantity = parseDeal.get('orderQuantity');
 	deal.followCount = parseDeal.get('followCount');
 	deal.status = parseDeal.get('status');
 	var creator = parseDeal.get('createdBy');
@@ -57,6 +59,17 @@ module.exports.isValidOrder = function(dealModel, orderDate) {
 			return true;
 		}
 		return orderDate <= endDate;
+	}
+	return true;
+};
+
+module.exports.withinTotalQuantityLimit = function(dealModel, quantity) {
+	logger.debugLog('withinTotalQuantityLimit log. dealModel: ' + JSON.stringify(dealModel));
+	logger.debugLog('withinTotalQuantityLimit log. quantity: ' + quantity);
+	var total = dealModel.orderQuantity + quantity;
+	logger.debugLog('withinTotalQuantityLimit log. total: ' + total);
+	if (total > dealModel.totalQuantityLimit) {
+		return false;
 	}
 	return true;
 };

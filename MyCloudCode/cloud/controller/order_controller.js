@@ -7,6 +7,10 @@ var notificationController = require('cloud/controller/notification_controller')
 var tgbAdminUser = require('cloud/app.config.js').settings.tgbAdminUser;
 var logger = require('cloud/lib/logger');
 
+var ErrorCode_InvalidDate = 1;
+var ErrorCode_QuantityOutOfLimit = 2;
+var errorResponseCode = null;
+
 module.exports.putOrder = function(req, res) {
     var correlationId = logger.newCorrelationId();
     var responseError = {correlationId: correlationId};
@@ -27,12 +31,13 @@ module.exports.putOrder = function(req, res) {
 		return res.status(400).send(responseError);
 	}
 
+	errorResponseCode = null;
 	var orderId = req.body.id;
 	if (!orderId) {
 		return createOrder(correlationId, dealId, currentUser, req)
 			.then(function(parseOrder) {
-				if (parseOrder == 'Invalid order') {
-					return 'Invalid order';
+				if (errorResponseCode) {
+					return;
 				}
 				if (parseOrder) {
 					var order = orderModel.convertToOrderModel(parseOrder);
@@ -42,7 +47,13 @@ module.exports.putOrder = function(req, res) {
 				return;
 			})
 			.then(function(responseData) {
-				if (responseData == 'Invalid order') {
+				if (errorResponseCode) {
+					if (errorResponseCode == ErrorCode_InvalidDate) {
+						responseError.message = '您要购买的团购已过期!';
+					}
+					if (errorResponseCode == ErrorCode_QuantityOutOfLimit) {
+						responseError.message = '您要购买数量超过商家的限额!';	
+					}
 					logger.logDiagnostics(correlationId, 'error', 'putOrder error: Invalid order');
 					return res.status(400).send(responseError);
 				}
@@ -56,8 +67,8 @@ module.exports.putOrder = function(req, res) {
 	}
 	return modifyOrder(correlationId, orderId, currentUser, req)
 		.then(function(parseOrder) {
-			if (parseOrder == 'Invalid order') {
-				return 'Invalid order';
+			if (errorResponseCode) {
+				return;
 			}
 			if (parseOrder) {
 				var order = orderModel.convertToOrderModel(parseOrder);
@@ -67,7 +78,16 @@ module.exports.putOrder = function(req, res) {
 			return;
 		})
 		.then(function(responseData) {
-			if (responseData == 'Invalid order') {
+			logger.debugLog('putOrder log. errorResponseCode: ' + errorResponseCode);
+			logger.debugLog('putOrder log. responseData: ' + responseData);
+
+			if (errorResponseCode) {
+				if (errorResponseCode == ErrorCode_InvalidDate) {
+					responseError.message = '您要购买的团购已过期!';
+				}
+				if (errorResponseCode == ErrorCode_QuantityOutOfLimit) {
+					responseError.message = '您要购买数量超过商家的限额!';	
+				}
 				logger.logDiagnostics(correlationId, 'error', 'putOrder error: Invalid order');
 				return res.status(400).send(responseError);
 			}
@@ -234,8 +254,14 @@ var createOrder = function(correlationId, dealId, currentUser, req) {
 
 			deal = tgbDeal.convertToDealModel(parseDeal);
 			if (!tgbDeal.isValidOrder(deal, new Date())) {
-				logger.logDiagnostics(correlationId, 'error', 'Invalid order from deal validation');
-				return 'Invalid order';
+				logger.logDiagnostics(correlationId, 'error', 'Invalid order from deal validation: date');
+				errorResponseCode = ErrorCode_InvalidDate;
+				return;
+			}
+			if (!tgbDeal.withinTotalQuantityLimit(deal, quantity)) {
+				logger.logDiagnostics(correlationId, 'error', 'Invalid order from deal validation: orderQuantity');
+				errorResponseCode = ErrorCode_QuantityOutOfLimit;
+				return;
 			}
 			
 			var userPhone = parseUser.get('phoneNumber');
@@ -247,8 +273,8 @@ var createOrder = function(correlationId, dealId, currentUser, req) {
 			return;
 		})
 		.then(function(savedUser) {
-			if (savedUser == 'Invalid order') {
-				return 'Invalid order';
+			if (errorResponseCode) {
+				return;
 			}
 			var parseOrder = new ParseOrder();
 			parseOrder.set('dealId', dealId);
@@ -267,8 +293,8 @@ var createOrder = function(correlationId, dealId, currentUser, req) {
 			return parseOrder.save();
 		})
 		.then(function(savedParseOrder) {
-			if (savedParseOrder == 'Invalid order') {
-				return 'Invalid order';
+			if (errorResponseCode) {
+				return;
 			}
 			savedOrder = savedParseOrder;
 			var orderCount = parseDeal.get('orderCount');
@@ -278,12 +304,21 @@ var createOrder = function(correlationId, dealId, currentUser, req) {
 			else {
 				orderCount = 0;
 			}
+			var orderQuantity = parseDeal.get('orderQuantity');
+			if (orderQuantity) {
+				orderQuantity += quantity;
+			}
+			else {
+				orderQuantity = quantity;
+			}
+
 			parseDealPromise.set('orderCount', orderCount);
+			parseDealPromise.set('orderQuantity', orderQuantity);
 			return parseDealPromise.save(null, { useMasterKey: true });
 		})
 		.then(function(savedDeal) {
-			if (savedDeal == 'Invalid order') {
-				return 'Invalid order';
+			if (errorResponseCode) {
+				return;
 			}
 			logger.debugLog('createOrder log. savedOrder: ' + JSON.stringify(savedOrder));
 			var messageCreatorId = tgbAdminUser.userId;
@@ -326,7 +361,13 @@ var modifyOrder = function(correlationId, orderId, currentUser, req) {
 			deal = tgbDeal.convertToDealModel(instantiatedDeal);
 			if (!tgbDeal.isValidOrder(deal, new Date())) {
 				logger.logDiagnostics(correlationId, 'error', 'Invalid order from deal validation');
-				return 'Invalid order';
+				errorResponseCode = ErrorCode_InvalidDate;
+				return;
+			}
+			if (!tgbDeal.withinTotalQuantityLimit(deal, quantity)) {
+				logger.logDiagnostics(correlationId, 'error', 'Invalid order from deal validation');
+				errorResponseCode = ErrorCode_QuantityOutOfLimit;
+				return;
 			}
 			var userPhone = instantiatedUser.get('phoneNumber');
 			if (!userPhone) {
@@ -337,8 +378,8 @@ var modifyOrder = function(correlationId, orderId, currentUser, req) {
 			return;
 		})
 		.then(function(savedUser) {
-			if (savedUser == 'Invalid order') {
-				return 'Invalid order';
+			if (errorResponseCode) {
+				return;
 			}
 
 			var parseOrder = new ParseOrder();
@@ -346,8 +387,8 @@ var modifyOrder = function(correlationId, orderId, currentUser, req) {
 			return parseOrder.fetch();
 		})
 		.then(function(parseOrder) {
-			if (parseOrder == 'Invalid order') {
-				return 'Invalid order';
+			if (errorResponseCode) {
+				return;
 			}
 			parseOrder.set('quantity', quantity);
 			parseOrder.set('pickupOptionId', pickupOptionId);
@@ -364,8 +405,8 @@ var modifyOrder = function(correlationId, orderId, currentUser, req) {
 			return parseOrder.save();
 		})
 		.then(function(savedOrder) {
-			if (savedOrder == 'Invalid order') {
-				return 'Invalid order';
+			if (errorResponseCode) {
+				return;
 			}
 			logger.debugLog('modifyOrder log. savedOrder: ' + JSON.stringify(savedOrder));
 			var messageCreatorId = tgbAdminUser.userId;
@@ -404,6 +445,7 @@ module.exports.deleteOrder = function(req, res) {
 	var existingParseOrder = new ParseOrder();
    	existingParseOrder.id = orderId;
    	var dealId;
+   	var quantity;
    	return existingParseOrder.fetch()
 		.then(function(parseOrder) {
 			logger.debugLog('deleteOrder log. parseOrder: ' + JSON.stringify(parseOrder));
@@ -411,6 +453,7 @@ module.exports.deleteOrder = function(req, res) {
 			if (parseOrder && parseOrder.get('creatorId') == currentUser.id) {
 				logger.debugLog('deleteOrder log. Delete orderId:' + orderId + ' by userId: ' + currentUser.id);
 				dealId = parseOrder.get('dealId');
+				quantity = parseOrder.get('quantity');
 				return existingParseOrder.destroy({});
 			}
 			logger.debugLog('deleteOrder log. Not authorized.');
@@ -440,7 +483,22 @@ module.exports.deleteOrder = function(req, res) {
 			if (orderCount < 0) {
 				orderCount = 0;
 			}
+
+			if (quantity) {
+				var orderQuantity = parseDeal.get('orderQuantity');
+				if (orderQuantity) {
+					orderQuantity -= quantity;
+				}
+				else {
+					orderQuantity = 0;
+				}
+				if (orderQuantity < 0) {
+					orderQuantity = 0;
+				}
+			}
+
  			parseDeal.set('orderCount', orderCount);
+ 			parseDeal.set('orderQuantity', orderQuantity);
  			logger.debugLog('deleteOrder log. save orderCount: ' + orderCount);
 			return parseDeal.save(null, {useMasterKey: true});
     	})

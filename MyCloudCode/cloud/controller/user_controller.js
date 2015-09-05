@@ -68,6 +68,12 @@ module.exports.signUp = function(req, res) {
     				return res.status(200).send(responseData);
     			});
     	}, function(error) {
+    		if (error.code && error.code == 202) {
+    			responseError.message = '您输入的用户名已经被使用，请选择其他用户名';
+    		}
+    		else if (error.code && error.code == 203) {
+    			responseError.message = '您输入的电子邮件地址已经被使用，请选择其他电子邮件地址';
+    		}
 			var errorMessage = 'Signup error: ' + JSON.stringify(error);
 			logger.logDiagnostics(correlationId, 'error', errorMessage);
 			Parse.User.logOut();
