@@ -69,7 +69,7 @@
             团购进度: 
         </div>
         <div class="col-md-10 col-xs-9">
-            {{deal.endDate | daysRemainingFilter}}
+            {{deal.endDate | daysRemainingFilter}}{{deal | quantityLeftFilter}}
         </div>
     </div>
 

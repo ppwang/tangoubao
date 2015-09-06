@@ -185,6 +185,21 @@ tgbApp.filter('daysRemainingFilter', function() {
     };
 });
 
+tgbApp.filter('quantityLeftFilter', function() {
+    return function(deal) {
+        if (deal && deal.totalQuantityLimit && deal.orderQuantity) {
+            var quantityLeft = deal.totalQuantityLimit - deal.orderQuantity;
+            if (quantityLeft > 0) {
+                return ', 还剩' + quantityLeft + '件！';
+            } else {
+                return ', 已卖光！';
+            }
+        } else {
+            return '';
+        }
+    };
+});
+
 tgbApp.factory('userAgentDetectionService', [function() {
     var userAgent = navigator.userAgent;
     var isiOS = (/(iPad|iPhone|iPod)/gi).test(userAgent);
