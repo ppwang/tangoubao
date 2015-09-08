@@ -1,7 +1,7 @@
 <slick dots="false" autoplay="true" autoplaySpeed="5000" infinite="true" speed="300" touch-move="false" slides-to-scroll="1" center-mode="true" center-padding="0" focus-on-select="true" class="slider one-time" init-onload="true" data="featuredDeals" responsive="responsive">
     <div ng-repeat="deal in featuredDeals" ng-click="showDealDetail(deal)" class="tgb-carousel-slide" style="position: relative;">
-        <img ng-src="{{deal.dealImageUrl || 'resources/logo.png'}}" style="margin-left: auto; margin-right: auto;">
-        <div class="tgb-carousel-caption">
+        <img ng-src="{{deal.dealImageUrl || 'resources/logo.png'}}" style="width: 99%; margin-left: auto; margin-right: auto;">
+        <div class="tgb-carousel-caption" style="width: 99%; margin-left: auto; margin-right: auto;">
             <span>{{deal.name}}</span>
             <span ng-show="deal.originalUnitPrice" style="text-decoration: line-through;">{{deal.originalUnitPrice | currency:'$'}}</span>
             <span class="tgb-primary-text">{{deal.unitPrice | currency:'$'}}/{{deal.unitName}}</span>

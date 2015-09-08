@@ -1174,15 +1174,15 @@ tgbApp.controller('publicDealsController', ['$scope', '$state', 'dealDataService
     var promise = dealDataService.getPublicDeals();
     busyIndicatorService.setPromise(promise);
 
-    var nonFeaturedDealsPromise = promise.then(function(deals) {
+    var allPublicDealsPromise = promise.then(function(deals) {
         var dealsGroupByFeatured = _.groupBy(deals, function(d) {
             return d.featured === true;
         });
         $scope.featuredDeals = dealsGroupByFeatured.true;
-        return dealsGroupByFeatured.false;
+        return deals;
     });
     $scope.dealsPromiseWrapper = {
-        promise: nonFeaturedDealsPromise,
+        promise: allPublicDealsPromise,
     };
     
     $scope.showDealDetail = function(deal) {
