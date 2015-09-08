@@ -1240,7 +1240,7 @@ tgbApp.controller('dealDetailController', ['$scope', '$state', '$stateParams', '
 //                    title: deal.name,
 //                    desc: deal.description,
 //                    link: $location.absUrl(),
-//                    imgUrl: deal.dealImageUrl || $location.protocol() + '://' + $location.host() + ':' + $location.port() + '/resources/logo.png',
+//                    imgUrl: deal.dealBannerUrl || $location.protocol() + '://' + $location.host() + ':' + $location.port() + '/resources/logo.png',
 //                });
 //            });
 //        });
@@ -1354,17 +1354,17 @@ tgbApp.controller('createDealController', ['$scope', '$state', '$stateParams', '
     
     busyIndicatorService.setPromise(promise);
     
-    $scope.clearproductImageUpload = function() {
-        if ($scope.productImageUpload) {
-            $scope.productImageUpload.dataURL = undefined;
+    $scope.clearproductBannerUpload = function() {
+        if ($scope.productBannerUpload) {
+            $scope.productBannerUpload.dataURL = undefined;
             
-            if ($scope.productImageUpload.resized) {
-                $scope.productImageUpload.resized.dataURL = undefined;            
+            if ($scope.productBannerUpload.resized) {
+                $scope.productBannerUpload.resized.dataURL = undefined;            
             }
         }
-        $scope.productImageUpload = undefined;
+        $scope.productBannerUpload = undefined;
         
-        $scope.deal.dealImageUrl = null;
+        $scope.deal.dealBannerUrl = null;
     };
 
     $scope.addPickupOption = function() {
@@ -1383,11 +1383,11 @@ tgbApp.controller('createDealController', ['$scope', '$state', '$stateParams', '
             return !o.address && !o.contactName && !o.phoneNumber;
         });
         
-        if ($scope.productImageUpload && $scope.productImageUpload.resized) {
-            var resizedImage = $scope.productImageUpload.resized;
-            $scope.deal.imageType = resizedImage.type;
+        if ($scope.productBannerUpload && $scope.productBannerUpload.resized) {
+            var resizedImage = $scope.productBannerUpload.resized;
+            $scope.deal.bannerImageType = resizedImage.type;
             // TODO: find a better way to parse the base64 image data out of data url.
-            $scope.deal.imageBase64 = $scope.productImageUpload.resized.dataURL.split(',')[1];
+            $scope.deal.bannerImageBase64 = $scope.productBannerUpload.resized.dataURL.split(',')[1];
         }
 
         var promise = dealDataService.saveDeal($scope.deal);

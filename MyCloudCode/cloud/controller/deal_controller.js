@@ -354,32 +354,35 @@ var saveDeal = function(parseDeal, req) {
 	// Do not reser featured field
 	//parseDeal.set('featured', false);
 
-	var imageData = req.body.imageBase64;
-	var imageType = req.body.imageType;
-	if (imageData && imageType) {
+	var bannerData = req.body.bannerImageBase64;
+	var bannerType = req.body.bannerImageType;
+	if (bannerData && bannerType) {
 		var imgFileName;
-		if (imageType == 'image/png') {
+		if (bannerType == 'image/png') {
 			imgFileName = 'deal_image.png';
 		}
-		else if (imageType == 'image/jpeg') {
+		else if (bannerType == 'image/jpeg') {
 			imgFileName = 'deal_image.jpg';
 		}
 		else {
-			logger.debugLog('saveDeal log. Unsupported image type: ' + imageType);
-			throw new Error('Unsupported image type: ' + imageType);
+			logger.debugLog('saveDeal log. Unsupported image type: ' + bannerType);
+			throw new Error('Unsupported image type: ' + bannerType);
 		}
-		var targetImageFile = new Parse.File(imgFileName, {base64: imageData}, imageType);
+		var targetImageFile = new Parse.File(imgFileName, {base64: bannerData}, bannerType);
 		// TODO: resize for icon
 		return targetImageFile.save()
 			.then(function(imgFile) {
-				parseDeal.set('dealImage', imgFile);
+				parseDeal.set('dealBanner', imgFile);
 				logger.debugLog('saveDeal log. deal is: ' + JSON.stringify(parseDeal));
 				return parseDeal.save();
 			});
 	}
-	if (imageType && !imageData) {
+	if (bannerType && !bannerData) {
 		logger.debugLog('saveDeal log. save deal without image: ' + JSON.stringify(parseDeal));
-		parseDeal.set('dealImage', null);
+		parseDeal.set('dealBanner', null);
 	}
+
+	// TODO: support dealImages
+
 	return parseDeal.save();
 };

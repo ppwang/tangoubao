@@ -36,7 +36,7 @@
     
     <div class="row tgb-input-group">
         <div class="col-md-2 col-xs-3 input-label"></div>
-        <img class="col-md-5 col-xs-5 deal-img" ng-src="{{productImageUpload.resized.dataURL || (deal.dealImageUrl || 'resources/logo.png')}}" onerror="this.src = 'resources/logo.png'"/>
+        <img class="col-md-5 col-xs-5 deal-img" ng-src="{{productBannerUpload.resized.dataURL || (deal.dealBannerUrl || 'resources/logo.png')}}" onerror="this.src = 'resources/logo.png'"/>
 
         <div class="col-md-5 col-xs-4">
             <div class="col-md-12 col-xs-12 img-upload-button-container">
@@ -47,13 +47,13 @@
                     crop
                     crop-height="320"
                     crop-width="480"
-                    ng-model="productImageUpload">
+                    ng-model="productBannerUpload">
                     选择图片
                 </button>
             </div>
             <div class="col-md-12 col-xs-12 img-upload-button-container">
                 <!-- TODO: clicking the clear button will trigger form validation -->
-                <button class="img-upload-button button-box-shadow" ng-click="clearproductImageUpload()">删除图片</button>
+                <button class="img-upload-button button-box-shadow" ng-click="clearproductBannerUpload()">删除图片</button>
             </div>
         </div>
         <br>

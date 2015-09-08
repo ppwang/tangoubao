@@ -198,7 +198,7 @@ module.exports.getOrder = function(req, res) {
 				deal = tgbDeal.convertToDealModel(parseDeal);
 				creator = userModel.convertToUserModel(parseUser);
 				parseOrder.set('dealName', deal.name);
-				parseOrder.set('dealImageUrl', deal.dealImageUrl);
+				parseOrder.set('dealBannerUrl', deal.dealBannerUrl);
 				parseOrder.set('creatorName', creator.nickname);
 				parseOrder.set('creatorImageUrl', creator.headimgurl);
 				logger.debugLog('getOrder log. to save parseOrder: ' + JSON.stringify(parseOrder));
@@ -283,7 +283,7 @@ var createOrder = function(correlationId, dealId, currentUser, req) {
 			parseOrder.set('pickupOptionId', pickupOptionId);
 			parseOrder.set('phoneNumber', phoneNumber);
 			parseOrder.set('dealName', deal.name);
-			parseOrder.set('dealImageUrl', deal.dealImageUrl);
+			parseOrder.set('dealBannerUrl', deal.dealBannerUrl);
 			parseOrder.set('email', email);
 			parseOrder.set('creatorName', creatorName);
 			parseOrder.set('creatorImageUrl', creatorImageUrl);
@@ -394,7 +394,7 @@ var modifyOrder = function(correlationId, orderId, currentUser, req) {
 			parseOrder.set('pickupOptionId', pickupOptionId);
 			parseOrder.set('phoneNumber', phoneNumber);
 			parseOrder.set('dealName', deal.name);
-			parseOrder.set('dealImageUrl', deal.dealImageUrl);
+			parseOrder.set('dealBannerUrl', deal.dealBannerUrl);
 			parseOrder.set('creatorName', creatorName);
 			parseOrder.set('creatorImageUrl', creatorImageUrl);
 			parseOrder.set('email', email);

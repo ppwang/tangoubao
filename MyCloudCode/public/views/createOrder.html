@@ -1,7 +1,7 @@
 <div class="container-fluid" cg-busy="{promise: transparentBusyPromise, backdrop: true, templateUrl:'views/busy.html', backdropClass: 'tgb-busy-backdrop-transparent'}">
     <div class="row deal-img-row">
         <div class="col-md-12 col-xs-12" style="text-align:center;">
-            <img class="deal-image" ng-src="{{deal.dealImageUrl || 'resources/logo.png'}}" onerror="this.src = 'resources/logo.png'"/>
+            <img class="deal-image" ng-src="{{deal.dealBannerUrl || 'resources/logo.png'}}" onerror="this.src = 'resources/logo.png'"/>
         </div>
     </div>
     <div class="row item-detail-row item-title-row">

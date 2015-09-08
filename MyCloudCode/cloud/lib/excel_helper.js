@@ -1,7 +1,7 @@
 var logger = require('cloud/lib/logger');
 
 // Deal type is in the following format:
-//    deal = {id, name, beginDate, endDate, dealImageUrl, description, email, phoneNumber, unitName, unitPrice, 
+//    deal = {id, name, beginDate, endDate, dealBannerUrl, description, email, phoneNumber, unitName, unitPrice, 
 //         unitsPerPackage, creatorName, regionId
 //         , orders }
 //     orders = [ order ]
