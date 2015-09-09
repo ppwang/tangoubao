@@ -1,6 +1,7 @@
 var ParseDeal = Parse.Object.extend('Deal');
 var ParseOrder= Parse.Object.extend('Order');
 var ParseFollowDeal = Parse.Object.extend('FollowDeal');
+var ParseDealImage = Parse.Object.extend('DealImage');
 
 var utils = require('cloud/lib/utils');
 var dealModel = require('cloud/tuangoubao/deal');
@@ -375,14 +376,60 @@ var saveDeal = function(parseDeal, req) {
 				parseDeal.set('dealBanner', imgFile);
 				logger.debugLog('saveDeal log. deal is: ' + JSON.stringify(parseDeal));
 				return parseDeal.save();
+			})
+			.then(function(savedDeal) {
+				var dealImages = req.body.dealImages;
+				if (dealImages) {
+					var imageFilepromises = [];
+					dealImages.forEach(function(dealImage) {
+						var imageData = dealImage.imageBase64;
+						var imageType = dealImage.imageType;
+						if (imageData && imageType) {
+							if (bannerType == 'image/png') {
+								imgFileName = 'deal_image.png';
+							}
+							else if (bannerType == 'image/jpeg') {
+								imgFileName = 'deal_image.jpg';
+							}
+							else {
+								logger.debugLog('saveDeal log. Unsupported image type: ' + bannerType);
+								throw new Error('Unsupported image type: ' + bannerType);
+							}
+							var targetImageFile = new Parse.File(imgFileName, {base64: imageData}, imageType);
+							imageFilepromises.push(imgFile.save());
+						}
+					});
+					return Parse.Promise.when(imageFilepromises)
+						.then(function() {
+							var parseImagePromises = [];
+							for(var i=0; i<arguments.length; i++) {
+								var imageFile = arguments[i];
+								var parseImage = new ParseDealImage();
+								parseImage.set('imageFile', imageFile);
+								parseImage.set('dealId', savedDeal.id);
+								parseImagePromises.push(parseImage.save());
+							}
+							return Parse.Promise.when(parseImagePromises);
+						})
+						.then(function() {
+							var dealImageUrls = [];
+							for (var i = 0; i < arguments.length; i ++) {
+								var parseImage = arguments[i];
+								var parseImageFile = parseImage.get('imageFile');
+								var imageUrl = parseImageFile? parseImageFile.url() : null;
+								dealImageUrls.push(imageUrl);
+							}
+							savedDeal.set('dealImages', dealImageUrls);
+							return saveDeal.save();
+						});
+				}
+				return savedDeal;
 			});
 	}
 	if (bannerType && !bannerData) {
 		logger.debugLog('saveDeal log. save deal without image: ' + JSON.stringify(parseDeal));
 		parseDeal.set('dealBanner', null);
 	}
-
-	// TODO: support dealImages
-
+	
 	return parseDeal.save();
 };

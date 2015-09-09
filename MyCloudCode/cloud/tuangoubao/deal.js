@@ -12,11 +12,21 @@ module.exports.convertToDealModel = function(parseDeal, type) {
 	if (dealBannerUrl) {
 		// This is because parse does not server https url to its files.
 		// See for reference: http://hackingtheimpossible.com/quick-tip-serve-parse-files-via-https/
-		deal.dealBannerUrl = dealBannerUrl.replace("http://", "https://s3.amazonaws.com/")
+		deal.dealBannerUrl = dealBannerUrl.replace("http://", "https://s3.amazonaws.com/");
 	}
 	else {
 		deal.dealBannerUrl = null;
 	}
+	var dealImageUrls = parseDeal.get('dealImages');
+	var dealImages = [];
+	if (dealImageUrls) {
+		dealImageUrls.forEach(function(dealImageUrl) {
+			if (dealImageUrl) {
+				dealImages.push(dealImageUrl.replace("http://", "https://s3.amazonaws.com/"));
+			}
+		});
+	}
+	deal.dealImages = dealImages;
 	deal.description = parseDeal.get('description');
 	deal.email = parseDeal.get('email');
 	deal.phoneNumber = parseDeal.get('phoneNumber');
@@ -37,7 +47,7 @@ module.exports.convertToDealModel = function(parseDeal, type) {
 	var creator = parseDeal.get('createdBy');
 	deal.creatorId = creator.id;
 	deal.type = type;
-	deal.featured = parseDeal.get('featured');
+	deal.featured = parseDeal.get('featured');	
 	return deal;
 };
 
