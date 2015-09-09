@@ -1,0 +1,54 @@
+{
+    "button": [
+        {
+            "name": "热Deals", 
+            "sub_button": [
+                {
+                    "type": "view", 
+                    "name": "百佳超市", 
+                    "url": "https://tuangoubao.parseapp.com/#/dealDetail/23lcY4bxEY"
+                }, 
+                {
+                    "type": "view", 
+                    "name": "Stone卡拉OK", 
+                    "url": "https://tuangoubao.parseapp.com/#/dealDetail/GZHeTZM8aI"
+                }, 
+                {
+                    "type": "view", 
+                    "name": "鼎记", 
+                    "url": "https://tuangoubao.parseapp.com/#/dealDetail/fj6Yr7GANX"
+                }
+            ]
+        }, 
+        {
+            "type": "view", 
+            "name": "我要团购", 
+            "url": "https://tuangoubao.parseapp.com/#/publicDeals"
+        }, 
+        {
+            "name": "微蜂网", 
+            "sub_button": [
+                {
+                    "type": "view", 
+                    "name": "关于我们", 
+                    "url": "https://tuangoubao.parseapp.com/#/contact"
+                }, 
+                {
+                    "type": "view", 
+                    "name": "我的微蜂网", 
+                    "url": "https://tuangoubao.parseapp.com/#/buyerAccount/orders/active"
+                }, 
+                {
+                    "type": "view", 
+                    "name": "个人资料", 
+                    "url": "https://tuangoubao.parseapp.com/#/userProfile"
+                }, 
+                {
+                    "type": "view", 
+                    "name": "消息", 
+                    "url": "https://tuangoubao.parseapp.com/#/messageCenter"
+                }
+            ]
+        }
+    ]
+}
