@@ -1553,10 +1553,15 @@ tgbApp.controller('createOrderController', ['$scope', '$state', '$stateParams', 
         var address = pickupOption ? pickupOption.address : '未知';
         var message = '您即将预定 ' + deal.name + ' ' + order.quantity + '件(共' + units + deal.unitName + '), 总计' + price + '美元. 取货地址是 ' + address + '. 谢谢您的参与!';
         
+        var creditCard = $scope.creditCard;
         modalDialogService.show({
             message: message,
             showCancelButton: true,
         }).result.then(function() {
+            if (creditCard && creditCard.name && creditCard.number && creditCard.expiry && creditCard.security) {
+                
+            }
+
             var orderPromise = orderDataService.createOrder($scope.order);
             $scope.transparentBusyPromise = orderPromise;
             orderPromise.then(function() {

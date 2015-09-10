@@ -63,6 +63,18 @@
         </div>
     </div>
 
+    <div class="row item-detail-row">
+        <div class="col-md-2 col-xs-3 item-detail-tag">信用卡付款:</div>
+    </div>
+    <div class="row tgb-input-group">
+        <div class="col-md-10 col-xs-9 col-xs-offset-3">
+            <input class="col-md-12 col-xs-12 tgb-input" ng-model="creditCard.name" ng-required="true" placeholder="姓名"/>
+            <input class="col-md-12 col-xs-12 tgb-input" type="number" ng-model="creditCard.number" ng-pattern="/^\d*$/" ng-required="true" placeholder="卡号"/>
+            <input class="col-md-6 col-xs-6 tgb-input" type="date" ng-model="creditCard.expiry" ng-required="true" placeholder="有效期"/>
+            <input class="col-md-6 col-xs-6 tgb-input" type="number" ng-model="creditCard.security" ng-pattern="/^\d*$/" ng-required="true" placeholder="CSS码"/>
+        </div>
+    </div>
+
     <div class="row deal-submit-button-container">
     	<button ng-click="createOrder()">立即购买</button>
 	</div>
