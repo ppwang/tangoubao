@@ -9,7 +9,7 @@
         </div>
         <div class="col-md-6 col-xs-3">
             <span>{{message.createdAt | date:'M-d-yy'}}</span>
-            <span class="caret"></span>
+            <span ng-class="showContent ? 'glyphicon glyphicon-triangle-bottom' : 'glyphicon glyphicon-triangle-right'"></span>
         </div>
         <div class="col-md-12 col-xs-12">
             <span class="message-title">{{message.messageTitle}}</span>
