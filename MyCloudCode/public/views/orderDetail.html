@@ -13,71 +13,52 @@
 
     <div class="row item-detail-row">
         <div class="col-md-2 col-xs-3 item-detail-tag">
-            地 区: 
+            姓&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;名: 
         </div>
         <div class="col-md-10 col-xs-9">
-            {{order.deal.region}}
+            {{currentUser.nickname}}
         </div>
     </div>
 
     <div class="row item-detail-row">
         <div class="col-md-2 col-xs-3 item-detail-tag">
-            价 格: 
+            电&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;话: 
         </div>
         <div class="col-md-10 col-xs-9">
-            <span style="font-weight: bold;">{{order.deal.unitPrice | currency:'$'}}/{{order.deal.unitName}} </span>
-            (每件{{order.deal.unitsPerPackage}}{{order.deal.unitName}})
+            {{currentUser.phoneNumber}}
         </div>
     </div>
 
     <div class="row item-detail-row">
         <div class="col-md-2 col-xs-3 item-detail-tag">
-            开始日期:
+            电&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;邮: 
         </div>
         <div class="col-md-10 col-xs-9">
-            {{order.deal.beginDate | date:'yyyy年MM月dd日'}}
+            {{currentUser.email}}
         </div>
     </div>
 
     <div class="row item-detail-row">
         <div class="col-md-2 col-xs-3 item-detail-tag">
-            截止日期: 
+            购买数量: 
         </div>
         <div class="col-md-10 col-xs-9">
-            {{order.deal.endDate | date:'yyyy年MM月dd日'}}
+            {{order.quantity}}件 ({{order.deal.unitsPerPackage}}{{order.deal.unitName}}/件)
         </div>
     </div>
 
     <div class="row item-detail-row">
         <div class="col-md-2 col-xs-3 item-detail-tag">
-            团购进度: 
+            总&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;价: 
         </div>
         <div class="col-md-10 col-xs-9">
-            {{order.deal.endDate | daysRemainingFilter}}{{order.deal | quantityLeftFilter}}
+            <span style="font-weight: bold;">{{order.quantity * order.deal.unitsPerPackage * order.deal.unitPrice | currency:'$'}}</span>
         </div>
     </div>
 
     <div class="row item-detail-row">
         <div class="col-md-2 col-xs-3 item-detail-tag">
-            发起人: 
-        </div>
-        <div class="col-md-10 col-xs-9">
-            {{order.deal.creatorName}}
-        </div>
-    </div>
-
-    <div class="row item-detail-row">
-        <div class="col-md-2 col-xs-3 item-detail-tag">
-            发货方式: 
-        </div>
-        <div class="col-md-10 col-xs-9">
-            自取
-        </div>
-    </div>
-
-    <div class="row item-detail-row">
-        <div class="col-md-2 col-xs-3 item-detail-tag">
-            发货地址: 
+            取货地址: 
         </div>
         <div class="col-md-10 col-xs-9">
             {{pickupOption.address}}
@@ -86,7 +67,7 @@
 
     <div class="row item-detail-row">
         <div class="col-md-2 col-xs-3 item-detail-tag">
-            联系人: 
+            联&nbsp;&nbsp;系&nbsp;&nbsp;人: 
         </div>
         <div class="col-md-10 col-xs-9">
             {{pickupOption.contactName}}
@@ -95,20 +76,16 @@
 
     <div class="row item-detail-row">
         <div class="col-md-2 col-xs-3 item-detail-tag">
-            联系电话: 
+            付款方式: 
         </div>
         <div class="col-md-10 col-xs-9">
-            {{pickupOption.phoneNumber}}
+            取货付款
         </div>
     </div>
 
     <div class="row item-detail-row">
-        <div class="col-md-2 col-xs-3 item-detail-tag">
-            应付款: 
-        </div>
-        <div class="col-md-10 col-xs-9">
-            <span style="font-weight: bold;">{{order.quantity * order.deal.unitsPerPackage * order.deal.unitPrice | currency:'$'}}</span>
-            <span>({{order.quantity}}件 * {{order.deal.unitPrice | currency:'$'}}/{{order.deal.unitName}} * {{order.deal.unitsPerPackage}}{{order.deal.unitName}}/件)</span>
+        <div class="col-md-offset-2 col-xs-offset-2 col-md-8 col-xs-8 item-detail-tag">
+            <img src="resources/wephoon_qr.jpg"/> 
         </div>
     </div>
 
