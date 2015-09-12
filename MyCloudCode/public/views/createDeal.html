@@ -137,6 +137,23 @@
             <button ng-click="addPickupOption()">加</button>
         </div>
     </div>
+    
+    <button
+        input-images
+        append-data-uri
+        append
+        crop
+        crop-height="320"
+        crop-width="480"
+        thumbnail
+        ng-model="additionalImages">
+    附加图片</button>
+    <div ng-repeat="img in additionalImages" >
+        <img ng-src="{{img.resized.dataURL}}"/>
+        <img ng-src="{{img.thumbnail.dataURL}}" />
+        <button ng-click="removeAdditionalImage(img)">删除</button>
+    </div>
+    
     <div class="row deal-submit-button-container">
         <button ng-click="saveDeal()">提交</button>
     </div>

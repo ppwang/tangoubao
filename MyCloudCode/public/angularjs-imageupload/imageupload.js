@@ -2,9 +2,7 @@
   "use strict";
   angular.module("imageupload", [])
     .factory("getResizeArea", function(){
-      return function () {
-        var resizeAreaId = "fileupload-resize-area";
-
+      return function (resizeAreaId) {
         var resizeArea = document.getElementById(resizeAreaId);
 
         if (!resizeArea) {
@@ -27,6 +25,9 @@
         var coverX = options.coverX || "left";
         var coverY = options.coverY || "top";
         var type = options.resizeType || "image/jpg";
+        var thumbnail = options.thumbnail || options.thumbnail === "" || false;
+        var thumbnailHeight = options.thumbnailHeight || 80;
+        var thumbnailWidth = options.thumbnailWidth || 120;
 
         // TGB: custom resize mode
         var crop = options.crop || options.crop === "" || false;
@@ -34,14 +35,17 @@
         var cropHeight = options.cropHeight || 320;
         var cropWidth = options.cropWidth || 480;
         
-        var canvas = getResizeArea();
+        var resizeAreaId = "fileupload-resize-area";
+        var canvas = getResizeArea(resizeAreaId);
 
         var height = origImage.height;
         var width = origImage.width;
 
         var imgX = 0;
         var imgY = 0;
-
+        
+        var resizedDataURL;
+          
         if(cover){
           // Logic for calculating size when in cover-mode
           canvas.width = coverHeight;
@@ -100,7 +104,23 @@
             ctx.drawImage(origImage, sx, sy, sw, sh, 0, 0, cropWidth, cropHeight);
 
             // get the data from canvas as 70% jpg (or specified type).
-            return canvas.toDataURL(type, quality);
+            resizedDataURL = canvas.toDataURL(type, quality);
+
+            if (thumbnail) {
+                var thumbnailAreaId = "thumbnail-area";
+                var thumbnailCanvas = getResizeArea(thumbnailAreaId);
+          
+                thumbnailCanvas.height = thumbnailHeight;
+                thumbnailCanvas.width = thumbnailWidth;
+                var thumbnailCtx = thumbnailCanvas.getContext("2d");
+                thumbnailCtx.drawImage(canvas, 0, 0, thumbnailWidth, thumbnailHeight);
+                var thumbnailDataURL = thumbnailCanvas.toDataURL(type, quality);
+            }
+            
+            return {
+                resized: resizedDataURL,
+                thumbnail: thumbnailDataURL,
+            };
         } else {
           // calculate the width and height, constraining the proportions
           if (width > height) {
@@ -124,7 +144,12 @@
         ctx.drawImage(origImage, imgX, imgY, width, height);
 
         // get the data from canvas as 70% jpg (or specified type).
-        return canvas.toDataURL(type, quality);
+//        return canvas.toDataURL(type, quality);
+          var resizedDataURL = canvas.toDataURL(type, quality);
+          
+          return {
+            resized: resizedDataURL,
+          };
       };
     })
     .factory("fileToDataURL", function($q) {
@@ -220,12 +245,26 @@
           model.url = URL.createObjectURL(model.file); //this is used to generate images/resize
           return createImage(model.url)
             .then(function(image) {
-              var dataURL = resizeImage(image, options);
-              var imageType = dataURL.substring(5, dataURL.indexOf(";"));
+//              var dataURL = resizeImage(image, options);
+//              var imageType = dataURL.substring(5, dataURL.indexOf(";"));
+//              model.resized = {
+//                dataURL: dataURL,
+//                type: imageType
+//              };
+//              return model;
+              // TGB
+              var dataURLs = resizeImage(image, options);
               model.resized = {
-                dataURL: dataURL,
-                type: imageType
+                dataURL: dataURLs.resized,
+                type: dataURLs.resized.substring(5, dataURLs.resized.indexOf(";")),
               };
+              
+              if (dataURLs.thumbnail) {
+                model.thumbnail = {
+                    dataURL: dataURLs.thumbnail,
+                    type: dataURLs.thumbnail.substring(5, dataURLs.thumbnail.indexOf(";")),
+                }
+              }
               return model;
             });
         };
