@@ -112,16 +112,18 @@
     </div>
 
     <div class="row">
-<!--
-        <ul class="tgb-gallery">
-            <li ng-repeat="img in lightboxImages">
-                <a ng-click="openLightboxModal($index)">
-                    <img ng-src="{{img.thumbUrl}}" class="img-thumbnail">
-                </a>
-            </li>
-        </ul>
--->
-        <ng-gallery images="additionalImages"></ng-gallery>
+        <div class="col-md-10 col-xs-9 col-md-offset-2 col-xs-offset-3">
+    <!--
+            <ul class="tgb-gallery">
+                <li ng-repeat="img in lightboxImages">
+                    <a ng-click="openLightboxModal($index)">
+                        <img ng-src="{{img.thumbUrl}}" class="img-thumbnail">
+                    </a>
+                </li>
+            </ul>
+    -->
+            <ng-gallery images="additionalImages"></ng-gallery>
+        </div>
     </div>
     
     <div class="row item-detail-row">
