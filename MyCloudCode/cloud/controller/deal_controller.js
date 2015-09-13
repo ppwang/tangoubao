@@ -381,12 +381,20 @@ var saveDeal = function(parseDeal, req) {
 			.then(function(savedDeal) {
 				var dealImages = req.body.dealImages;
 				logger.debugLog('saveDeal log. dealImages count: ' + dealImages.length);
-				if (dealImages) {
+				if (dealImages && dealImages.length > 0) {
 					return setDealImages(dealImages, savedDeal);
 				}
 				return savedDeal;
 			});
 	}
+	else {
+		var dealImages = req.body.dealImages;
+		logger.debugLog('saveDeal log. dealImages count: ' + dealImages.length);
+		if (dealImages && dealImages.length > 0) {
+			return setDealImages(dealImages, parseDeal);
+		}
+	}
+
 	if (bannerType && !bannerData) {
 		logger.debugLog('saveDeal log. save deal without image: ' + JSON.stringify(parseDeal));
 		parseDeal.set('dealBanner', null);
