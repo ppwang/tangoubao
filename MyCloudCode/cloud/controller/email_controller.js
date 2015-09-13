@@ -23,7 +23,7 @@ module.exports.sendEmail = function(emailAddress, sendeeName, order, messageType
 		message: {
 			html: messageBody,
 			subject: messageTitle,
-			from_email: "info@tuangoubao.parseapps.com",
+			from_email: "info@wephoon.com",
 			from_name: "来自微蜂网的消息",
 			to: [
 				{
