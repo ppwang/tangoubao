@@ -89,7 +89,7 @@ var constructMessageBody = function(order, messageType, messageText) {
 
 var constructMessageTitle = function(order, messageType, messageText) {
 	if (messageType == 'productArrived') {
-		return 'Your order for ' + order.dealName + ' is ready to pick up';
+		return '您定的货, ' + order.dealName + ', 已经可以取货了!';
 	}
 	if (messageType == 'general') {
 		return order? '您的微蜂团购消息, ' + order.dealName + '.' : '您的微蜂团购取消消息';
