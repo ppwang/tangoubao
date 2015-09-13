@@ -1,4 +1,4 @@
-var tgbApp = angular.module('tuanGouBao', ['ngTouch', 'GlobalConfiguration', 'ui.router', 'xeditable', 'imageupload', 'cgBusy', 'ui.bootstrap', 'slick']);
+var tgbApp = angular.module('tuanGouBao', ['ngTouch', 'GlobalConfiguration', 'ui.router', 'xeditable', 'imageupload', 'cgBusy', 'ui.bootstrap', 'slick', 'jkuri.gallery']);
 
 //tgbApp.config(function($locationProvider) {
 //    //$locationProvider.html5Mode(true).hashPrefix('!');
@@ -1224,6 +1224,31 @@ tgbApp.controller('dealDetailController', ['$scope', '$state', '$stateParams', '
         // Set up weixin share.
         document.title = $scope.deal.name;
 //        document.getElementsByName('description')[0].content = "test content";
+
+        var dealImages = $scope.deal.dealImages;
+        if (dealImages) {
+            // Thumbnail and actual image should be in pairs.
+            if (dealImages.length % 2 !== 0) {
+                console.log('Thumbnail and actual image not in pairs. Number of addtional images is ' + dealImages.length);
+            } else {
+                $scope.additionalImages = []; 
+
+                var i = 0;
+                while (i<dealImages.length) {
+                    var thumbUrl = dealImages[i++];
+                    var url = dealImages[i++];
+                    
+                    $scope.additionalImages.push({
+                        'img': url,
+                        'thumb': thumbUrl,
+                    });
+                    $scope.additionalImages.push({
+                        'img': url,
+                        'thumb': thumbUrl,
+                    });
+                }
+            }
+        }
     });
 
     var commentPromise = commentDataService.getComments($stateParams.id).then(function(comments) {
@@ -1284,6 +1309,10 @@ tgbApp.controller('dealDetailController', ['$scope', '$state', '$stateParams', '
             backdrop: 'true',
         });
         
+    };
+    
+    $scope.openLightboxModal = function(index) {
+        Lightbox.openModal($scope.lightboxImages, index);
     };
     
     $scope.ratingHoveringOver = function(value) {
@@ -1377,6 +1406,10 @@ tgbApp.controller('createDealController', ['$scope', '$state', '$stateParams', '
         })    
     };
     
+    $scope.removeAdditionalImage = function(img) {
+        _.remove($scope.additionalImages, img);
+    };
+    
     $scope.saveDeal = function() {
         // Validate the new deal.
         _.remove($scope.deal.pickupOptions, function(o) {
@@ -1390,6 +1423,26 @@ tgbApp.controller('createDealController', ['$scope', '$state', '$stateParams', '
             $scope.deal.bannerImageBase64 = $scope.productBannerUpload.resized.dataURL.split(',')[1];
         }
 
+        if ($scope.additionalImages) {
+            var dealImages = [];
+            $scope.deal.dealImages = dealImages;
+            
+            _.forEach($scope.additionalImages, function(img) {
+                var thumbnailImage = img.thumbnail;
+                var resizedImage = img.resized;
+                dealImages.push({
+                    // TODO: find a better way to parse the base64 image data out of data url.
+                    imageBase64: thumbnailImage.dataURL.split(',')[1],
+                    imageType: thumbnailImage.type,
+                });
+                dealImages.push({
+                    // TODO: find a better way to parse the base64 image data out of data url.
+                    imageBase64: resizedImage.dataURL.split(',')[1],
+                    imageType: resizedImage.type,
+                });
+            });
+        }
+        
         var promise = dealDataService.saveDeal($scope.deal);
         $scope.transparentBusyPromise = promise;
         promise.then(function() {

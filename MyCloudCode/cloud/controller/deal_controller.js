@@ -26,6 +26,7 @@ module.exports.putDeal = function(req, res) {
 		logger.debugLog('putDeal log. create deal.');
 		return createDeal(req, currentUser)
 			.then(function(parseDeal) {
+				logger.debugLog('putDeal log. createDeal is done.');
 				var deal = dealModel.convertToDealModel(parseDeal);
 				var dealData = JSON.stringify(deal);
 				logger.debugLog('putDeal log. send deal: ' + dealData);
@@ -379,49 +380,9 @@ var saveDeal = function(parseDeal, req) {
 			})
 			.then(function(savedDeal) {
 				var dealImages = req.body.dealImages;
+				logger.debugLog('saveDeal log. dealImages count: ' + dealImages.length);
 				if (dealImages) {
-					var imageFilepromises = [];
-					dealImages.forEach(function(dealImage) {
-						var imageData = dealImage.imageBase64;
-						var imageType = dealImage.imageType;
-						if (imageData && imageType) {
-							if (bannerType == 'image/png') {
-								imgFileName = 'deal_image.png';
-							}
-							else if (bannerType == 'image/jpeg') {
-								imgFileName = 'deal_image.jpg';
-							}
-							else {
-								logger.debugLog('saveDeal log. Unsupported image type: ' + bannerType);
-								throw new Error('Unsupported image type: ' + bannerType);
-							}
-							var targetImageFile = new Parse.File(imgFileName, {base64: imageData}, imageType);
-							imageFilepromises.push(imgFile.save());
-						}
-					});
-					return Parse.Promise.when(imageFilepromises)
-						.then(function() {
-							var parseImagePromises = [];
-							for(var i=0; i<arguments.length; i++) {
-								var imageFile = arguments[i];
-								var parseImage = new ParseDealImage();
-								parseImage.set('imageFile', imageFile);
-								parseImage.set('dealId', savedDeal.id);
-								parseImagePromises.push(parseImage.save());
-							}
-							return Parse.Promise.when(parseImagePromises);
-						})
-						.then(function() {
-							var dealImageUrls = [];
-							for (var i = 0; i < arguments.length; i ++) {
-								var parseImage = arguments[i];
-								var parseImageFile = parseImage.get('imageFile');
-								var imageUrl = parseImageFile? parseImageFile.url() : null;
-								dealImageUrls.push(imageUrl);
-							}
-							savedDeal.set('dealImages', dealImageUrls);
-							return saveDeal.save();
-						});
+					return setDealImages(dealImages, savedDeal);
 				}
 				return savedDeal;
 			});
@@ -433,3 +394,53 @@ var saveDeal = function(parseDeal, req) {
 	
 	return parseDeal.save();
 };
+
+var setDealImages = function(dealImages, parseDeal) {
+	var imageFilepromises = [];
+	dealImages.forEach(function(dealImage) {
+		var imageData = dealImage.imageBase64;
+		var imageType = dealImage.imageType;
+		logger.debugLog('setDealImages log. imageType: ' + imageType);
+		if (imageData && imageType) {
+			if (imageType == 'image/png') {
+				imgFileName = 'deal_image.png';
+			}
+			else if (imageType == 'image/jpeg') {
+				imgFileName = 'deal_image.jpg';
+			}
+			else {
+				logger.debugLog('saveDeal log. Unsupported image type: ' + imageType);
+				throw new Error('Unsupported image type: ' + imageType);
+			}
+			var targetImageFile = new Parse.File(imgFileName, {base64: imageData}, imageType);
+			imageFilepromises.push(targetImageFile.save());
+		}
+	});
+	return Parse.Promise.when(imageFilepromises)
+		.then(function() {
+			logger.debugLog('setDealImages log. imageFile saved promises');
+			var parseImagePromises = [];
+			for(var i=0; i<arguments.length; i++) {
+				var imageFile = arguments[i];
+				var parseImage = new ParseDealImage();
+				parseImage.set('imageFile', imageFile);
+				parseImage.set('dealId', parseDeal.id);
+				parseImagePromises.push(parseImage.save());
+			}
+			return Parse.Promise.when(parseImagePromises);
+		})
+		.then(function() {
+			logger.debugLog('setDealImages log. parseImage saved promises');
+			var dealImageUrls = [];
+			for (var i = 0; i < arguments.length; i++) {
+				var parseImage = arguments[i];
+				var parseImageFile = parseImage.get('imageFile');
+				var imageUrl = parseImageFile? parseImageFile.url() : null;
+				logger.debugLog('setDealImages log. imageUrl: ' + imageUrl);
+				dealImageUrls.push(imageUrl);
+			}
+			logger.debugLog('setDealImages log. dealImageUrls: ' + JSON.stringify(dealImageUrls));
+			parseDeal.set('dealImages', dealImageUrls);
+			return parseDeal.save();
+		});
+}
