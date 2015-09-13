@@ -47,7 +47,8 @@ module.exports.exportDealToExcel = function (dealData) {
 		dealData.orders.forEach(function(order) {
 			var buyer = order.buyer;
 			var pickupOption = order.pickupOption;
-			result += escapeStr(order.orderTime.toString()) + separator
+			var dateString = getDateString(order.orderTime);
+			result += escapeStr(dateString) + separator
 				+ escapeStr(buyer.nickname) + separator
 				+ buyer.phoneNumber + separator
 				+ escapeStr(buyer.email) + separator
@@ -64,6 +65,16 @@ module.exports.exportDealToExcel = function (dealData) {
 	}
 
 	return result;
+}
+
+var getDateString = function(dateTime) {
+	if (!dateTime) {
+		return '';
+	}
+	var yyyy = dateTime.getFullYear().toString();
+    var mm = (dateTime.getMonth()+1).toString(); // getMonth() is zero-based
+   	var dd  = dateTime.getDate().toString();
+   	return yyyy + '/' + (mm[1]?mm:"0"+mm[0]) + '/' + (dd[1]?dd:"0"+dd[0]); // padding
 }
 
 var escapeStr = function(value) {
