@@ -14,7 +14,7 @@
         <div class="col-md-12 col-xs-12">
             <span class="message-title">{{message.messageTitle}}</span>
         </div>
-        <div class="col-md-12 col-xs-12" ng-show="showContent">
+        <div class="col-md-12 col-xs-10 col-xs-offset-1" ng-show="showContent">
             <span class="message-body" ng-switch="message.messageType">
                 <span ng-switch-when="sendEmailVerification">
                     欢迎使用团购宝, 请点击<a href ng-click="sendEmailVerification(); $event.stopPropagation();" style="font-weight: bold;">这里</a>发送确认邮件到您的电子邮件信箱. 确认后您可以选择通过Email接收信息. 如果您的密码丢失的话, 也可以通过Email重置哦!
