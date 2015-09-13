@@ -34,7 +34,7 @@ module.exports.addWelcomeMessage = function(signedUpUser) {
 	var parseMessage = new ParseMessage();
 	parseMessage.set('creatorId', 'parse_admin');
 	parseMessage.set('receiverId', signedUpUser.id);
-	parseMessage.set('creatorName', '微蜂网');
+	parseMessage.set('creatorName', '微蜂团购');
 	parseMessage.set('messageType', 'sendEmailVerification');
 	parseMessage.set('messageTitle', '');
 	parseMessage.set('messageBody', '');
@@ -54,22 +54,22 @@ module.exports.constructHtmlMessageBody = function(order, messageType, messageTe
 	var orderUrl = order? serviceSetting.baseUrl + '/#/orderDetail/' + order.id : '';
 	var messageBody = messageText? '卖家信息:\n' + messageText : '';
 	if (messageType == 'productArrived') {
-		return 'Your order for ' 
+		return '您定的货, ' 
 			+ '<a href="' + orderUrl + '">'
 			+      order.dealName 
 			+ '</a>'
-			+ ' is ready to pick up.\n'
+			+ ', 已经可以取货了.\n'
 			+ messageBody;
 	}
 	if (messageType == 'general') {
 		return order? 
-			'您的微蜂网团购消息, ' 
+			'您的微蜂团购消息, ' 
 			+ '<a href="' + orderUrl + '">'
 			+      order.dealName 
 			+ '</a>\n'
 			+ messageBody 
 			: 
-			'您的微蜂网团购取消消息';
+			'您的微蜂团购取消消息';
 	}
 	return null; 
 };
@@ -92,7 +92,7 @@ var constructMessageTitle = function(order, messageType, messageText) {
 		return 'Your order for ' + order.dealName + ' is ready to pick up';
 	}
 	if (messageType == 'general') {
-		return order? '您的微蜂网团购消息, ' + order.dealName + '.' : '您的微蜂网团购取消消息';
+		return order? '您的微蜂团购消息, ' + order.dealName + '.' : '您的微蜂团购取消消息';
 	}
 	return null;
 };

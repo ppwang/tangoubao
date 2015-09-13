@@ -1735,7 +1735,7 @@ tgbApp.controller('dealStatusController', ['$scope', '$state', '$stateParams', '
         var promise = dealDataService.sendSpreadsheet($scope.deal.id);
         $scope.transparentBusyPromise = promise;
         promise.then(function() {
-            var message = '买家信息已生成Excel表格并发送到您注册账号的邮箱. 谢谢您使用团购宝!';
+            var message = '买家信息已生成Excel表格并发送到您注册账号的邮箱. 谢谢您使用微蜂团购!';
 
             modalDialogService.show({
                 message: message,

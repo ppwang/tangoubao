@@ -24,7 +24,7 @@ module.exports.sendEmail = function(emailAddress, sendeeName, order, messageType
 			html: messageBody,
 			subject: messageTitle,
 			from_email: "info@wephoon.com",
-			from_name: "来自微蜂网的消息",
+			from_name: "来自微蜂团购的消息",
 			to: [
 				{
 				  email: emailAddress,
@@ -49,7 +49,7 @@ module.exports.sendContactUsEmail = function(senderName, messageTitle, messageBo
 	var responseError = {correlationId: correlationId};
 
 	var emailAddress = tgbContact.email;
-	var sendeeName = '微蜂网';
+	var sendeeName = '微蜂团购';
 	logger.debugLog('sendContactUsEmail log. messageTitle: ' + messageTitle + ', messageBody: ' + messageBody);
 	return mandrill.sendEmail({
 		message: {
@@ -127,10 +127,10 @@ module.exports.sendDealReport = function(req, res) {
 			// Add 
 			return mandrill.sendEmail({
 				message: {
-					text: "微蜂网 Deal: " + dealName,
-					subject: "微蜂网团购",
+					text: "微蜂团购名称: " + dealName,
+					subject: "微蜂团购",
 					from_email: "info@wephoon.com",
-					from_name: "微蜂网",
+					from_name: "微蜂团购",
 					to: [
 						{
 						  email: emailAddress,

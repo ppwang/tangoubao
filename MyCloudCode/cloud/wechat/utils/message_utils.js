@@ -38,13 +38,13 @@ var createInvitationCard = function (wechatId, nickname, headimgurl, claimtoken)
     var message;
 
     message = nickname + '，'
-            + '欢迎加入团购宝！ 请按以下链接绑定团购宝账户。'
+            + '欢迎加入微蜂团购！ 请按以下链接绑定微蜂团购账户。'
             + '<a href="' + serviceSetting.baseUrl 
                 + '/#/login?wechatId=' + wechatId 
                 + '&nickname=' + nickname
                 + '&claimtoken=' + claimtoken
                 + '&headimgurl=' + encodeURIComponent(headimgurl)
-            + '">绑定团购宝</a>'
+            + '">绑定微蜂团购</a>'
             + '\n' 
             + '如果已有账户，请按以下链接进入你的账户。'
             + '<a href="' + serviceSetting.baseUrl 
@@ -52,17 +52,17 @@ var createInvitationCard = function (wechatId, nickname, headimgurl, claimtoken)
                 + '&nickname=' + nickname
                 + '&claimtoken=' + claimtoken
                 + '&headimgurl=' + encodeURIComponent(headimgurl)
-            + '">进入团购宝</a>';
+            + '">进入微蜂团购</a>';
     // // TODO: remove whitelist
     // if (wechatIdWhiteList.indexOf(wechatId) != -1) {
     //     message = nickname + '，'
-    //         + '欢迎加入团购宝！ 请按以下链接绑定团购宝账户。'
+    //         + '欢迎加入微蜂团购！ 请按以下链接绑定微蜂团购账户。'
     //         + '<a href="' + serviceSetting.baseUrl 
     //             + '/#/login?wechatId=' + wechatId 
     //             + '&nickname=' + nickname
     //             + '&claimtoken=' + claimtoken
     //             + '&headimgurl=' + encodeURIComponent(headimgurl)
-    //         + '">绑定团购宝</a>'
+    //         + '">绑定微蜂团购</a>'
     //         + '\n' 
     //         + '如果已有账户，请按以下链接进入你的账户。'
     //         + '<a href="' + serviceSetting.baseUrl 
@@ -70,11 +70,11 @@ var createInvitationCard = function (wechatId, nickname, headimgurl, claimtoken)
     //             + '&nickname=' + nickname
     //             + '&claimtoken=' + claimtoken
     //             + '&headimgurl=' + encodeURIComponent(headimgurl)
-    //         + '">进入团购宝</a>';
+    //         + '">进入微蜂团购</a>';
     // }
     // else {
     //     message = nickname + '，'
-    //         + '欢迎加入团购宝！我们正在测试开发阶段，请继续关注我们。';
+    //         + '欢迎加入微蜂团购！我们正在测试开发阶段，请继续关注我们。';
     // }
     return message;
 }
