@@ -246,6 +246,22 @@ var saveDeal = function(parseDeal, req) {
 		parseDeal.set('description', null);
 	}
 
+	var additionalDescription1 = req.body.additionalDescription1;
+	if (additionalDescription1) {
+		parseDeal.set('additionalDescription1', additionalDescription1);
+	}
+	else {
+		parseDeal.set('additionalDescription1', null);
+	}
+
+	var additionalDescription2 = req.body.additionalDescription2;
+	if (additionalDescription2) {
+		parseDeal.set('additionalDescription2', additionalDescription2);
+	}
+	else {
+		parseDeal.set('additionalDescription2', null);
+	}
+
 	var beginDate = req.body.beginDate;
 	if (beginDate) {
 		parseDeal.set('beginDate', new Date(beginDate));

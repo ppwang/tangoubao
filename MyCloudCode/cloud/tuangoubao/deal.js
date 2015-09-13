@@ -28,6 +28,8 @@ module.exports.convertToDealModel = function(parseDeal, type) {
 	}
 	deal.dealImages = dealImages;
 	deal.description = parseDeal.get('description');
+	deal.additionalDescription1 = parseDeal.get('additionalDescription1');
+	deal.additionalDescription2 = parseDeal.get('additionalDescription2');
 	deal.email = parseDeal.get('email');
 	deal.phoneNumber = parseDeal.get('phoneNumber');
 	deal.unitName = parseDeal.get('unitName');
