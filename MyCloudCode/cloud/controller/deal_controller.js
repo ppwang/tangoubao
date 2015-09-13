@@ -46,7 +46,7 @@ module.exports.putDeal = function(req, res) {
 			var deal = dealModel.convertToDealModel(parseDeal);
 			var dealData = JSON.stringify(deal);
 			logger.debugLog('putDeal log. send deal: ' + dealData);
-			logger.logUsage(currentUser.id, 'modifyDeal', dealData);
+			logger.logUsage(currentUser.id, 'modifyDeal', deal.id, dealData);
 			// Cannot use end to send data!! Must use send for json.
 			return res.status(201).send(deal);
 		}, function(error) {
@@ -391,7 +391,7 @@ var saveDeal = function(parseDeal, req) {
 		logger.debugLog('saveDeal log. save deal without image: ' + JSON.stringify(parseDeal));
 		parseDeal.set('dealBanner', null);
 	}
-	
+	logger.debugLog('saveDeal log. before sending back deal save promise');
 	return parseDeal.save();
 };
 
