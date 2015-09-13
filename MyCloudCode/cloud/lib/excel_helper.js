@@ -74,7 +74,7 @@ var getDateString = function(dateTime) {
 	var yyyy = dateTime.getFullYear().toString();
     var mm = (dateTime.getMonth()+1).toString(); // getMonth() is zero-based
    	var dd  = dateTime.getDate().toString();
-   	return yyyy + '/' + (mm[1]?mm:"0"+mm[0]) + '/' + (dd[1]?dd:"0"+dd[0]); // padding
+   	return yyyy + '/' + (mm[1]?mm:mm[0]) + '/' + (dd[1]?dd:dd[0]); // padding
 }
 
 var escapeStr = function(value) {
