@@ -24,7 +24,7 @@
         var coverWidth = options.coverWidth || 480;
         var coverX = options.coverX || "left";
         var coverY = options.coverY || "top";
-        var type = options.resizeType || "image/jpg";
+        var type = options.resizeType || "image/jpeg";
         var thumbnail = options.thumbnail || options.thumbnail === "" || false;
         var thumbnailHeight = options.thumbnailHeight || 80;
         var thumbnailWidth = options.thumbnailWidth || 120;

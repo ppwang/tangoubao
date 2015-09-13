@@ -1,4 +1,4 @@
-var tgbApp = angular.module('tuanGouBao', ['ngTouch', 'GlobalConfiguration', 'ui.router', 'xeditable', 'imageupload', 'cgBusy', 'ui.bootstrap', 'slick']);
+var tgbApp = angular.module('tuanGouBao', ['ngTouch', 'GlobalConfiguration', 'ui.router', 'xeditable', 'imageupload', 'cgBusy', 'ui.bootstrap', 'slick', 'jkuri.gallery']);
 
 //tgbApp.config(function($locationProvider) {
 //    //$locationProvider.html5Mode(true).hashPrefix('!');
@@ -1224,6 +1224,31 @@ tgbApp.controller('dealDetailController', ['$scope', '$state', '$stateParams', '
         // Set up weixin share.
         document.title = $scope.deal.name;
 //        document.getElementsByName('description')[0].content = "test content";
+
+        var dealImages = $scope.deal.dealImages;
+        if (dealImages) {
+            // Thumbnail and actual image should be in pairs.
+            if (dealImages.length % 2 !== 0) {
+                console.log('Thumbnail and actual image not in pairs. Number of addtional images is ' + dealImages.length);
+            } else {
+                $scope.additionalImages = []; 
+
+                var i = 0;
+                while (i<dealImages.length) {
+                    var thumbUrl = dealImages[i++];
+                    var url = dealImages[i++];
+                    
+                    $scope.additionalImages.push({
+                        'img': url,
+                        'thumb': thumbUrl,
+                    });
+                    $scope.additionalImages.push({
+                        'img': url,
+                        'thumb': thumbUrl,
+                    });
+                }
+            }
+        }
     });
 
     var commentPromise = commentDataService.getComments($stateParams.id).then(function(comments) {
@@ -1286,6 +1311,10 @@ tgbApp.controller('dealDetailController', ['$scope', '$state', '$stateParams', '
         
     };
     
+    $scope.openLightboxModal = function(index) {
+        Lightbox.openModal($scope.lightboxImages, index);
+    };
+    
     $scope.ratingHoveringOver = function(value) {
         $scope.overStar = value;
         $scope.percent = 100 * (value / 5);
@@ -1317,7 +1346,7 @@ tgbApp.controller('dealDetailController', ['$scope', '$state', '$stateParams', '
     };
 }]);
 
-tgbApp.controller('createDealController', ['$scope', '$state', '$stateParams', 'dealDataService', 'regionDataService', 'userService', 'modalDialogService', 'busyIndicatorService', 'resizeImage', function($scope, $state, $stateParams, dealDataService, regionDataService, userService, modalDialogService, busyIndicatorService, resizeImage) {
+tgbApp.controller('createDealController', ['$scope', '$state', '$stateParams', 'dealDataService', 'regionDataService', 'userService', 'modalDialogService', 'busyIndicatorService', function($scope, $state, $stateParams, dealDataService, regionDataService, userService, modalDialogService, busyIndicatorService) {
     var addNewPickupOption = function() {
         var nextId;
         if ($scope.deal.pickupOptions.length === 0) {
