@@ -353,6 +353,7 @@ var saveDeal = function(parseDeal, req) {
 	}
 
 	parseDeal.set('status', 'active');
+
 	// Do not reser featured field
 	//parseDeal.set('featured', false);
 
@@ -439,6 +440,9 @@ var setDealImages = function(dealImages, parseDeal) {
 		})
 		.then(function() {
 			logger.debugLog('setDealImages log. parseImage saved promises');
+			if (arguments.length == 0) {
+				return parseDeal;
+			}
 			var dealImageUrls = [];
 			for (var i = 0; i < arguments.length; i++) {
 				var parseImage = arguments[i];

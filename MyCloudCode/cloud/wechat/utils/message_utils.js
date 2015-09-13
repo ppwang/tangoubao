@@ -17,7 +17,11 @@ module.exports.generateWelcomeMessage = function(wechatId, publicAccountId, crea
 };
 
 module.exports.generateReplyMessage = function(wechatId, publicAccountId, createTime, nickname, reqMessage) {    
-    var content = nickname + ' said: ' + reqMessage;        
+    var content = nickname + ', 谢谢您关注微蜂团购! ' 
+                + '请按以下链接进入'
+                + '<a href="' + serviceSetting.baseUrl 
+                + '">微蜂团购</a>';
+
     var str = vsprintf(wcMsgFormats.basicReplyXmlFormat, [
             wechatId,
             publicAccountId,
