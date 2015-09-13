@@ -1246,6 +1246,14 @@ tgbApp.controller('dealDetailController', ['$scope', '$state', '$stateParams', '
                         'img': url,
                         'thumb': thumbUrl,
                     });
+                    $scope.additionalImages.push({
+                        'img': url,
+                        'thumb': thumbUrl,
+                    });
+                    $scope.additionalImages.push({
+                        'img': url,
+                        'thumb': thumbUrl,
+                    });
                 }
             }
         }
@@ -1875,7 +1883,7 @@ tgbApp.controller('contactController', ['$scope', 'messageDataService', 'modalDi
     };
 }]);
 
-tgbApp.controller('loginController', function($scope, $location, $state, $window, weixinAppId, serviceBaseUrl, userService, modalDialogService, userAgentDetectionService) {
+tgbApp.controller('loginController', function($scope, $location, $state, $window, weixinAppId, apiBaseUrl, serviceBaseUrl, userService, modalDialogService, userAgentDetectionService) {
     if (!$scope.user)
     {
         $scope.user = {};
@@ -1996,7 +2004,7 @@ tgbApp.controller('loginController', function($scope, $location, $state, $window
 
     $scope.weixinSignin = function() {
         var redirUrl = $state.href($state.previousState, $state.previousParams, {absolute: true});
-        var apiUrl = 'https://tuangoubao.parseapp.com' + '/api/oauth/wechat?redir=' + encodeURIComponent(redirUrl);
+        var apiUrl = apiBaseUrl + '/api/oauth/wechat?redir=' + encodeURIComponent(redirUrl);
         var wexinOauthUrl = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid='
             + weixinAppId
             + '&redirect_uri='
