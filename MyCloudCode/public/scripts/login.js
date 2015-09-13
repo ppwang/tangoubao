@@ -1246,6 +1246,14 @@ tgbApp.controller('dealDetailController', ['$scope', '$state', '$stateParams', '
                         'img': url,
                         'thumb': thumbUrl,
                     });
+                    $scope.additionalImages.push({
+                        'img': url,
+                        'thumb': thumbUrl,
+                    });
+                    $scope.additionalImages.push({
+                        'img': url,
+                        'thumb': thumbUrl,
+                    });
                 }
             }
         }
