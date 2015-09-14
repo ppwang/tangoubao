@@ -6,7 +6,7 @@
             <span ng-show="deal.originalUnitPrice" style="text-decoration: line-through;">{{deal.originalUnitPrice | currency:'$'}}</span>
             <span class="tgb-primary-text">{{deal.unitPrice | currency:'$'}}/{{deal.unitName}}</span>
             <br>
-            <span>已有{{deal.orderCount || 0}}人参与团购, {{deal.endDate | daysRemainingFilter}}{{deal | quantityLeftFilter}}</span>
+            <span class="tgb-hidden">已有{{deal.orderCount || 0}}人参与团购, {{deal.endDate | daysRemainingFilter}}{{deal | quantityLeftFilter}}</span>
         </div>
     </div>
 </slick>
