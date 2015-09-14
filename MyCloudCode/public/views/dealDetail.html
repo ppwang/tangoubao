@@ -41,8 +41,9 @@
             价&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 格: 
         </div>
         <div class="col-md-10 col-xs-9">
-            <span style="font-weight: bold;">{{deal.unitPrice | currency:'$'}}/{{deal.unitName}} </span>
-            (每件{{deal.unitsPerPackage}}{{deal.unitName}})
+            <span class="tgb-primary-text">{{deal.unitPrice | currency:'$'}}/{{deal.unitName}} </span>
+            <span ng-show="deal.originalUnitPrice" style="text-decoration: line-through;">{{deal.originalUnitPrice | currency:'$'}}</span>
+            <span ng-show="deal.unitsPerPackage > 1">(每件{{deal.unitsPerPackage}}{{deal.unitName}})</span>
         </div>
     </div>
 
