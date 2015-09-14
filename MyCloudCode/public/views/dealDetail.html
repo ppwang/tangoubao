@@ -42,7 +42,7 @@
         </div>
         <div class="col-md-10 col-xs-9">
             <span class="tgb-primary-text">{{deal.unitPrice | currency:'$'}}/{{deal.unitName}} </span>
-            <span ng-show="deal.originalUnitPrice" style="text-decoration: line-through;">{{deal.originalUnitPrice | currency:'$'}}</span>
+            <span ng-show="deal.originalUnitPrice" style="text-decoration: line-through;">{{deal.originalUnitPrice | currency:'$'}}/{{deal.unitName}}</span>
             <span ng-show="deal.unitsPerPackage > 1">(每件{{deal.unitsPerPackage}}{{deal.unitName}})</span>
         </div>
     </div>
