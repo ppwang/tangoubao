@@ -397,8 +397,8 @@ var saveDeal = function(parseDeal, req) {
 			})
 			.then(function(savedDeal) {
 				var dealImages = req.body.dealImages;
-				logger.debugLog('saveDeal log. dealImages count: ' + dealImages.length);
 				if (dealImages && dealImages.length > 0) {
+					logger.debugLog('saveDeal log. dealImages count: ' + dealImages.length);
 					return setDealImages(dealImages, savedDeal);
 				}
 				return savedDeal;
