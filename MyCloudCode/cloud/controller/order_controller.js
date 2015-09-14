@@ -327,7 +327,7 @@ var createOrder = function(correlationId, dealId, currentUser, req) {
 			logger.debugLog('createOrder log. savedOrder: send notification from message creator id: ' + messageCreatorId + ', messageCreatorName: ' + messageCreatorName);
 			var orderToNotify = orderModel.convertToOrderModel(savedOrder);
 			var receiverId = orderToNotify.creatorId;
-			return notificationController.notifyBuyer(messageCreatorId, messageCreatorName, receiverId, orderToNotify, 'general', '订单成功!')
+			return notificationController.notifyBuyer(messageCreatorId, messageCreatorName, receiverId, orderToNotify, 'general', '订单成功! 卖家会及时通知取货信息，请留意!')
 				.then(function() {
 					return savedOrder;
 				});
