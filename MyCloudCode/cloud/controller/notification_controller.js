@@ -175,7 +175,7 @@ var getWechatNotificationPostBody = function(wechatId, order, messageType, messa
 		logger.debugLog('getWechatNotificationPostBody log. creationDateString: ' + creationDateString);
 		postData = {
 	    	"touser": wechatId,
-	    	"template_id": notificationTemplate_general,
+	    	"template_id": wechatSetting.notificationTemplate_general,
 	    	"url": orderUrl,
 	    	"topcolor":"#FF0000",
 	    	"data":{

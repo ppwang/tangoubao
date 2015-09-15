@@ -61,7 +61,7 @@ module.exports.followDeal = function(req, res) {
 				followCount++;
 			}
 			else {
-				followCount = 0;
+				followCount = 1;
 			}
 			parseDeal.set('followCount', followCount);
             logger.debugLog('followDeal log. set followCount: ' + followCount);

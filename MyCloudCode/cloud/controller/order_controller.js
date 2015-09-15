@@ -302,7 +302,7 @@ var createOrder = function(correlationId, dealId, currentUser, req) {
 				orderCount++;
 			}
 			else {
-				orderCount = 0;
+				orderCount = 1;
 			}
 			var orderQuantity = parseDeal.get('orderQuantity');
 			if (orderQuantity) {

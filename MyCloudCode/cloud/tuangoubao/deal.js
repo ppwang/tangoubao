@@ -80,6 +80,9 @@ module.exports.withinTotalQuantityLimit = function(dealModel, quantity) {
 	logger.debugLog('withinTotalQuantityLimit log. quantity: ' + quantity);
 	var total = dealModel.orderQuantity + quantity;
 	logger.debugLog('withinTotalQuantityLimit log. total: ' + total);
+	if (!dealModel.totalQuantityLimit) {
+		return true;
+	}
 	if (total > dealModel.totalQuantityLimit) {
 		return false;
 	}
