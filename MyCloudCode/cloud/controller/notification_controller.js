@@ -9,6 +9,7 @@ var messageModel = require('cloud/tuangoubao/message');
 var dealModel = require('cloud/tuangoubao/deal');
 var utils = require('cloud/lib/utils');
 var logger = require('cloud/lib/logger');
+var wechatSetting = require('cloud/app.config.js').settings.wechat;
 
 module.exports.notifyBuyers = function (req, res) {
     var correlationId = logger.newCorrelationId();
@@ -140,7 +141,7 @@ var getWechatNotificationPostBody = function(wechatId, order, messageType, messa
 	if (messageType == 'productArrived') {
 		postData = {
 	    	"touser": wechatId,
-	    	"template_id": "8USkiY6ugFj2GbUWgfl3nVCcuBx7XT1gFNV02oLGuFg",
+	    	"template_id": wechatSetting.notificationTemplate_productArrived,
 	    	"url": orderUrl,
 	    	"topcolor":"#FF0000",
 	    	"data":{
@@ -174,7 +175,7 @@ var getWechatNotificationPostBody = function(wechatId, order, messageType, messa
 		logger.debugLog('getWechatNotificationPostBody log. creationDateString: ' + creationDateString);
 		postData = {
 	    	"touser": wechatId,
-	    	"template_id": "YtP8hgjKBfiMdSfLhNnzg4Obj4DLsrt2yz50amnpWqg",
+	    	"template_id": notificationTemplate_general,
 	    	"url": orderUrl,
 	    	"topcolor":"#FF0000",
 	    	"data":{
