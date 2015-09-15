@@ -28,7 +28,7 @@
     <div class="row item-detail-row">
         <div class="col-md-2 col-xs-3 item-detail-tag">数量:</div>
         <input class="col-md-2 col-xs-3 tgb-input" type="number" ng-model="order.quantity" ng-pattern="/^\d*$/" ng-required="true"/>
-        <span>(最多{{deal.quantityLimit}}件)</span>
+        <span ng-show="deal.quantityLimit">(最多{{deal.quantityLimit}}件)</span>
 	</div>
 
 	<div class="row item-detail-row">
