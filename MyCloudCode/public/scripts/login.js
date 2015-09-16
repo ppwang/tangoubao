@@ -206,7 +206,7 @@ tgbApp.factory('userAgentDetectionService', [function() {
     var isAndroid = (/(Android)/gi).test(userAgent);
     var isWindowsPhone = (/(IEMobile)/gi).test(userAgent);
     var isBB10 = (/(BB10)/gi).test(userAgent);
-    var isWeixin = (/(MicroMessenger)/gi).test(userAgent);
+    var isWeixin = (/(MicroMessenger|Windows Phone.*WebBrowser)/gi).test(userAgent);
     
     var service = {};
 

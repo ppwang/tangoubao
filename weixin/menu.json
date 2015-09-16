@@ -6,24 +6,24 @@
                 {
                     "type": "view", 
                     "name": "百佳超市", 
-                    "url": "https://tuangoubao.parseapp.com/#/dealDetail/23lcY4bxEY"
+                    "url": "https://tuangou.wephoon.com/#/dealDetail/SSScGuGJLa"
                 }, 
                 {
                     "type": "view", 
                     "name": "Stone卡拉OK", 
-                    "url": "https://tuangoubao.parseapp.com/#/dealDetail/GZHeTZM8aI"
+                    "url": "https://tuangou.wephoon.com/#/dealDetail/ZSR0O6xqFy"
                 }, 
                 {
                     "type": "view", 
-                    "name": "鼎记", 
-                    "url": "https://tuangoubao.parseapp.com/#/dealDetail/fj6Yr7GANX"
+                    "name": "半岛海鲜", 
+                    "url": "https://tuangou.wephoon.com/#/dealDetail/YojHtAQB1h"
                 }
             ]
         }, 
         {
             "type": "view", 
             "name": "我要团购", 
-            "url": "https://tuangoubao.parseapp.com/#/publicDeals"
+            "url": "https://tuangou.wephoon.com/#/publicDeals"
         }, 
         {
             "name": "微蜂网", 
@@ -31,22 +31,22 @@
                 {
                     "type": "view", 
                     "name": "关于我们", 
-                    "url": "https://tuangoubao.parseapp.com/#/contact"
+                    "url": "https://tuangou.wephoon.com/#/contact"
                 }, 
                 {
                     "type": "view", 
                     "name": "我的微蜂网", 
-                    "url": "https://tuangoubao.parseapp.com/#/buyerAccount/orders/active"
+                    "url": "https://tuangou.wephoon.com/#/buyerAccount/orders/active"
                 }, 
                 {
                     "type": "view", 
                     "name": "个人资料", 
-                    "url": "https://tuangoubao.parseapp.com/#/userProfile"
+                    "url": "https://tuangou.wephoon.com/#/userProfile"
                 }, 
                 {
                     "type": "view", 
                     "name": "消息", 
-                    "url": "https://tuangoubao.parseapp.com/#/messageCenter"
+                    "url": "https://tuangou.wephoon.com/#/messageCenter"
                 }
             ]
         }
