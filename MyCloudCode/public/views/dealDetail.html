@@ -11,7 +11,7 @@
             <span class="deal-title">{{deal.name}}</span>
         </div>
         <div class="col-md-6 col-xs-5">
-            <span>{{deal.orderCount || 0}}人购买 {{deal.followCount || 0}}人关注</span>
+            <span>已售出{{deal.orderQuantity}}{{deal.unitName}}, {{deal.followCount || 0}}人关注</span>
         </div>
     </div>
 
@@ -88,7 +88,7 @@
             发货方式: 
         </div>
         <div class="col-md-10 col-xs-9">
-            自取
+            {{deal.deliveryRemark}}
         </div>
     </div>
 

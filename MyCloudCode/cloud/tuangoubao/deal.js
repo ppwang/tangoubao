@@ -27,6 +27,7 @@ module.exports.convertToDealModel = function(parseDeal, type) {
 		});
 	}
 	deal.dealImages = dealImages;
+	deal.deliveryRemark = parseDeal.get('deliveryRemark');
 	deal.description = parseDeal.get('description');
 	deal.additionalDescription1 = parseDeal.get('additionalDescription1');
 	deal.additionalDescription2 = parseDeal.get('additionalDescription2');
