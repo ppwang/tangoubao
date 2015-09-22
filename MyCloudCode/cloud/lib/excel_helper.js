@@ -34,6 +34,7 @@ module.exports.exportDealToExcel = function (dealData) {
 		// Orders section
 		result += 'Orders Summary: \n';
 		result += 'Order time' + separator
+			+ 'Order Id' + separator
 			+ 'Name' + separator 
 			+ 'PhoneNumber' + separator
 			+ 'Email' + separator
@@ -49,6 +50,7 @@ module.exports.exportDealToExcel = function (dealData) {
 			var pickupOption = order.pickupOption;
 			var dateString = getDateString(order.orderTime);
 			result += escapeStr(dateString) + separator
+				+ order.id + separator
 				+ escapeStr(buyer.nickname) + separator
 				+ buyer.phoneNumber + separator
 				+ escapeStr(buyer.email) + separator
