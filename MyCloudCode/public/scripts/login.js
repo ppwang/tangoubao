@@ -1192,8 +1192,18 @@ tgbApp.controller('publicDealsController', ['$scope', '$state', 'dealDataService
 
 tgbApp.controller('dealCardController', ['$scope', '$state', function($scope, $state) {
     $scope.showDealDetail = function() {
-        $state.go('dealDetail', {'id': $scope.deal.id} );
+        if ($scope.hasBegun($scope.deal) && !$scope.hasEnded($scope.deal)) {
+            $state.go('dealDetail', {'id': $scope.deal.id} );
+        }
     };
+    
+    $scope.hasBegun = function(deal) {
+        return deal.beginDate && deal.beginDate <= Date.now();  
+    };
+    
+    $scope.hasEnded = function(deal) {
+        return deal.endDate && deal.endDate < Date.now();
+    }
 }]);
 
 tgbApp.controller('dealCardListController', ['$scope', function($scope) {
