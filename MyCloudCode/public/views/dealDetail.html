@@ -22,7 +22,7 @@
             </a>
         </div>
         <button class="btn tgb-btn-default pull-right" ng-show="deal.owned" ng-click="manageDeal()">订单状况</button>
-        <button class="btn tgb-btn-default pull-right" ng-show="!deal.owned && deal.status === 'active'" ng-click="purchaseDeal()">购买</button>
+        <button class="btn tgb-btn-default pull-right" ng-show="!deal.owned && deal.status === 'active' && (!deal.totalQuantityLimit || !deal.orderQuantity || deal.totalQuantityLimit > deal.orderQuantity)" ng-click="purchaseDeal()">购买</button>
         <button class="btn tgb-btn-default pull-right" ng-show="!deal.owned" ng-click="toggleFollowedStatus()">{{deal.followed ? '取消关注' : '关注'}}</button>
         <button class="btn tgb-btn-info pull-right" ng-disabled="true" ng-show="deal.status === 'closed'">已结束</button>
     </div>

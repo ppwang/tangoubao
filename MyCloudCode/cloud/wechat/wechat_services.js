@@ -41,6 +41,10 @@ module.exports.reply = function(req, res) {
         var publicAccountId = req.body.xml.tousername[0]; // public account
         var wechatId = req.body.xml.fromusername[0]; // subscriber
         var createTime = parseInt(req.body.xml.createtime[0]);
+        var eventKey;
+        if (req.body.xml.eventkey) {
+            eventKey = req.body.xml.eventkey[0];
+        }
         
         switch (msgType)
         {
@@ -48,7 +52,7 @@ module.exports.reply = function(req, res) {
                 wcMsgHandlers.textMsgHandler(wechatId, publicAccountId, createTime, req, res);
                 break;
             case 'event':
-                wcMsgHandlers.eventMsgHandler(wechatId, publicAccountId, createTime, req, res);
+                wcMsgHandlers.eventMsgHandler(wechatId, publicAccountId, createTime, eventKey, req, res);
                 break;
             default:
                 break;

@@ -3,6 +3,18 @@ var sprintf = require('cloud/lib/sprintf').sprintf,
     vsprintf = require('cloud/lib/sprintf').vsprintf;
 var serviceSetting = require('cloud/app.config.js').settings.webservice;
 
+module.exports.generateTextMessage = function(wechatId, publicAccountId, createTime, text) {
+    var str = vsprintf(wcMsgFormats.basicReplyXmlFormat, [
+            wechatId,
+            publicAccountId,
+            createTime+1,
+            'text',
+            text
+        ]);
+    console.log(str);
+    return str;
+};
+
 module.exports.generateWelcomeMessage = function(wechatId, publicAccountId, createTime, nickname, headimgurl, claimtoken) {
     var message = createInvitationCard(wechatId, nickname, headimgurl, claimtoken);
     var str = vsprintf(wcMsgFormats.basicReplyXmlFormat, [

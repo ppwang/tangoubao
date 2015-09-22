@@ -3,6 +3,7 @@ var sprintf = require('cloud/lib/sprintf').sprintf,
     vsprintf = require('cloud/lib/sprintf').vsprintf;
 var subscribeUser = require('cloud/wechat/msg_handlers/subscribe_user');
 var unsubscribeUser = require('cloud/wechat/msg_handlers/unsubscribe_user');
+var qrCloseOrder = require('cloud/wechat/msg_handlers/qr_close_order');
 var wechatAccessToken = require('cloud/wechat/utils/wechat_access_token');
 var wechatUserInfo = require('cloud/wechat/utils/wechat_user_info');
 var tgbWechatUser = require('cloud/tuangoubao/wechat_user');
@@ -42,7 +43,7 @@ module.exports.textMsgHandler = function (wechatId, publicAccountId, createTime,
     });
 }
 
-module.exports.eventMsgHandler = function (wechatId, publicAccountId, createTime, req, res) {
+module.exports.eventMsgHandler = function (wechatId, publicAccountId, createTime, eventKey, req, res) {
     var event = req.body.xml.event.toString();
     logger.debugLog('eventMsgHandler log. event message: ' + JSON.stringify(req.body.xml));
     switch (event.trim())
@@ -52,6 +53,9 @@ module.exports.eventMsgHandler = function (wechatId, publicAccountId, createTime
             break;
         case 'unsubscribe':
             unsubscribeUser(wechatId, publicAccountId, createTime, res);
+            break;
+        case 'SCAN':
+            qrCloseOrder(wechatId, publicAccountId, createTime, eventKey, res);
             break;
         default:
             break;

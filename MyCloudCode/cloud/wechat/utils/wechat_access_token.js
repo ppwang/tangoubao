@@ -46,5 +46,7 @@ var fetchFreshToken = function (accessToken, now) {
             accessToken.set('token', accessToken.token);
             accessToken.set('expiry', accessToken.expiry);
             return accessToken.save();
-        });
+        }, function(error) {
+            logger.debugLog('fetchFreshToken log. error: ' + error);
+    });
 }

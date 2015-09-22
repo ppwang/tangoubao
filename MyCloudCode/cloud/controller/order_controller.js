@@ -6,6 +6,7 @@ var tgbDeal = require('cloud/tuangoubao/deal');
 var notificationController = require('cloud/controller/notification_controller');
 var tgbAdminUser = require('cloud/app.config.js').settings.tgbAdminUser;
 var logger = require('cloud/lib/logger');
+var wechatQRUtils = require('cloud/wechat/utils/wechat_qr_utils');
 
 var ErrorCode_InvalidDate = 1;
 var ErrorCode_QuantityOutOfLimit = 2;
@@ -292,6 +293,19 @@ var createOrder = function(correlationId, dealId, currentUser, req) {
 			parseOrder.set('price', totalPrice);
 			return parseOrder.save();
 		})
+        .then(function(savedParseOrder) {
+            logger.debugLog('About to generate QR: ' + JSON.stringify(savedParseOrder));
+            // TODO: Consider making QR code generation async.
+            var qrCloseOrderSceneId = 'a=co;id=' + savedParseOrder.id;
+            return wechatQRUtils.generateQRImage(qrCloseOrderSceneId).then(function(qrImageBuffer) {
+                var targetImageFile = new Parse.File('qrCloseOrder.jpg', {base64: qrImageBuffer.toString('base64', 0, qrImageBuffer.length)});
+                logger.debugLog('targetImageFile: ' + targetImageFile);
+                return targetImageFile.save();     
+            }).then(function(imgFile) {
+                savedParseOrder.set('qrCloseOrder', imgFile);
+                return savedParseOrder.save();
+            });
+        })
 		.then(function(savedParseOrder) {
 			if (errorResponseCode) {
 				return;

@@ -196,5 +196,17 @@ var convertToOrderModel = function(parseOrder) {
 	order.email = parseOrder.get('email');
 	order.status = parseOrder.get('status');
 	order.price = parseOrder.get('price');
+    
+    var qrCloseOrder = parseOrder.get('qrCloseOrder');
+	var qrCloseOrderUrl = qrCloseOrder? qrCloseOrder.url() : null;
+	if (qrCloseOrderUrl) {
+		// This is because parse does not server https url to its files.
+		// See for reference: http://hackingtheimpossible.com/quick-tip-serve-parse-files-via-https/
+		order.qrCloseOrderUrl = qrCloseOrderUrl.replace("http://", "https://s3.amazonaws.com/");
+	}
+	else {
+		order.qrCloseOrderUrl = null;
+	}
+
 	return order;
 };
