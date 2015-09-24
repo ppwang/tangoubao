@@ -3,7 +3,7 @@
         <span class="modal-title">{{title}}</span>
     </div>
     <div class="modal-body">
-        <textarea ng-model="content" maxlength="200" placeholder="限200字"></textarea>
+        <textarea ng-model="content" placeholder="限200字"></textarea>
     </div>
     <div class="modal-footer">
         <button ng-click="sendMessage()" ng-disabled="!messageOptional && !content">发送</button>

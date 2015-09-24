@@ -52,6 +52,7 @@ module.exports.notifyBuyers = function (req, res) {
     		var parseOrdersQuery = new Parse.Query(ParseOrder);
 			parseOrdersQuery.equalTo('dealId', dealId);
 			parseOrdersQuery.notEqualTo('status', 'closed');
+			parseOrdersQuery.limit(200); // TODO!!!
 			return parseOrdersQuery.find()
 				.then(function(parseOrders) {
 					var promises = [];
@@ -146,7 +147,7 @@ var getWechatNotificationPostBody = function(wechatId, order, messageType, messa
 	    	"topcolor":"#FF0000",
 	    	"data":{
 	    		"first": {
-	               "value":"您订的货物已到达",
+	               "value":"您团购的商品已可领取",
 	               "color":"#173177"
 	           },
 	           "keyword1":{
