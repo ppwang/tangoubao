@@ -6,8 +6,12 @@
         <div>
             <span style="font-weight: bold">{{deal.name}}</span>
             <br>
-            <span ng-show="deal.originalUnitPrice" style="text-decoration: line-through;">{{deal.originalUnitPrice | currency:'$'}}</span>
-            <span class="tgb-primary-text">{{deal.unitPrice | currency:'$'}}/{{deal.unitName}}</span>
+            <span ng-if="hasBegun(deal) && !hasEnded(deal)">
+                <span ng-show="deal.originalUnitPrice" style="text-decoration: line-through;">{{deal.originalUnitPrice | currency:'$'}}</span>
+                <span class="tgb-primary-text">{{deal.unitPrice | currency:'$'}}/{{deal.unitName}}</span>
+            </span>
+            <span ng-if="!hasBegun(deal)" class="tgb-primary-text">即将发售...</span>
+            <span ng-if="hasEnded(deal)" class="tgb-primary-text">团购结束...</span>
         </div>
     </div>
 </div>
