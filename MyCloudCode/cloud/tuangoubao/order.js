@@ -8,6 +8,7 @@ module.exports.getOrders = function(deal) {
 	var query = new Parse.Query(ParseOrder);
 	query.equalTo('dealId', deal.id);
 	query.ascending('pickupOptionId');
+	query.limit(200); // TODO!!!
 	
 	var pickupOptionsDictionary = new Array();
 	var pickupOptionsData = deal.pickupOptions;
@@ -70,6 +71,8 @@ module.exports.getOrdersByPickupOption = function(deal) {
 	var query = new Parse.Query(ParseOrder);
 	query.equalTo('dealId', deal.id);
 	query.ascending('pickupOptionId');
+	// TODO: how to do this limit??
+	query.limit(200);
 
 	var result = {};
 	result.summary = {};
