@@ -337,13 +337,15 @@ module.exports.sendEmailVerification = function(req, res) {
 		.then(function(parseUser) {
 			var user = tgbUser.convertToUserModel(parseUser);
 			email = user.email;
-			logger.debugLog('sendEmailVerification log. set user emal to empty');
-			parseUser.set('email', '');
+			logger.debugLog('sendEmailVerification log. set user email to empty');
+			parseUser.set('email', null);
+			parseUser.set('masterRequest', 'true');
 			return parseUser.save(null, {useMasterKey: true});
 		})
 		.then(function(savedUser) {
 			logger.debugLog('sendEmailVerification log. reset email: ' + email);
 			savedUser.set('email', email);
+			savedUser.set('masterRequest', 'true');
 			return savedUser.save(null, {useMasterKey: true});
 		})
 		.then(function(updatedUser) {

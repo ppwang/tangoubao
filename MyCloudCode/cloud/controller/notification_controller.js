@@ -147,7 +147,7 @@ var getWechatNotificationPostBody = function(wechatId, order, messageType, messa
 	    	"topcolor":"#FF0000",
 	    	"data":{
 	    		"first": {
-	               "value":"您团购的商品已可领取",
+	               "value":"您团购的商品, " + order.dealName + ", 已可领取",
 	               "color":"#173177"
 	           },
 	           "keyword1":{

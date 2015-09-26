@@ -19,6 +19,7 @@ module.exports.getMessages = function(req, res) {
 	query.equalTo('receiverId', currentUser.id);
 	// we are sorting the results by creation date
 	query.addDescending('createdAt');
+	query.limit(500);
 
 	return query.find()
 		.then(function(parseMessages) {
