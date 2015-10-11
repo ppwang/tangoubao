@@ -176,6 +176,9 @@ module.exports.getOrder = function(req, res) {
 		var deal;
 		var creator;
 		return tmpOrder.fetch()
+            .then(function(parseOrder) {
+                return tryEnsureQRCloseOrder(parseOrder);
+            })
 			.then(function(_parseOrder) {
 				parseOrder = _parseOrder;
 				var order = orderModel.convertToOrderModel(parseOrder);
@@ -293,19 +296,11 @@ var createOrder = function(correlationId, dealId, currentUser, req) {
 			parseOrder.set('price', totalPrice);
 			return parseOrder.save();
 		})
-//        .then(function(savedParseOrder) {
+        .then(function(savedParseOrder) {
 //            logger.debugLog('About to generate QR: ' + JSON.stringify(savedParseOrder));
-//            // TODO: Consider making QR code generation async.
-//            var qrCloseOrderSceneId = 'a=co;id=' + savedParseOrder.id;
-//            return wechatQRUtils.generateQRImage(qrCloseOrderSceneId).then(function(qrImageBuffer) {
-//                var targetImageFile = new Parse.File('qrCloseOrder.jpg', {base64: qrImageBuffer.toString('base64', 0, qrImageBuffer.length)});
-//                logger.debugLog('targetImageFile: ' + targetImageFile);
-//                return targetImageFile.save();     
-//            }).then(function(imgFile) {
-//                savedParseOrder.set('qrCloseOrder', imgFile);
-//                return savedParseOrder.save();
-//            });
-//        })
+//            return savedParseOrder; 
+            return tryEnsureQRCloseOrder(savedParseOrder);
+        })
 		.then(function(savedParseOrder) {
 			if (errorResponseCode) {
 				return;
@@ -400,6 +395,9 @@ var modifyOrder = function(correlationId, orderId, currentUser, req) {
 			parseOrder.id = orderId;
 			return parseOrder.fetch();
 		})
+        .then(function(parseOrder) {
+            return tryEnsureQRCloseOrder(parseOrder);
+        })
 		.then(function(parseOrder) {
 			if (errorResponseCode) {
 				return;
@@ -546,4 +544,28 @@ module.exports.deleteOrder = function(req, res) {
     		logger.logDiagnostics(correlationId, 'error', errorMessage)
     		return res.status(500).send(responseError);
     	});
+};
+
+var tryEnsureQRCloseOrder = function(parseOrder) {
+    if (parseOrder.qrCloseOrder) {
+        // QR was generated. No need to go further.
+        logger.debugLog('QR code present.');
+        return parseOrder;
+    }
+    
+    logger.debugLog('About to generate QR: ' + JSON.stringify(parseOrder));
+    // NOTE: Consider making QR code generation async.
+    var qrCloseOrderSceneId = 'a=co;id=' + parseOrder.id;
+    return wechatQRUtils.generateQRImage(qrCloseOrderSceneId).then(function(qrImageBuffer) {
+        var targetImageFile = new Parse.File('qrCloseOrder.jpg', {base64: qrImageBuffer.toString('base64', 0, qrImageBuffer.length)});
+        logger.debugLog('targetImageFile: ' + targetImageFile);
+        return targetImageFile.save();     
+    }, function(error) {
+        return parseOrder;
+    }).then(function(imgFile) {
+        parseOrder.set('qrCloseOrder', imgFile);
+        return parseOrder.save();
+    }, function(error) {
+        return parseOrder;
+    });
 };
