@@ -1,4 +1,4 @@
-var ParseOrder= Parse.Object.extend('Order');
+var ParseOrder = Parse.Object.extend('Order');
 var orderModel = require('cloud/tuangoubao/order');
 var userModel = require('cloud/tuangoubao/user');
 var ParseDeal = Parse.Object.extend('Deal');

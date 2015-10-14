@@ -55,7 +55,28 @@ module.exports.eventMsgHandler = function (wechatId, publicAccountId, createTime
             unsubscribeUser(wechatId, publicAccountId, createTime, res);
             break;
         case 'SCAN':
-            qrCloseOrder(wechatId, publicAccountId, createTime, eventKey, res);
+            logger.debugLog('Received wechat event. user=' + wechatId + ';eventKey=' + eventKey + ';createTime=' + createTime);
+            // Parse event key.
+            var events = eventKey.split(';');
+            var eventParams = {};
+            events.forEach(function(e) {
+                var keyValue = e.split('=');
+                if (keyValue.length != 2) {
+                    logger.debugLog('Received invalid event parameter ' + e);
+                } else {
+                    eventParams[keyValue[0]] = keyValue[1];
+                }
+            });
+            
+            switch (eventParams['a'])
+            {
+                case 'co':
+                    qrCloseOrder(wechatId, publicAccountId, createTime, eventParams['id'], res);
+                    break;
+                default:
+                    logger.debugLog('Unknown event action ' + eventParams['a']);
+                    break;
+            }
             break;
         default:
             break;

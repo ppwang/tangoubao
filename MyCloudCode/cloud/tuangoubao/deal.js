@@ -50,7 +50,8 @@ module.exports.convertToDealModel = function(parseDeal, type) {
 	var creator = parseDeal.get('createdBy');
 	deal.creatorId = creator.id;
 	deal.type = type;
-	deal.featured = parseDeal.get('featured');	
+	deal.featured = parseDeal.get('featured');
+    deal.authorizedClosers = parseDeal.get('authorizedClosers');
 	return deal;
 };
 
