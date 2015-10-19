@@ -71,7 +71,7 @@ module.exports.eventMsgHandler = function (wechatId, publicAccountId, createTime
             switch (eventParams['a'])
             {
                 case 'co':
-                    qrCloseOrder(wechatId, publicAccountId, createTime, eventParams['id'], res);
+                    return qrCloseOrder(wechatId, publicAccountId, createTime, eventParams['id'], res);
                     break;
                 default:
                     logger.debugLog('Unknown event action ' + eventParams['a']);

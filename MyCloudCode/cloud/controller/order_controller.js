@@ -547,13 +547,13 @@ module.exports.deleteOrder = function(req, res) {
 };
 
 var tryEnsureQRCloseOrder = function(parseOrder) {
-    if (parseOrder.qrCloseOrder) {
+    logger.debugLog('parseOrder: ' + JSON.stringify(parseOrder))
+    if (parseOrder.qrCloseOrder !== null) {
         // QR was generated. No need to go further.
         logger.debugLog('QR code present.');
         return parseOrder;
     }
     
-    logger.debugLog('About to generate QR: ' + JSON.stringify(parseOrder));
     // NOTE: Consider making QR code generation async.
     var qrCloseOrderSceneId = 'a=co;id=' + parseOrder.id;
     return wechatQRUtils.generateQRImage(qrCloseOrderSceneId).then(function(qrImageBuffer) {

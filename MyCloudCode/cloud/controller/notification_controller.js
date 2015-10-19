@@ -114,7 +114,10 @@ var notifyBuyer = function(creatorId, creatorName, receiverId, order, messageTyp
 				promises.push(sendWechatNotification(wechatId, order, messageType, messageText));
 			}
 			return Parse.Promise.when(promises);
-		});
+		}, function(error) {
+            logger.debugLog('Failed to find receiver ' + receiverId + '. Error: ' + error);
+        });
+    logger.debugLog('Exiting notifyBuyer. receiverId: ' + receiverId);
 };
 
 var sendWechatNotification = function(wechatId, order, messageType, messageText) {

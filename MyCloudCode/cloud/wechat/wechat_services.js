@@ -52,7 +52,7 @@ module.exports.reply = function(req, res) {
                 wcMsgHandlers.textMsgHandler(wechatId, publicAccountId, createTime, req, res);
                 break;
             case 'event':
-                wcMsgHandlers.eventMsgHandler(wechatId, publicAccountId, createTime, eventKey, req, res);
+                return wcMsgHandlers.eventMsgHandler(wechatId, publicAccountId, createTime, eventKey, req, res);
                 break;
             default:
                 break;

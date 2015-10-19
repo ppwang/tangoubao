@@ -15,13 +15,21 @@ var notificationController = require('cloud/controller/notification_controller')
 
 module.exports = function (wechatId, publicAccountId, createTime, orderId, res) {
     logger.debugLog('QR close order log. user=' + wechatId + ';orderId=' + orderId + ';createTime=' + createTime);
+    var parseOrder;
     var order;
     var deal;
+    var scanUser;
     
-    // Verify the user who scanned QR is authorized to close the deal.
-    var parseOrder = new ParseOrder();
-    parseOrder.id = orderId;
-    parseOrder.fetch().then(function(fetchedOrder) {
+	var parseUserPromise = new Parse.Query(Parse.User);
+	parseUserPromise.equalTo('wechatId', wechatId);
+	return parseUserPromise.first().then(function(parseUser) {
+        scanUser = parseUser;
+
+        // Verify the user who scanned QR is authorized to close the deal.
+        parseOrder = new ParseOrder();
+        parseOrder.id = orderId;
+        return parseOrder.fetch();
+    }).then(function(fetchedOrder) {
         order = orderModel.convertToOrderModel(fetchedOrder);
         
         if (order.status === 'closed') {
@@ -29,7 +37,7 @@ module.exports = function (wechatId, publicAccountId, createTime, orderId, res) 
             var message = messageUtils.generateTextMessage(wechatId, publicAccountId, createTime, "您刚刚扫描的二维码已经使用过了, 不能重复使用。");
             res.send(message);
             var promise = new Parse.Promise();
-            promise.reject('QRCodeReuse');
+            promise.reject('QRCloseOrderReuse');
             return promise;
         }
         
@@ -40,9 +48,8 @@ module.exports = function (wechatId, publicAccountId, createTime, orderId, res) 
         deal = dealModel.convertToDealModel(fetchedDeal);
         if (deal.authorizedClosers) {
             var closers = JSON.parse(deal.authorizedClosers);
-//            logger.debugLog('closers ' + closers);
-            if (closers.indexOf(wechatId) != -1) {
-                logger.debugLog('Close order authorized for wechat id ' + wechatId);
+            if (closers.indexOf(scanUser.id) != -1) {
+                logger.debugLog('Close order authorized for wechat id ' + wechatId + '; user id ' + scanUser.id);
                 
                 // Close the order and respond to QR scanner.
                 parseOrder.set('status', 'closed');
@@ -52,10 +59,6 @@ module.exports = function (wechatId, publicAccountId, createTime, orderId, res) 
                         return false;
                     }
                     
-                    // Send reply to QR event.
-                    var message = messageUtils.generateTextMessage(wechatId, publicAccountId, createTime, 'Order closed');
-                    res.send(message);
-
                     return true;
                 }, function(error) {
                     logger.debugLog('Failed to set order status to closed.');
@@ -71,27 +74,29 @@ module.exports = function (wechatId, publicAccountId, createTime, orderId, res) 
         // User is not authorized to close the deal. Send reply.
         var message = messageUtils.generateTextMessage(wechatId, publicAccountId, createTime, "您刚刚扫描了二维码，但是没有权限使用此二维码的功能。");
         res.send(message);
-        return false;
+        var promise = new Parse.Promise();
+        promise.reject('QRCloseOrderUnauthorized');
+        return promise;
     }).then(function(success) {
-//        // Find scanner and buyer users.
-//        promises = [];
-//        
-//        var parseUserScanner = new ParseUser();
-//        parseUserScanner.equalTo('wechatId', wechatId);
-//        promises.push(parseUserScanner.first());
-//        
-//        var parseUserBuyer = new ParseUser();
-//        parseUserBuyer.id = order.creatorId;
-//        promises.push(parseUserBuyer.fetch());
-//        
-//        return Parse.promise.when(promises);
-//    }).then(function(parseUserScanner, parseUserBuyer) {
-//        userScanner = userModel.convertToUserModel(parseUserScanner);
-//        userBuyer = userModel.convertToUserModel(parseUserBuyer);
+        logger.debugLog('Sending notification to buyer. QR result ' + success);
+        var qrReplyPromise;
+        var notifyBuyerPromise;
+        // NOTE: The scan user id is populated, but display name is set to wephoon.
         if (success) {
-            notificationController.notifyBuyer(wechatId, 'Creator', order.creatorId, order, 'general', 'Your order is closed!')
+            notifyBuyerPromise = notificationController.notifyBuyer(scanUser.id, '微蜂网', order.creatorId, order, 'general', '您购买的' + order.dealName + '已成交! 订单编号为' + orderId + '.')
         } else {
-            notificationController.notifyBuyer(wechatId, 'Creator', order.creatorId, order, 'general', 'Your order was not closed!')
+            notifyBuyerPromise = notificationController.notifyBuyer(scanUser.id, '微蜂网', order.creatorId, order, 'general', '您购买的' + order.dealName + '未能成交! 请稍后再试试。订单编号为' + orderId + '.')
         }
+        
+        var qrMessage = success 
+            ? '订单编号' + orderId + '已成交!'
+            : '订单编号' + orderId + '二维吗扫描不成功，请您稍后再试试。';
+        return notifyBuyerPromise.then(function() {
+            // Send reply to QR event.
+            var message = messageUtils.generateTextMessage(wechatId, publicAccountId, createTime, qrMessage);
+            return res.send(message);
+        }, function(error) {
+            logger.debugLog('Failed to send notification to buyer. Error: ' + error);
+        });
     });
 };
